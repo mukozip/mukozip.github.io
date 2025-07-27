@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dairy Management App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        canvas {
+            max-width: 100%;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .production-table input {
+            width: 80px;
+            padding: 5px;
+        }
+        #cowName {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dairy Management App</h1>
+
+    <div class="section">
+        <h2>Manage Cows</h2>
+        <div class="input-group">
+            <label for="cowName">Cow Name</label>
+            <input type="text" id="cowName" placeholder="e.g., Bessie">
+        </div>
+        <div class="input-group">
+            <label for="birthDate">Last Birth Date</label>
+            <input type="date" id="birthDate" value="">
+        </div>
+        <button onclick="addCow()">Add Cow</button>
+        <table id="cowListTable">
+            <thead>
+                <tr>
+                    <th>Cow Name</th>
+                    <th>Last Birth Date</th>
+                    <th>Lactation Period (Months)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="cowListBody"></tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Add Milk Production for Month</h2>
+        <div class="input-group">
+            <label for="month">Select Month</label>
+            <input type="month" id="month" value="">
+        </div>
+        <table id="productionTable">
+            <thead id="productionTableHead"></thead>
+            <tbody id="productionTableBody"></tbody>
+        </table>
+        <button onclick="saveProduction()">Save Production</button>
+    </div>
+
+    <div class="section">
+        <h2>Set Daily Deductions</h2>
+        <div class="input-group">
+            <label for="deductionDate">Date</label>
+            <input type="date" id="deductionDate" value="">
+        </div>
+        <div class="input-group">
+            <label for="workersLiters">Liters for Workers</label>
+            <input type="number" id="workersLiters" step="0.1" min="0" value="0.5">
+        </div>
+        <div class="input-group">
+            <label for="homeLiters">Liters for Home Use</label>
+            <input type="number" id="homeLiters" step="0.1" min="0" value="1.0">
+        </div>
+        <div class="input-group">
+            <label for="calfLiters">Liters for Calf</label>
+            <input type="number" id="calfLiters" step="0.1" min="0" value="0.5">
+        </div>
+        <button onclick="setDeductions()">Set Deductions</button>
+    </div>
+
+    <div class="section">
+        <h2>Production Analysis</h2>
+        <div class="input-group">
+            <label for="period">Select Period</label>
+            <select id="period" onchange="updateAnalysis()">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+            </select>
+        </div>
+        <button onclick="exportToCSV()">Export to CSV</button>
+        <h3>All Cows</h3>
+        <table id="allCowsTable">
+            <thead>
+                <tr>
+                    <th>Cow Name</th>
+                    <th>Last Birth Date</th>
+                    <th>Lactation Period (Months)</th>
+                    <th>Total Liters (After Deductions)</th>
+                </tr>
+            </thead>
+            <tbody id="allCowsBody"></tbody>
+        </table>
+        <h3>Top 5 Cows</h3>
+        <table id="topCowsTable">
+            <thead>
+                <tr>
+                    <th>Cow Name</th>
+                    <th>Last Birth Date</th>
+                    <th>Lactation Period (Months)</th>
+                    <th>Total Liters (After Deductions)</th>
+                </tr>
+            </thead>
+            <tbody id="topCowsBody"></tbody>
+        </table>
+        <canvas id="topCowsChart"></canvas>
+        <h3>Worst 5 Cows</h3>
+        <table id="worstCowsTable">
+            <thead>
+                <tr>
+                    <th>Cow Name</th>
+                    <th>Last Birth Date</th>
+                    <th>Lactation Period (Months)</th>
+                    <th>Total Liters (After Deductions)</th>
+                </tr>
+            </thead>
+            <tbody id="worstCowsBody"></tbody>
+        </table>
+        <canvas id="worstCowsChart"></canvas>
+    </div>
+
+    <script>
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js failed to load. Please check the CDN link or internet connection.');
+            alert('Failed to load Chart.js. Please check your internet connection or try again later.');
+        }
+
+        let cows = JSON.parse(localStorage.getItem('cows')) || [];
+        let productionData = JSON.parse(localStorage.getItem('productionData')) || [];
+        let deductionsData = JSON.parse(localStorage.getItem('deductionsData')) || [];
+        const currentDate = moment('2025-07-27'); // Current date for lactation period calculation
+
+        function addCow() {
+            const cowName = document.getElementById('cowName').value.trim();
+            const birthDate = document.getElementById('birthDate').value;
+
+            if (!cowName || !birthDate) {
+                alert('Please enter a cow name and last birth date');
+                return;
+            }
+
+            if (!cows.some(cow => cow.name === cowName)) {
+                cows.push({ name: cowName, birthDate });
+                localStorage.setItem('cows', JSON.stringify(cows));
+                updateCowList();
+                document.getElementById('cowName').value = '';
+                document.getElementById('birthDate').value = '';
+            } else {
+                alert('Cow name already exists');
+            }
+        }
+
+        function updateCowList() {
+            const tbody = document.getElementById('cowListBody');
+            tbody.innerHTML = '';
+            cows.forEach(cow => {
+                const lactationMonths = cow.birthDate ? moment(currentDate).diff(moment(cow.birthDate), 'months') : 'N/A';
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${cow.name}</td><td>${cow.birthDate || 'N/A'}</td><td>${lactationMonths}</td><td><button onclick="deleteCow('${cow.name}')">Delete</button></td>`;
+                tbody.appendChild(row);
+            });
+            updateProductionTable();
+        }
+
+        function deleteCow(cowName) {
+            cows = cows.filter(cow => cow.name !== cowName);
+            productionData = productionData.filter(p => p.cowId !== cowName);
+            localStorage.setItem('cows', JSON.stringify(cows));
+            localStorage.setItem('productionData', JSON.stringify(productionData));
+            updateCowList();
+            updateAnalysis();
+        }
+
+        function updateProductionTable() {
+            const month = document.getElementById('month').value;
+            if (!month) return;
+
+            const startDate = moment(month, 'YYYY-MM').startOf('month');
+            const daysInMonth = startDate.daysInMonth();
+            const thead = document.getElementById('productionTableHead');
+            const tbody = document.getElementById('productionTableBody');
+
+            // Generate table header
+            let header = '<tr><th>Cow Name</th>';
+            for (let i = 1; i <= daysInMonth; i++) {
+                const date = startDate.clone().date(i).format('YYYY-MM-DD');
+                header += `<th>${i}<br>Morning | Evening</th>`;
+            }
+            header += '</tr>';
+            thead.innerHTML = header;
+
+            // Generate table body
+            tbody.innerHTML = '';
+            cows.forEach(cow => {
+                let row = `<tr><td>${cow.name}</td>`;
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const date = startDate.clone().date(i).format('YYYY-MM-DD');
+                    const record = productionData.find(p => p.cowId === cow.name && p.date === date) || { morningLiters: '', eveningLiters: '' };
+                    row += `<td><input type="number" step="0.1" min="0" class="production-table" data-cow="${cow.name}" data-date="${date}" data-type="morning" value="${record.morningLiters || ''}"> | <input type="number" step="0.1" min="0" class="production-table" data-cow="${cow.name}" data-date="${date}" data-type="evening" value="${record.eveningLiters || ''}"></td>`;
+                }
+                row += '</tr>';
+                tbody.appendChild(document.createElement('tr')).innerHTML = row;
+            });
+        }
+
+        function saveProduction() {
+            const inputs = document.querySelectorAll('.production-table');
+            const newProductionData = [];
+
+            inputs.forEach(input => {
+                const cowId = input.dataset.cow;
+                const date = input.dataset.date;
+                const type = input.dataset.type;
+                const value = parseFloat(input.value) || 0;
+
+                let record = newProductionData.find(p => p.cowId === cowId && p.date === date);
+                if (!record) {
+                    record = { cowId, date, morningLiters: 0, eveningLiters: 0 };
+                    newProductionData.push(record);
+                }
+                if (type === 'morning') {
+                    record.morningLiters = value;
+                } else {
+                    record.eveningLiters = value;
+                }
+            });
+
+            // Update productionData, preserving only valid records
+            productionData = productionData.filter(p => !newProductionData.some(n => n.cowId === p.cowId && n.date === p.date));
+            newProductionData.forEach(record => {
+                const rawTotal = record.morningLiters + record.eveningLiters;
+                const deduction = getDeductions(record.date);
+                record.totalLiters = rawTotal - deduction.workersLiters - deduction.homeLiters - deduction.calfLiters;
+                if (record.morningLiters > 0 || record.eveningLiters > 0) {
+                    productionData.push(record);
+                }
+            });
+
+            localStorage.setItem('productionData', JSON.stringify(productionData));
+            updateAnalysis();
+            alert('Production data saved');
+        }
+
+        function setDeductions() {
+            const date = document.getElementById('deductionDate').value;
+            const workersLiters = parseFloat(document.getElementById('workersLiters').value) || 0;
+            const homeLiters = parseFloat(document.getElementById('homeLiters').value) || 0;
+            const calfLiters = parseFloat(document.getElementById('calfLiters').value) || 0;
+
+            if (!date) {
+                alert('Please select a date for deductions');
+                return;
+            }
+
+            deductionsData = deductionsData.filter(d => d.date !== date);
+            deductionsData.push({ date, workersLiters, homeLiters, calfLiters });
+            localStorage.setItem('deductionsData', JSON.stringify(deductionsData));
+            recalculateTotals();
+            updateAnalysis();
+            updateProductionTable();
+
+            // Clear deduction inputs
+            document.getElementById('deductionDate').value = '';
+        }
+
+        function getDeductions(date) {
+            const deduction = deductionsData.find(d => d.date === date) || { workersLiters: 0, homeLiters: 0, calfLiters: 0 };
+            return deduction;
+        }
+
+        function recalculateTotals() {
+            productionData = productionData.map(record => {
+                const rawTotal = record.morningLiters + record.eveningLiters;
+                const deduction = getDeductions(record.date);
+                return {
+                    ...record,
+                    totalLiters: rawTotal - deduction.workersLiters - deduction.homeLiters - deduction.calfLiters
+                };
+            });
+            localStorage.setItem('productionData', JSON.stringify(productionData));
+        }
+
+        function exportToCSV() {
+            let csvContent = 'Cow Name,Last Birth Date,Lactation Period (Months),Date,Morning Liters,Evening Liters,Total Liters (After Deductions),Workers Liters,Home Use Liters,Calf Liters\n';
+
+            productionData.forEach(record => {
+                const cow = cows.find(c => c.name === record.cowId) || { birthDate: 'N/A' };
+                const lactationMonths = cow.birthDate ? moment(currentDate).diff(moment(cow.birthDate), 'months') : 'N/A';
+                const deduction = getDeductions(record.date);
+                csvContent += `${record.cowId},${cow.birthDate || 'N/A'},${lactationMonths},${record.date},${record.morningLiters},${record.eveningLiters},${record.totalLiters.toFixed(2)},${deduction.workersLiters},${deduction.homeLiters},${deduction.calfLiters}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `dairy_production_${moment().format('YYYYMMDD')}.csv`);
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function updateAnalysis() {
+            const period = document.getElementById('period').value;
+            const groupedData = groupDataByPeriod(period);
+
+            const sortedData = Object.entries(groupedData).sort((a, b) => b[1] - a[1]);
+            const allCows = sortedData;
+            const topCows = sortedData.slice(0, 5);
+            const worstCows = sortedData.slice(-5).reverse();
+
+            updateTable('allCowsBody', allCows);
+            updateTable('topCowsBody', topCows);
+            updateTable('worstCowsBody', worstCows);
+
+            updateChart('topCowsChart', topCows, 'Top 5 Cows');
+            updateChart('worstCowsChart', worstCows, 'Worst 5 Cows');
+        }
+
+        function groupDataByPeriod(period) {
+            const grouped = {};
+
+            productionData.forEach(record => {
+                const date = moment(record.date);
+                let key;
+
+                if (period === 'daily') {
+                    key = date.format('YYYY-MM-DD');
+                } else if (period === 'weekly') {
+                    key = date.startOf('week').format('YYYY-MM-DD');
+                } else {
+                    key = date.startOf('month').format('YYYY-MM');
+                }
+
+                if (!grouped[record.cowId]) {
+                    grouped[record.cowId] = 0;
+                }
+                grouped[record.cowId] += record.totalLiters;
+            });
+
+            return grouped;
+        }
+
+        function updateTable(tableId, data) {
+            const tbody = document.getElementById(tableId);
+            tbody.innerHTML = '';
+            data.forEach(([cowId, liters]) => {
+                const cow = cows.find(c => c.name === cowId) || { birthDate: 'N/A' };
+                const lactationMonths = cow.birthDate ? moment(currentDate).diff(moment(cow.birthDate), 'months') : 'N/A';
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${cowId}</td><td>${cow.birthDate || 'N/A'}</td><td>${lactationMonths}</td><td>${liters.toFixed(2)}</td>`;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateChart(chartId, data, title) {
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js is not available. Cannot render chart.');
+                return;
+            }
+
+            const ctx = document.getElementById(chartId).getContext('2d');
+            const existingChart = Chart.getChart(chartId);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(([cowId]) => cowId),
+                    datasets: [{
+                        label: 'Liters (After Deductions)',
+                        data: data.map(([, liters]) => liters),
+                        backgroundColor: chartId === 'topCowsChart' ? 'rgba(75, 192, 192, 0.2)' : 'rgba(255, 99, 132, 0.2)',
+                        borderColor: chartId === 'topCowsChart' ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Liters' }
+                        }
+                    },
+                    plugins: {
+                        title: { display: true, text: title }
+                    }
+                }
+            });
+        }
+
+        // Initialize default month and date
+        document.getElementById('month').value = moment().format('YYYY-MM');
+        document.getElementById('deductionDate').value = moment().format('YYYY-MM-DD');
+        document.getElementById('month').addEventListener('change', updateProductionTable);
+        updateCowList();
+        updateAnalysis();
+    </script>
+</body>
+</html>
