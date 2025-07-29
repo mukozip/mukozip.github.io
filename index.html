@@ -365,9 +365,7 @@
                     <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
                     <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
                     <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
-                    <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
                     <th class="ampm-session-header">AM</th><th class="ampm-session-header">PM</th>
-                    <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
                     <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
                     <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
                     <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
@@ -423,18 +421,24 @@
 </div>
 
 <script>
-    // Check for library availability and handle fallbacks gracefully
-    if (typeof Chart === 'undefined') {
+    // Check for library availability and handle fallbacks
+    const hasChart = typeof Chart !== 'undefined';
+    const hasXLSX = typeof XLSX !== 'undefined';
+    const hasMoment = typeof moment !== 'undefined';
+
+    if (!hasChart) {
         console.warn('Chart.js is not available. Charts will be disabled.');
         document.querySelectorAll('.chart canvas').forEach(canvas => canvas.style.display = 'none');
+        alert('Chart.js is not available. Chart features are disabled.');
     }
-    if (typeof XLSX === 'undefined') {
+    if (!hasXLSX) {
         console.warn('XLSX library is not available. Export to Excel will be disabled.');
         document.querySelector('.export-btn').style.display = 'none';
+        alert('XLSX library is not available. Export to Excel is disabled.');
     }
-    if (typeof moment === 'undefined') {
+    if (!hasMoment) {
         console.error('Moment.js is not defined. Date calculations will fail.');
-        alert('Moment.js failed to load. Some features may not work correctly.');
+        alert('Moment.js failed to load. Some date-related features may not work correctly.');
     } else {
         let defaultCows = [
             {"name":"297 Mercy","birthDate":"2024-07-14"},
@@ -462,7 +466,7 @@
 
         let productionData = JSON.parse(localStorage.getItem('productionData')) || [];
         let deductionsData = JSON.parse(localStorage.getItem('deductionsData')) || [];
-        const currentDate = moment('2025-07-29 19:04');
+        const currentDate = hasMoment ? moment('2025-07-29 19:04') : new Date('2025-07-29T19:04');
 
         if (productionData.length === 0) {
             const sampleData = [
@@ -551,7 +555,7 @@
                 {cowId: "083 Kathy", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0.0},
                 ...Array.from({ length: 19 }, (_, i) => ({
                     cowId: defaultCows[Math.floor(i / 2) + 9].name,
-                    date: moment('2025-07-11').add(i, 'days').format('YYYY-MM-DD'),
+                    date: hasMoment ? moment('2025-07-11').add(i, 'days').format('YYYY-MM-DD') : new Date('2025-07-11').toISOString().split('T')[0],
                     morningLiters: Math.random() * 6 + 2,
                     eveningLiters: Math.random() * 3 + 1
                 }))
@@ -577,7 +581,7 @@
                 {cowId: "059 Susan", date: "2025-07-02", morningDeduction: { calf: 0.3, home: 0, workers: 0 }, eveningDeduction: { calf: 0.1, home: 0, workers: 0 }},
                 ...Array.from({ length: 10 }, (_, i) => ({
                     cowId: defaultCows[Math.floor(i / 2) + 2].name,
-                    date: moment('2025-07-01').add(i, 'days').format('YYYY-MM-DD'),
+                    date: hasMoment ? moment('2025-07-01').add(i, 'days').format('YYYY-MM-DD') : new Date('2025-07-01').toISOString().split('T')[0],
                     morningDeduction: { calf: Math.random() * 0.3 + 0.1, home: 0, workers: 0 },
                     eveningDeduction: { calf: Math.random() * 0.2, home: 0, workers: 0 }
                 }))
@@ -663,9 +667,9 @@
             const tbody = document.getElementById('cowListBody');
             tbody.innerHTML = '';
             cows.forEach(cow => {
-                const lactationDays = cow.birthDate ? moment(currentDate).diff(moment(cow.birthDate), 'days') : 0;
+                const lactationDays = cow.birthDate ? (hasMoment ? moment(currentDate).diff(moment(cow.birthDate), 'days') : Math.floor((new Date(currentDate) - new Date(cow.birthDate)) / (1000 * 60 * 60 * 24))) : 0;
                 const lactationWeeks = cow.birthDate ? Math.floor(lactationDays / 7) : 0;
-                const lactationMonths = cow.birthDate ? moment(currentDate).diff(moment(cow.birthDate), 'months') : 'N/A';
+                const lactationMonths = cow.birthDate ? (hasMoment ? moment(currentDate).diff(moment(cow.birthDate), 'months') : Math.floor(lactationDays / 30)) : 'N/A';
                 let colorClass = '';
                 if (lactationWeeks >= 1 && lactationWeeks <= 7) colorClass = 'lactation-green';
                 else if (lactationWeeks >= 10 && lactationWeeks <= 30) colorClass = 'lactation-yellow';
@@ -754,8 +758,9 @@
         }
 
         function updateAnalysis() {
-            if (typeof moment === 'undefined') {
+            if (!hasMoment) {
                 console.error('Moment.js not loaded. Cannot update analysis.');
+                alert('Moment.js not loaded. Analysis features are disabled.');
                 return;
             }
             const tbodyDaily = document.getElementById('dailyProductionBody');
@@ -867,12 +872,12 @@
                 tbodyDaily.appendChild(subRow);
             });
 
-            // Update charts
-            updateCharts();
+            // Update charts if available
+            if (hasChart) updateCharts();
         }
 
         function editProduction(cowId) {
-            if (typeof moment === 'undefined') {
+            if (!hasMoment) {
                 alert('Moment.js not loaded. Cannot edit production.');
                 return;
             }
@@ -895,7 +900,7 @@
         }
 
         function deleteProduction(cowId) {
-            if (typeof moment === 'undefined') {
+            if (!hasMoment) {
                 alert('Moment.js not loaded. Cannot delete production.');
                 return;
             }
@@ -910,7 +915,7 @@
         }
 
         function updateCharts() {
-            if (typeof Chart === 'undefined' || typeof moment === 'undefined') {
+            if (!hasChart || !hasMoment) {
                 console.warn('Chart.js or Moment.js not available. Charts will not be updated.');
                 return;
             }
@@ -1035,7 +1040,7 @@
         }
 
         function exportToExcel() {
-            if (typeof XLSX === 'undefined' || typeof moment === 'undefined') {
+            if (!hasXLSX || !hasMoment) {
                 alert('XLSX or Moment.js not available. Cannot export to Excel.');
                 return;
             }
@@ -1091,10 +1096,10 @@
 
         populateSelect('prodCow');
         populateSelect('cowSelect');
-        document.getElementById('prodDate').value = moment().format('YYYY-MM-DD');
+        document.getElementById('prodDate').value = hasMoment ? moment().format('YYYY-MM-DD') : new Date().toISOString().split('T')[0];
         updateCowList();
         updateAnalysis();
     }
 </script>
 
-
+(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'966dea0e1eac5187',t:'MTc1MzgwNTcxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
