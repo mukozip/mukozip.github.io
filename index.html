@@ -424,13 +424,14 @@
 </div>
 
 <script>
-    window.addEventListener('error', function(event) {
-        if (event.message.includes('Chart.js')) {
-            alert('Failed to load Chart.js. Please check your internet connection or try a different browser.');
-        } else if (event.message.includes('XLSX')) {
-            alert('Failed to load XLSX library. Excel export functionality will not work.');
-        }
-    });
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js failed to load. Please check the CDN link or internet connection.');
+        alert('Failed to load Chart.js. Please check your internet connection or try again later.');
+    }
+    if (typeof XLSX === 'undefined') {
+        console.error('XLSX library failed to load. Please check the CDN link or internet connection.');
+        alert('Failed to load XLSX library. Excel export will not work.');
+    }
 
     let defaultCows = [
         {"name":"297 Mercy","birthDate":"2024-07-14"},
@@ -512,4 +513,564 @@
             {cowId: "059 Susan", date: "2025-07-01", morningLiters: 6.0, eveningLiters: 2.5},
             {cowId: "059 Susan", date: "2025-07-02", morningLiters: 5.5, eveningLiters: 2.5},
             {cowId: "059 Susan", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0},
-            {cowId: "059 Susan", date: "2025
+            {cowId: "059 Susan", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.0},
+            {cowId: "059 Susan", date: "2025-07-05", morningLiters: 4.5, eveningLiters: 3.0},
+            {cowId: "059 Susan", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0},
+            {cowId: "059 Susan", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0},
+            {cowId: "059 Susan", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 2.0},
+            {cowId: "059 Susan", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 3.0},
+            {cowId: "008 Frida", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 0.0},
+            {cowId: "008 Frida", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 0.0},
+            {cowId: "008 Frida", date: "2025-07-03", morningLiters: 3.0, eveningLiters: 0.0},
+            {cowId: "008 Frida", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 0.0},
+            {cowId: "008 Frida", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 0.0},
+            {cowId: "008 Frida", date: "2025-07-07", morningLiters: 3.0, eveningLiters: 0.0},
+            {cowId: "008 Frida", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 0.0},
+            {cowId: "008 Frida", date: "2025-07-09", morningLiters: 3.0, eveningLiters: 0.0},
+            {cowId: "008 Frida", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0.0},
+            {cowId: "434 Shana", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.5},
+            {cowId: "434 Shana", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0},
+            {cowId: "434 Shana", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0},
+            {cowId: "434 Shana", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 2.5},
+            {cowId: "434 Shana", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 2.0},
+            {cowId: "434 Shana", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0},
+            {cowId: "434 Shana", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 2.0},
+            {cowId: "434 Shana", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0},
+            {cowId: "434 Shana", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 2.0},
+            {cowId: "083 Kathy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 0.0},
+            {cowId: "083 Kathy", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 0.0},
+            {cowId: "083 Kathy", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 0.0},
+            {cowId: "083 Kathy", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 0.0},
+            {cowId: "083 Kathy", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 0.0},
+            {cowId: "083 Kathy", date: "2025-07-07", morningLiters: 2.5, eveningLiters: 0.0},
+            {cowId: "083 Kathy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 0.0},
+            {cowId: "083 Kathy", date: "2025-07-09", morningLiters: 2.5, eveningLiters: 0.0},
+            {cowId: "083 Kathy", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0.0},
+            ...Array.from({ length: 19 }, (_, i) => ({
+                cowId: defaultCows[Math.floor(i / 2) + 9].name,
+                date: moment('2025-07-11').add(i, 'days').format('YYYY-MM-DD'),
+                morningLiters: Math.random() * 6 + 2,
+                eveningLiters: Math.random() * 3 + 1
+            }))
+        ];
+        productionData = sampleData.map(record => ({ ...record, totalLiters: record.morningLiters + record.eveningLiters }));
+    }
+
+    // Migrate existing deductionsData to new structure
+    if (deductionsData.length > 0 && typeof deductionsData[0].morningDeduction === 'number') {
+        deductionsData = deductionsData.map(record => ({
+            cowId: record.cowId,
+            date: record.date,
+            morningDeduction: { calf: record.morningDeduction || 0, home: 0, workers: 0 },
+            eveningDeduction: { calf: record.eveningDeduction || 0, home: 0, workers: 0 }
+        }));
+    } else if (deductionsData.length === 0) {
+        const sampleDeductions = [
+            {cowId: "297 Mercy", date: "2025-07-01", morningDeduction: { calf: 0.2, home: 0, workers: 0 }, eveningDeduction: { calf: 0.1, home: 0, workers: 0 }},
+            {cowId: "297 Mercy", date: "2025-07-02", morningDeduction: { calf: 0.3, home: 0, workers: 0 }, eveningDeduction: { calf: 0.1, home: 0, workers: 0 }},
+            {cowId: "413 Magret", date: "2025-07-01", morningDeduction: { calf: 0.2, home: 0, workers: 0 }, eveningDeduction: { calf: 0.2, home: 0, workers: 0 }},
+            {cowId: "413 Magret", date: "2025-07-03", morningDeduction: { calf: 0.3, home: 0, workers: 0 }, eveningDeduction: { calf: 0.2, home: 0, workers: 0 }},
+            {cowId: "059 Susan", date: "2025-07-01", morningDeduction: { calf: 0.4, home: 0, workers: 0 }, eveningDeduction: { calf: 0.1, home: 0, workers: 0 }},
+            {cowId: "059 Susan", date: "2025-07-02", morningDeduction: { calf: 0.3, home: 0, workers: 0 }, eveningDeduction: { calf: 0.1, home: 0, workers: 0 }},
+            ...Array.from({ length: 10 }, (_, i) => ({
+                cowId: defaultCows[Math.floor(i / 2) + 2].name,
+                date: moment('2025-07-01').add(i, 'days').format('YYYY-MM-DD'),
+                morningDeduction: { calf: Math.random() * 0.3 + 0.1, home: 0, workers: 0 },
+                eveningDeduction: { calf: Math.random() * 0.2, home: 0, workers: 0 }
+            }))
+        ];
+        deductionsData = sampleDeductions;
+    }
+
+    localStorage.setItem('cows', JSON.stringify(cows));
+    localStorage.setItem('productionData', JSON.stringify(productionData));
+    localStorage.setItem('deductionsData', JSON.stringify(deductionsData));
+
+    function populateSelect(selectId) {
+        const select = document.getElementById(selectId);
+        select.innerHTML = '<option value="">Select Cow</option>';
+        cows.forEach(cow => {
+            const option = document.createElement('option');
+            option.value = cow.name;
+            option.textContent = `${cow.name.split(' ')[0]} ${cow.name.split(' ')[1]}`;
+            select.appendChild(option);
+        });
+    }
+
+    function addCow() {
+        const cowName = document.getElementById('cowName').value.trim();
+        const birthDate = document.getElementById('birthDate').value;
+        if (!cowName || !birthDate) {
+            alert('Please enter a cow name and last birth date');
+            return;
+        }
+        if (!cows.some(cow => cow.name === cowName)) {
+            cows.push({ name: cowName, birthDate });
+            localStorage.setItem('cows', JSON.stringify(cows));
+            updateCowList();
+            populateSelect('prodCow');
+            populateSelect('cowSelect');
+            document.getElementById('cowName').value = '';
+            document.getElementById('birthDate').value = '';
+        } else {
+            alert('Cow name already exists');
+        }
+    }
+
+    function editCow() {
+        const cowSelect = document.getElementById('cowSelect').value;
+        const newCowName = document.getElementById('cowName').value.trim();
+        const newBirthDate = document.getElementById('birthDate').value;
+        if (!cowSelect) {
+            alert('Please select a cow to edit');
+            return;
+        }
+        if (!newCowName || !newBirthDate) {
+            alert('Please enter a cow name and last birth date');
+            return;
+        }
+        if (newCowName !== cowSelect && cows.some(cow => cow.name === newCowName)) {
+            alert('New cow name already exists');
+            return;
+        }
+        const cowIndex = cows.findIndex(cow => cow.name === cowSelect);
+        if (cowIndex !== -1) {
+            const oldCowName = cows[cowIndex].name;
+            cows[cowIndex] = { name: newCowName, birthDate: newBirthDate };
+            productionData = productionData.map(record => 
+                record.cowId === oldCowName ? { ...record, cowId: newCowName } : record
+            );
+            deductionsData = deductionsData.map(record => 
+                record.cowId === oldCowName ? { ...record, cowId: newCowName } : record
+            );
+            localStorage.setItem('cows', JSON.stringify(cows));
+            localStorage.setItem('productionData', JSON.stringify(productionData));
+            localStorage.setItem('deductionsData', JSON.stringify(deductionsData));
+            updateCowList();
+            populateSelect('prodCow');
+            populateSelect('cowSelect');
+            document.getElementById('cowName').value = '';
+            document.getElementById('birthDate').value = '';
+            document.getElementById('cowSelect').value = '';
+            alert('Cow details updated');
+        }
+    }
+
+    function updateCowList() {
+        const tbody = document.getElementById('cowListBody');
+        tbody.innerHTML = '';
+        cows.forEach(cow => {
+            const lactationDays = cow.birthDate ? moment(currentDate).diff(moment(cow.birthDate), 'days') : 0;
+            const lactationWeeks = cow.birthDate ? Math.floor(lactationDays / 7) : 0;
+            const lactationMonths = cow.birthDate ? moment(currentDate).diff(moment(cow.birthDate), 'months') : 'N/A';
+            let colorClass = '';
+            if (lactationWeeks >= 1 && lactationWeeks <= 7) colorClass = 'lactation-green';
+            else if (lactationWeeks >= 10 && lactationWeeks <= 30) colorClass = 'lactation-yellow';
+            else if (lactationWeeks >= 40 && lactationWeeks <= 52) colorClass = 'lactation-red';
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${cow.name}</td><td>${cow.birthDate || 'N/A'}</td><td class="${colorClass}">${lactationMonths}</td><td><button class="edit-btn" onclick="selectCowForEdit('${cow.name}')">Edit</button><button class="delete-btn" onclick="deleteCow('${cow.name}')">Delete</button></td>`;
+            tbody.appendChild(row);
+        });
+    }
+
+    function selectCowForEdit(cowName) {
+        const cow = cows.find(cow => cow.name === cowName);
+        if (cow) {
+            document.getElementById('cowSelect').value = cow.name;
+            document.getElementById('cowName').value = cow.name;
+            document.getElementById('birthDate').value = cow.birthDate;
+        }
+    }
+
+    function deleteCow(cowName) {
+        cows = cows.filter(cow => cow.name !== cowName);
+        productionData = productionData.filter(p => p.cowId !== cowName);
+        deductionsData = deductionsData.filter(d => d.cowId !== cowName);
+        localStorage.setItem('cows', JSON.stringify(cows));
+        localStorage.setItem('productionData', JSON.stringify(productionData));
+        localStorage.setItem('deductionsData', JSON.stringify(deductionsData));
+        updateCowList();
+        populateSelect('prodCow');
+        populateSelect('cowSelect');
+        updateAnalysis();
+    }
+
+    function addProduction() {
+        const cowId = document.getElementById('prodCow').value;
+        const date = document.getElementById('prodDate').value;
+        const morningLiters = parseFloat(document.getElementById('morningLiters').value) || 0;
+        const eveningLiters = parseFloat(document.getElementById('eveningLiters').value) || 0;
+        const morningCalf = parseFloat(document.getElementById('morningCalf').value) || 0;
+        const morningHome = parseFloat(document.getElementById('morningHome').value) || 0;
+        const morningWorkers = parseFloat(document.getElementById('morningWorkers').value) || 0;
+        const eveningCalf = parseFloat(document.getElementById('eveningCalf').value) || 0;
+        const eveningHome = parseFloat(document.getElementById('eveningHome').value) || 0;
+        const eveningWorkers = parseFloat(document.getElementById('eveningWorkers').value) || 0;
+
+        if (!cowId || !date || (morningLiters === 0 && eveningLiters === 0 && morningCalf === 0 && morningHome === 0 && morningWorkers === 0 && eveningCalf === 0 && eveningHome === 0 && eveningWorkers === 0)) {
+            alert('Please select a cow, date, and enter valid production or deduction values');
+            return;
+        }
+
+        // Update production data
+        const existingProd = productionData.find(p => p.cowId === cowId && p.date === date);
+        if (existingProd) {
+            existingProd.morningLiters = morningLiters;
+            existingProd.eveningLiters = eveningLiters;
+            existingProd.totalLiters = morningLiters + eveningLiters;
+        } else {
+            productionData.push({ cowId, date, morningLiters, eveningLiters, totalLiters: morningLiters + eveningLiters });
+        }
+
+        // Update deductions data
+        const existingDed = deductionsData.find(d => d.cowId === cowId && d.date === date);
+        if (existingDed) {
+            existingDed.morningDeduction = { calf: morningCalf, home: morningHome, workers: morningWorkers };
+            existingDed.eveningDeduction = { calf: eveningCalf, home: eveningHome, workers: eveningWorkers };
+        } else {
+            deductionsData.push({
+                cowId,
+                date,
+                morningDeduction: { calf: morningCalf, home: morningHome, workers: morningWorkers },
+                eveningDeduction: { calf: eveningCalf, home: eveningHome, workers: eveningWorkers }
+            });
+        }
+
+        localStorage.setItem('productionData', JSON.stringify(productionData));
+        localStorage.setItem('deductionsData', JSON.stringify(deductionsData));
+        updateAnalysis();
+        document.getElementById('morningLiters').value = '0';
+        document.getElementById('eveningLiters').value = '0';
+        document.getElementById('morningCalf').value = '0';
+        document.getElementById('morningHome').value = '0';
+        document.getElementById('morningWorkers').value = '0';
+        document.getElementById('eveningCalf').value = '0';
+        document.getElementById('eveningHome').value = '0';
+        document.getElementById('eveningWorkers').value = '0';
+        alert('Production and deductions data saved');
+    }
+
+    function updateAnalysis() {
+        const tbodyDaily = document.getElementById('dailyProductionBody');
+        tbodyDaily.innerHTML = '';
+
+        // Pivot production and deduction data for July 2025
+        const julyData = productionData.filter(record => moment(record.date).isBetween(moment('2025-07-01'), moment('2025-07-31'), null, '[]'));
+        const julyDeductions = deductionsData.filter(record => moment(record.date).isBetween(moment('2025-07-01'), moment('2025-07-31'), null, '[]'));
+        const pivotedData = {};
+        const pivotedDeductions = {};
+        julyData.forEach(record => {
+            if (!pivotedData[record.cowId]) pivotedData[record.cowId] = {};
+            pivotedData[record.cowId][record.date] = { morning: record.morningLiters, evening: record.eveningLiters };
+        });
+        julyDeductions.forEach(record => {
+            if (!pivotedDeductions[record.cowId]) pivotedDeductions[record.cowId] = {};
+            pivotedDeductions[record.cowId][record.date] = {
+                morning: record.morningDeduction || { calf: 0, home: 0, workers: 0 },
+                evening: record.eveningDeduction || { calf: 0, home: 0, workers: 0 }
+            };
+        });
+
+        // Populate cow rows
+        cows.forEach(cow => {
+            const lactationDays = cow.birthDate ? moment(currentDate).diff(moment(cow.birthDate), 'days') : 0;
+            const lactationWeeks = cow.birthDate ? Math.floor(lactationDays / 7) : 0;
+            const lactationMonths = cow.birthDate ? moment(currentDate).diff(moment(cow.birthDate), 'months') : 'N/A';
+            let colorClass = '';
+            if (lactationWeeks >= 1 && lactationWeeks <= 7) colorClass = 'lactation-green';
+            else if (lactationWeeks >= 10 && lactationWeeks <= 30) colorClass = 'lactation-yellow';
+            else if (lactationWeeks >= 40 && lactationWeeks <= 52) colorClass = 'lactation-red';
+
+            const row = document.createElement('tr');
+            let rowContent = `<td>${cow.name.split(' ')[0]} ${cow.name.split(' ')[1]}</td><td>${cow.birthDate || 'N/A'}</td><td class="${colorClass}">${lactationMonths}</td>`;
+            let totalLiters = 0;
+            for (let day = 1; day <= 31; day++) {
+                const date = moment(`2025-07-${day < 10 ? '0' + day : day}`).format('YYYY-MM-DD');
+                const data = pivotedData[cow.name]?.[date] || { morning: 0, evening: 0 };
+                const deductions = pivotedDeductions[cow.name]?.[date] || { morning: { calf: 0, home: 0, workers: 0 }, evening: { calf: 0, home: 0, workers: 0 } };
+                const morningTotalDed = deductions.morning.calf + deductions.morning.home + deductions.morning.workers;
+                const eveningTotalDed = deductions.evening.calf + deductions.evening.home + deductions.evening.workers;
+                const morningNet = Math.max(0, data.morning - morningTotalDed);
+                const eveningNet = Math.max(0, data.evening - eveningTotalDed);
+                rowContent += `<td>${morningNet.toFixed(1)}</td><td>${eveningNet.toFixed(1)}</td>`;
+                totalLiters += morningNet + eveningNet;
+            }
+            rowContent += `<td class="total-col">${totalLiters.toFixed(1)}</td><td><button class="edit-btn" onclick="editProduction('${cow.name}')">Edit</button><button class="delete-btn" onclick="deleteProduction('${cow.name}')">Delete</button></td>`;
+            row.innerHTML = rowContent;
+            tbodyDaily.appendChild(row);
+        });
+
+        // Add totals row
+        const totalsRow = document.createElement('tr');
+        totalsRow.className = 'totals-row';
+        let totalsContent = `<td colspan="3">Session Totals (After Deductions)</td>`;
+        let grandTotal = 0;
+        let monthlyCalf = 0, monthlyHome = 0, monthlyWorkers = 0;
+        for (let day = 1; day <= 31; day++) {
+            const date = moment(`2025-07-${day < 10 ? '0' + day : day}`).format('YYYY-MM-DD');
+            let amTotal = 0, pmTotal = 0;
+            let amCalf = 0, amHome = 0, amWorkers = 0;
+            let pmCalf = 0, pmHome = 0, pmWorkers = 0;
+            cows.forEach(cow => {
+                const data = pivotedData[cow.name]?.[date] || { morning: 0, evening: 0 };
+                const deductions = pivotedDeductions[cow.name]?.[date] || { morning: { calf: 0, home: 0, workers: 0 }, evening: { calf: 0, home: 0, workers: 0 } };
+                const morningTotalDed = deductions.morning.calf + deductions.morning.home + deductions.morning.workers;
+                const eveningTotalDed = deductions.evening.calf + deductions.evening.home + deductions.evening.workers;
+                amTotal += Math.max(0, data.morning - morningTotalDed);
+                pmTotal += Math.max(0, data.evening - eveningTotalDed);
+                amCalf += deductions.morning.calf;
+                amHome += deductions.morning.home;
+                amWorkers += deductions.morning.workers;
+                pmCalf += deductions.evening.calf;
+                pmHome += deductions.evening.home;
+                pmWorkers += deductions.evening.workers;
+            });
+            totalsContent += `<td>${amTotal.toFixed(1)}</td><td>${pmTotal.toFixed(1)}</td>`;
+            grandTotal += amTotal + pmTotal;
+            monthlyCalf += amCalf + pmCalf;
+            monthlyHome += amHome + pmHome;
+            monthlyWorkers += amWorkers + pmWorkers;
+        }
+        totalsContent += `<td class="total-col">${grandTotal.toFixed(1)}</td><td></td>`;
+        totalsRow.innerHTML = totalsContent;
+        tbodyDaily.appendChild(totalsRow);
+
+        // Add deduction sub-rows
+        const deductions = [
+            { label: 'Calf Milk', key: 'calf', total: monthlyCalf },
+            { label: 'Home Use', key: 'home', total: monthlyHome },
+            { label: 'Workers Milk', key: 'workers', total: monthlyWorkers }
+        ];
+        deductions.forEach(ded => {
+            const subRow = document.createElement('tr');
+            subRow.className = 'deduction-subrow';
+            let subContent = `<td colspan="3">${ded.label} Deductions</td>`;
+            for (let day = 1; day <= 31; day++) {
+                const date = moment(`2025-07-${day < 10 ? '0' + day : day}`).format('YYYY-MM-DD');
+                let amDed = 0, pmDed = 0;
+                cows.forEach(cow => {
+                    const deductions = pivotedDeductions[cow.name]?.[date] || { morning: { [ded.key]: 0 }, evening: { [ded.key]: 0 } };
+                    amDed += deductions.morning[ded.key];
+                    pmDed += deductions.evening[ded.key];
+                });
+                subContent += `<td>${amDed.toFixed(1)}</td><td>${pmDed.toFixed(1)}</td>`;
+            }
+            subContent += `<td class="total-col">${ded.total.toFixed(1)}</td><td></td>`;
+            subRow.innerHTML = subContent;
+            tbodyDaily.appendChild(subRow);
+        });
+
+        // Update charts
+        updateCharts();
+    }
+
+    function editProduction(cowId) {
+        const latestProd = productionData.filter(p => p.cowId === cowId && moment(p.date).isBetween(moment('2025-07-01'), moment('2025-07-31'))).pop();
+        const latestDed = deductionsData.filter(d => d.cowId === cowId && moment(d.date).isBetween(moment('2025-07-01'), moment('2025-07-31'))).pop();
+        if (latestProd || latestDed) {
+            document.getElementById('prodCow').value = cowId;
+            document.getElementById('prodDate').value = latestProd?.date || latestDed?.date || '';
+            document.getElementById('morningLiters').value = latestProd?.morningLiters || 0;
+            document.getElementById('eveningLiters').value = latestProd?.eveningLiters || 0;
+            document.getElementById('morningCalf').value = latestDed?.morningDeduction.calf || 0;
+            document.getElementById('morningHome').value = latestDed?.morningDeduction.home || 0;
+            document.getElementById('morningWorkers').value = latestDed?.morningDeduction.workers || 0;
+            document.getElementById('eveningCalf').value = latestDed?.eveningDeduction.calf || 0;
+            document.getElementById('eveningHome').value = latestDed?.eveningDeduction.home || 0;
+            document.getElementById('eveningWorkers').value = latestDed?.eveningDeduction.workers || 0;
+        } else {
+            alert('No production or deduction data for this cow in July 2025');
+        }
+    }
+
+    function deleteProduction(cowId) {
+        if (confirm(`Are you sure you want to delete all July 2025 production and deduction data for ${cowId}?`)) {
+            productionData = productionData.filter(p => !(p.cowId === cowId && moment(p.date).isBetween(moment('2025-07-01'), moment('2025-07-31'))));
+            deductionsData = deductionsData.filter(d => !(d.cowId === cowId && moment(d.date).isBetween(moment('2025-07-01'), moment('2025-07-31'))));
+            localStorage.setItem('productionData', JSON.stringify(productionData));
+            localStorage.setItem('deductionsData', JSON.stringify(deductionsData));
+            updateAnalysis();
+            alert('Production and deductions data deleted');
+        }
+    }
+
+    function updateCharts() {
+        const julyData = productionData.filter(record => moment(record.date).isBetween(moment('2025-07-01'), moment('2025-07-31'), null, '[]'));
+        const julyDeductions = deductionsData.filter(record => moment(record.date).isBetween(moment('2025-07-01'), moment('2025-07-31'), null, '[]'));
+        const pivotedData = {};
+        const pivotedDeductions = {};
+        julyData.forEach(record => {
+            if (!pivotedData[record.cowId]) pivotedData[record.cowId] = {};
+            pivotedData[record.cowId][record.date] = { morning: record.morningLiters, evening: record.eveningLiters };
+        });
+        julyDeductions.forEach(record => {
+            if (!pivotedDeductions[record.cowId]) pivotedDeductions[record.cowId] = {};
+            pivotedDeductions[record.cowId][record.date] = {
+                morning: record.morningDeduction || { calf: 0, home: 0, workers: 0 },
+                evening: record.eveningDeduction || { calf: 0, home: 0, workers: 0 }
+            };
+        });
+
+        // Daily (July 29)
+        const dailyTotals = cows.map(cow => {
+            const date = '2025-07-29';
+            const data = pivotedData[cow.name]?.[date] || { morning: 0, evening: 0 };
+            const deductions = pivotedDeductions[cow.name]?.[date] || { morning: { calf: 0, home: 0, workers: 0 }, evening: { calf: 0, home: 0, workers: 0 } };
+            const morningTotalDed = deductions.morning.calf + deductions.morning.home + deductions.morning.workers;
+            const eveningTotalDed = deductions.evening.calf + deductions.evening.home + deductions.evening.workers;
+            const total = Math.max(0, data.morning - morningTotalDed) + Math.max(0, data.evening - eveningTotalDed);
+            return { name: cow.name, total };
+        });
+        const top5Daily = dailyTotals.sort((a, b) => b.total - a.total).slice(0, 5);
+        const worst5Daily = dailyTotals.filter(c => c.total > 0).sort((a, b) => a.total - b.total).slice(0, 5);
+
+        // Weekly (July 22-28)
+        const weeklyData = julyData.filter(record => moment(record.date).isBetween(moment('2025-07-22'), moment('2025-07-28'), null, '[]'));
+        const weeklyDeductions = julyDeductions.filter(record => moment(record.date).isBetween(moment('2025-07-22'), moment('2025-07-28'), null, '[]'));
+        const weeklyTotals = cows.map(cow => {
+            let total = 0;
+            weeklyData.filter(d => d.cowId === cow.name).forEach(record => {
+                const deductions = pivotedDeductions[cow.name]?.[record.date] || { morning: { calf: 0, home: 0, workers: 0 }, evening: { calf: 0, home: 0, workers: 0 } };
+                const morningTotalDed = deductions.morning.calf + deductions.morning.home + deductions.morning.workers;
+                const eveningTotalDed = deductions.evening.calf + deductions.evening.home + deductions.evening.workers;
+                total += Math.max(0, record.morningLiters - morningTotalDed) + Math.max(0, record.eveningLiters - eveningTotalDed);
+            });
+            return { name: cow.name, total };
+        });
+        const top5Weekly = weeklyTotals.sort((a, b) => b.total - a.total).slice(0, 5);
+        const worst5Weekly = weeklyTotals.filter(c => c.total > 0).sort((a, b) => a.total - b.total).slice(0, 5);
+
+        // Monthly (July 2025)
+        const monthlyTotals = cows.map(cow => {
+            let total = 0;
+            julyData.filter(d => d.cowId === cow.name).forEach(record => {
+                const deductions = pivotedDeductions[cow.name]?.[record.date] || { morning: { calf: 0, home: 0, workers: 0 }, evening: { calf: 0, home: 0, workers: 0 } };
+                const morningTotalDed = deductions.morning.calf + deductions.morning.home + deductions.morning.workers;
+                const eveningTotalDed = deductions.evening.calf + deductions.evening.home + deductions.evening.workers;
+                total += Math.max(0, record.morningLiters - morningTotalDed) + Math.max(0, record.eveningLiters - eveningTotalDed);
+            });
+            return { name: cow.name, total };
+        });
+        const top5Monthly = monthlyTotals.sort((a, b) => b.total - a.total).slice(0, 5);
+        const worst5Monthly = monthlyTotals.filter(c => c.total > 0).sort((a, b) => a.total - b.total).slice(0, 5);
+
+        // Chart rendering
+        const chartOptions = {
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+            plugins: { legend: { display: false } }
+        };
+
+        new Chart(document.getElementById('top5DailyChart'), {
+            type: 'bar',
+            data: {
+                labels: top5Daily.map(c => c.name),
+                datasets: [{ data: top5Daily.map(c => c.total), backgroundColor: '#28a745' }]
+            },
+            options: chartOptions
+        });
+
+        new Chart(document.getElementById('worst5DailyChart'), {
+            type: 'bar',
+            data: {
+                labels: worst5Daily.map(c => c.name),
+                datasets: [{ data: worst5Daily.map(c => c.total), backgroundColor: '#dc3545' }]
+            },
+            options: chartOptions
+        });
+
+        new Chart(document.getElementById('top5WeeklyChart'), {
+            type: 'bar',
+            data: {
+                labels: top5Weekly.map(c => c.name),
+                datasets: [{ data: top5Weekly.map(c => c.total), backgroundColor: '#28a745' }]
+            },
+            options: chartOptions
+        });
+
+        new Chart(document.getElementById('worst5WeeklyChart'), {
+            type: 'bar',
+            data: {
+                labels: worst5Weekly.map(c => c.name),
+                datasets: [{ data: worst5Weekly.map(c => c.total), backgroundColor: '#dc3545' }]
+            },
+            options: chartOptions
+        });
+
+        new Chart(document.getElementById('top5MonthlyChart'), {
+            type: 'bar',
+            data: {
+                labels: top5Monthly.map(c => c.name),
+                datasets: [{ data: top5Monthly.map(c => c.total), backgroundColor: '#28a745' }]
+            },
+            options: chartOptions
+        });
+
+        new Chart(document.getElementById('worst5MonthlyChart'), {
+            type: 'bar',
+            data: {
+                labels: worst5Monthly.map(c => c.name),
+                datasets: [{ data: worst5Monthly.map(c => c.total), backgroundColor: '#dc3545' }]
+            },
+            options: chartOptions
+        });
+    }
+
+    function exportToExcel() {
+        const julyData = productionData.filter(record => moment(record.date).isBetween(moment('2025-07-01'), moment('2025-07-31'), null, '[]'));
+        const julyDeductions = deductionsData.filter(record => moment(record.date).isBetween(moment('2025-07-01'), moment('2025-07-31'), null, '[]'));
+        const pivotedData = {};
+        const pivotedDeductions = {};
+        julyData.forEach(record => {
+            if (!pivotedData[record.cowId]) pivotedData[record.cowId] = {};
+            pivotedData[record.cowId][record.date] = { morning: record.morningLiters, evening: record.eveningLiters };
+        });
+        julyDeductions.forEach(record => {
+            if (!pivotedDeductions[record.cowId]) pivotedDeductions[record.cowId] = {};
+            pivotedDeductions[record.cowId][record.date] = {
+                morning: record.morningDeduction || { calf: 0, home: 0, workers: 0 },
+                evening: record.eveningDeduction || { calf: 0, home: 0, workers: 0 }
+            };
+        });
+
+        const excelData = [];
+        cows.forEach(cow => {
+            for (let day = 1; day <= 31; day++) {
+                const date = moment(`2025-07-${day < 10 ? '0' + day : day}`).format('YYYY-MM-DD');
+                const data = pivotedData[cow.name]?.[date] || { morning: 0, evening: 0 };
+                const deductions = pivotedDeductions[cow.name]?.[date] || { morning: { calf: 0, home: 0, workers: 0 }, evening: { calf: 0, home: 0, workers: 0 } };
+                const morningTotalDed = deductions.morning.calf + deductions.morning.home + deductions.morning.workers;
+                const eveningTotalDed = deductions.evening.calf + deductions.evening.home + deductions.evening.workers;
+                const morningNet = Math.max(0, data.morning - morningTotalDed);
+                const eveningNet = Math.max(0, data.evening - eveningTotalDed);
+                excelData.push({
+                    'Cow Name': cow.name,
+                    'Date': date,
+                    'AM Production': data.morning.toFixed(1),
+                    'PM Production': data.evening.toFixed(1),
+                    'AM Calf Deduction': deductions.morning.calf.toFixed(1),
+                    'AM Home Deduction': deductions.morning.home.toFixed(1),
+                    'AM Workers Deduction': deductions.morning.workers.toFixed(1),
+                    'PM Calf Deduction': deductions.evening.calf.toFixed(1),
+                    'PM Home Deduction': deductions.evening.home.toFixed(1),
+                    'PM Workers Deduction': deductions.evening.workers.toFixed(1),
+                    'Net AM Liters': morningNet.toFixed(1),
+                    'Net PM Liters': eveningNet.toFixed(1),
+                    'Total Net Liters': (morningNet + eveningNet).toFixed(1)
+                });
+            }
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'July 2025 Data');
+        XLSX.write_file(workbook, 'Dairy_Production_July_2025.xlsx');
+    }
+
+    populateSelect('prodCow');
+    populateSelect('cowSelect');
+    document.getElementById('prodDate').value = moment().format('YYYY-MM-DD');
+    updateCowList();
+    updateAnalysis();
+</script>
+
+
