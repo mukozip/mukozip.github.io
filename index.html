@@ -9,21 +9,6 @@
     
     
     
-    
-        if (typeof Chart === 'undefined') {
-            document.write('<script src="lib/chart.umd.min.js"><\/script>');
-            console.log('Loaded Chart.js from local fallback.');
-        }
-        if (typeof moment === 'undefined') {
-            document.write('<script src="lib/moment.min.js"><\/script>');
-            console.log('Loaded Moment.js from local fallback.');
-        }
-        if (typeof XLSX === 'undefined') {
-            document.write('<script src="lib/xlsx.full.min.js"><\/script>');
-            console.log('Loaded XLSX from local fallback.');
-        }
-    
-    
         body {
             font-family: Arial, sans-serif;
             max-width: 1200px;
@@ -438,7 +423,7 @@
 </div>
 
 <script>
-    // Check for library availability and handle fallbacks
+    // Check for library availability and handle fallbacks gracefully
     if (typeof Chart === 'undefined') {
         console.warn('Chart.js is not available. Charts will be disabled.');
         document.querySelectorAll('.chart canvas').forEach(canvas => canvas.style.display = 'none');
@@ -477,7 +462,7 @@
 
         let productionData = JSON.parse(localStorage.getItem('productionData')) || [];
         let deductionsData = JSON.parse(localStorage.getItem('deductionsData')) || [];
-        const currentDate = moment('2025-07-29 17:24');
+        const currentDate = moment('2025-07-29 19:04');
 
         if (productionData.length === 0) {
             const sampleData = [
