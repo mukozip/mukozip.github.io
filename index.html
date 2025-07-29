@@ -8,6 +8,22 @@
     
     
     
+    
+    
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="lib/chart.umd.min.js"><\/script>');
+            console.log('Loaded Chart.js from local fallback.');
+        }
+        if (typeof moment === 'undefined') {
+            document.write('<script src="lib/moment.min.js"><\/script>');
+            console.log('Loaded Moment.js from local fallback.');
+        }
+        if (typeof XLSX === 'undefined') {
+            document.write('<script src="lib/xlsx.full.min.js"><\/script>');
+            console.log('Loaded XLSX from local fallback.');
+        }
+    
+    
         body {
             font-family: Arial, sans-serif;
             max-width: 1200px;
@@ -384,7 +400,6 @@
                     <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
                     <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
                     <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
-                    <th class="ampm-header">AM</th><th class="ampm-header">PM</th>
                 </tr>
             </thead>
             <tbody id="dailyProductionBody"></tbody>
@@ -423,7 +438,7 @@
 </div>
 
 <script>
-    // Check for library availability
+    // Check for library availability and handle fallbacks
     if (typeof Chart === 'undefined') {
         console.warn('Chart.js is not available. Charts will be disabled.');
         document.querySelectorAll('.chart canvas').forEach(canvas => canvas.style.display = 'none');
@@ -1097,4 +1112,4 @@
     }
 </script>
 
-(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'966db2ca1d2b5938',t:'MTc1MzgwMzQ1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+
