@@ -423,27 +423,27 @@
         <h2>Production Charts</h2>
         <div class="chart-container">
             <div>
-                <h3>Top 5 Milkers (Daily, July 29)</h3>
+                <h3>Top 5 Milkers (Daily, July 10)</h3>
                 <canvas class="chart" id="top-5-daily"></canvas>
             </div>
             <div>
-                <h3>Worst 5 Milkers (Daily, July 29)</h3>
+                <h3>Worst 5 Milkers (Daily, July 10)</h3>
                 <canvas class="chart" id="worst-5-daily"></canvas>
             </div>
             <div>
-                <h3>Top 5 Milkers (Week, July 22-28)</h3>
+                <h3>Top 5 Milkers (Week, July 5-10)</h3>
                 <canvas class="chart" id="top-5-weekly"></canvas>
             </div>
             <div>
-                <h3>Worst 5 Milkers (Week, July 22-28)</h3>
+                <h3>Worst 5 Milkers (Week, July 5-10)</h3>
                 <canvas class="chart" id="worst-5-weekly"></canvas>
             </div>
             <div>
-                <h3>Top 5 Milkers (Month, July 2025)</h3>
+                <h3>Top 5 Milkers (Month, July 1-10)</h3>
                 <canvas class="chart" id="top-5-monthly"></canvas>
             </div>
             <div>
-                <h3>Worst 5 Milkers (Month, July 2025)</h3>
+                <h3>Worst 5 Milkers (Month, July 1-10)</h3>
                 <canvas class="chart" id="worst-5-monthly"></canvas>
             </div>
         </div>
@@ -484,9 +484,91 @@
             { name: "021 BIra", birthDate: "2025-06-24" }
         ];
 
-        // Milk production data (only one entry provided)
+        // Milk production data
         const productionData = [
-            { cowId: "297 Mercy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2, totalLiters: 6.5 }
+            {cowId: "297 Mercy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
+            {cowId: "297 Mercy", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
+            {cowId: "297 Mercy", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
+            {cowId: "297 Mercy", date: "2025-07-04", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
+            {cowId: "297 Mercy", date: "2025-07-05", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
+            {cowId: "297 Mercy", date: "2025-07-07", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
+            {cowId: "297 Mercy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "297 Mercy", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "297 Mercy", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
+            {cowId: "297 Mercy", date: "2025-07-11", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
+            {cowId: "413 Magret", date: "2025-07-01", morningLiters: 5.0, eveningLiters: 2.5, totalLiters: 7.5},
+            {cowId: "413 Magret", date: "2025-07-02", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
+            {cowId: "413 Magret", date: "2025-07-03", morningLiters: 5.5, eveningLiters: 3.0, totalLiters: 8.5},
+            {cowId: "413 Magret", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.5, totalLiters: 7.5},
+            {cowId: "413 Magret", date: "2025-07-05", morningLiters: 5.5, eveningLiters: 2.0, totalLiters: 7.5},
+            {cowId: "413 Magret", date: "2025-07-07", morningLiters: 6.5, eveningLiters: 2.0, totalLiters: 8.5},
+            {cowId: "413 Magret", date: "2025-07-08", morningLiters: 5.5, eveningLiters: 2.5, totalLiters: 8.0},
+            {cowId: "413 Magret", date: "2025-07-09", morningLiters: 5.0, eveningLiters: 2.5, totalLiters: 7.5},
+            {cowId: "413 Magret", date: "2025-07-10", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
+            {cowId: "413 Magret", date: "2025-07-11", morningLiters: 5.5, eveningLiters: 2.0, totalLiters: 7.5},
+            {cowId: "427 Cece", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
+            {cowId: "427 Cece", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 2.0, totalLiters: 5.0},
+            {cowId: "427 Cece", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "427 Cece", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
+            {cowId: "427 Cece", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
+            {cowId: "427 Cece", date: "2025-07-07", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
+            {cowId: "427 Cece", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
+            {cowId: "427 Cece", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
+            {cowId: "427 Cece", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
+            {cowId: "425 Angel", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
+            {cowId: "425 Angel", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "425 Angel", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "425 Angel", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 2.5, totalLiters: 6.5},
+            {cowId: "425 Angel", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "425 Angel", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "425 Angel", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "425 Angel", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "425 Angel", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
+            {cowId: "093 Ritah", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 3.0, totalLiters: 7.5},
+            {cowId: "093 Ritah", date: "2025-07-02", morningLiters: 5.0, eveningLiters: 3.0, totalLiters: 8.0},
+            {cowId: "093 Ritah", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 3.0, totalLiters: 7.0},
+            {cowId: "093 Ritah", date: "2025-07-04", morningLiters: 4.5, eveningLiters: 2.5, totalLiters: 7.0},
+            {cowId: "093 Ritah", date: "2025-07-05", morningLiters: 4.5, eveningLiters: 3.0, totalLiters: 7.5},
+            {cowId: "093 Ritah", date: "2025-07-07", morningLiters: 4.5, eveningLiters: 3.0, totalLiters: 7.5},
+            {cowId: "093 Ritah", date: "2025-07-08", morningLiters: 5.5, eveningLiters: 3.0, totalLiters: 8.5},
+            {cowId: "093 Ritah", date: "2025-07-09", morningLiters: 5.0, eveningLiters: 3.0, totalLiters: 8.0},
+            {cowId: "093 Ritah", date: "2025-07-10", morningLiters: 5.5, eveningLiters: 2.0, totalLiters: 7.5},
+            {cowId: "059 Susan", date: "2025-07-01", morningLiters: 6.0, eveningLiters: 2.5, totalLiters: 8.5},
+            {cowId: "059 Susan", date: "2025-07-02", morningLiters: 5.5, eveningLiters: 2.5, totalLiters: 8.0},
+            {cowId: "059 Susan", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
+            {cowId: "059 Susan", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
+            {cowId: "059 Susan", date: "2025-07-05", morningLiters: 4.5, eveningLiters: 3.0, totalLiters: 7.5},
+            {cowId: "059 Susan", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "059 Susan", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "059 Susan", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
+            {cowId: "059 Susan", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 3.0, totalLiters: 6.5},
+            {cowId: "008 Frida", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 0.0, totalLiters: 3.5},
+            {cowId: "008 Frida", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
+            {cowId: "008 Frida", date: "2025-07-03", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
+            {cowId: "008 Frida", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
+            {cowId: "008 Frida", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 0.0, totalLiters: 3.5},
+            {cowId: "008 Frida", date: "2025-07-07", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
+            {cowId: "008 Frida", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 0.0, totalLiters: 3.5},
+            {cowId: "008 Frida", date: "2025-07-09", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
+            {cowId: "008 Frida", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
+            {cowId: "434 Shana", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.5, totalLiters: 7.0},
+            {cowId: "434 Shana", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
+            {cowId: "434 Shana", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "434 Shana", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 2.5, totalLiters: 6.5},
+            {cowId: "434 Shana", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "434 Shana", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "434 Shana", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
+            {cowId: "434 Shana", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
+            {cowId: "434 Shana", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
+            {cowId: "083 Kathy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 0.0, totalLiters: 4.5},
+            {cowId: "083 Kathy", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
+            {cowId: "083 Kathy", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
+            {cowId: "083 Kathy", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
+            {cowId: "083 Kathy", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
+            {cowId: "083 Kathy", date: "2025-07-07", morningLiters: 2.5, eveningLiters: 0.0, totalLiters: 2.5},
+            {cowId: "083 Kathy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
+            {cowId: "083 Kathy", date: "2025-07-09", morningLiters: 2.5, eveningLiters: 0.0, totalLiters: 2.5},
+            {cowId: "083 Kathy", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0}
         ];
 
         // Populate cow select dropdowns
@@ -524,7 +606,7 @@
             tbody.innerHTML = '';
             cows.forEach(cow => {
                 const weeks = getLactationPeriod(cow.birthDate);
-                const months = Math.round(weeks / 4.33); // Approximate months
+                const months = Math.round(weeks / 4.33);
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="${getLactationClass(weeks)}">${cow.name}</td>
@@ -544,7 +626,6 @@
             const tbody = document.getElementById('production-table-body');
             tbody.innerHTML = '';
             cows.forEach(cow => {
-                const row = document.createElement('tr');
                 const weeks = getLactationPeriod(cow.birthDate);
                 const months = Math.round(weeks / 4.33);
                 let totalLiters = 0;
@@ -553,7 +634,6 @@
                     <td>${cow.birthDate}</td>
                     <td>${months}</td>
                 `;
-                // Initialize 31 days with AM/PM (62 columns)
                 for (let day = 1; day <= 31; day++) {
                     const date = `2025-07-${day.toString().padStart(2, '0')}`;
                     const entry = productionData.find(p => p.cowId === cow.name && p.date === date);
@@ -569,12 +649,13 @@
                         <button class="delete-btn" onclick="deleteProduction('${cow.name}')">Delete</button>
                     </td>
                 `;
+                const row = document.createElement('tr');
                 row.innerHTML = cells;
                 tbody.appendChild(row);
             });
         }
 
-        // Add cow (basic implementation)
+        // Add cow
         function addCow() {
             const name = document.getElementById('cow-name').value;
             const birthDate = document.getElementById('last-birth-date').value;
@@ -600,18 +681,20 @@
             }
         }
 
-        // Delete cow (basic implementation)
+        // Delete cow
         function deleteCow(name) {
             const index = cows.findIndex(c => c.name === name);
             if (index !== -1) {
                 cows.splice(index, 1);
+                productionData = productionData.filter(p => p.cowId !== name);
                 populateCowSelects();
                 populateCowTable();
                 populateProductionTable();
+                initCharts();
             }
         }
 
-        // Add production (basic implementation)
+        // Add production
         function addProduction() {
             const cowId = document.getElementById('production-cow-select').value;
             const date = document.getElementById('production-date').value;
@@ -621,6 +704,7 @@
             if (cowId !== 'Select Cow' && date) {
                 productionData.push({ cowId, date, morningLiters, eveningLiters, totalLiters });
                 populateProductionTable();
+                initCharts();
                 document.getElementById('production-cow-select').value = 'Select Cow';
                 document.getElementById('production-date').value = '';
                 document.getElementById('morning-liters').value = '';
@@ -635,13 +719,11 @@
             alert(`Editing production for ${cowId}. Select cow and date, update fields, and click "Add Production" to save.`);
         }
 
-        // Delete production (placeholder)
+        // Delete production
         function deleteProduction(cowId) {
-            const index = productionData.findIndex(p => p.cowId === cowId);
-            if (index !== -1) {
-                productionData.splice(index, 1);
-                populateProductionTable();
-            }
+            productionData = productionData.filter(p => p.cowId !== cowId);
+            populateProductionTable();
+            initCharts();
         }
 
         // Export to Excel
@@ -671,41 +753,150 @@
             XLSX.write(wb, 'production_july_2025.xlsx');
         }
 
-        // Initialize chart (Top 5 Milkers, July 29)
+        // Initialize charts
         function initCharts() {
-            const ctx = document.getElementById('top-5-daily').getContext('2d');
-            new Chart(ctx, {
+            // Daily (July 10)
+            const dailyData = cows.map(cow => {
+                const entry = productionData.find(p => p.cowId === cow.name && p.date === '2025-07-10');
+                return { name: cow.name, total: entry ? entry.totalLiters : 0 };
+            }).sort((a, b) => b.total - a.total);
+            
+            const top5Daily = dailyData.slice(0, 5);
+            const worst5Daily = dailyData.filter(d => d.total > 0).slice(-5).reverse();
+            
+            new Chart(document.getElementById('top-5-daily').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: ['297 Mercy'], // Only one cow with data
+                    labels: top5Daily.map(d => d.name),
                     datasets: [{
-                        label: 'Milk Production (Liters, July 1)',
-                        data: [6.5], // Only one entry
-                        backgroundColor: ['#28a745'],
-                        borderColor: ['#218838'],
+                        label: 'Milk Production (Liters, July 10)',
+                        data: top5Daily.map(d => d.total),
+                        backgroundColor: ['#28a745', '#007bff', '#17a2b8', '#ffc107', '#dc3545'],
+                        borderColor: ['#218838', '#0056b3', '#138496', '#e0a800', '#c82333'],
                         borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Liters'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true
-                        },
-                        title: {
-                            display: true,
-                            text: 'Top 5 Milkers (Daily, July 1)'
-                        }
-                    }
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Top 5 Milkers (Daily, July 10)' } }
+                }
+            });
+
+            new Chart(document.getElementById('worst-5-daily').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: worst5Daily.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 10)',
+                        data: worst5Daily.map(d => d.total),
+                        backgroundColor: ['#dc3545', '#ffc107', '#17a2b8', '#007bff', '#28a745'],
+                        borderColor: ['#c82333', '#e0a800', '#138496', '#0056b3', '#218838'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Worst 5 Milkers (Daily, July 10)' } }
+                }
+            });
+
+            // Weekly (July 5-10)
+            const weeklyData = cows.map(cow => {
+                const total = productionData
+                    .filter(p => p.cowId === cow.name && p.date >= '2025-07-05' && p.date <= '2025-07-10')
+                    .reduce((sum, p) => sum + p.totalLiters, 0);
+                return { name: cow.name, total };
+            }).sort((a, b) => b.total - a.total);
+            
+            const top5Weekly = weeklyData.slice(0, 5);
+            const worst5Weekly = weeklyData.filter(d => d.total > 0).slice(-5).reverse();
+
+            new Chart(document.getElementById('top-5-weekly').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: top5Weekly.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 5-10)',
+                        data: top5Weekly.map(d => d.total),
+                        backgroundColor: ['#28a745', '#007bff', '#17a2b8', '#ffc107', '#dc3545'],
+                        borderColor: ['#218838', '#0056b3', '#138496', '#e0a800', '#c82333'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Top 5 Milkers (Week, July 5-10)' } }
+                }
+            });
+
+            new Chart(document.getElementById('worst-5-weekly').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: worst5Weekly.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 5-10)',
+                        data: worst5Weekly.map(d => d.total),
+                        backgroundColor: ['#dc3545', '#ffc107', '#17a2b8', '#007bff', '#28a745'],
+                        borderColor: ['#c82333', '#e0a800', '#138496', '#0056b3', '#218838'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Worst 5 Milkers (Week, July 5-10)' } }
+                }
+            });
+
+            // Monthly (July 1-10)
+            const monthlyData = cows.map(cow => {
+                const total = productionData
+                    .filter(p => p.cowId === cow.name && p.date >= '2025-07-01' && p.date <= '2025-07-10')
+                    .reduce((sum, p) => sum + p.totalLiters, 0);
+                return { name: cow.name, total };
+            }).sort((a, b) => b.total - a.total);
+            
+            const top5Monthly = monthlyData.slice(0, 5);
+            const worst5Monthly = monthlyData.filter(d => d.total > 0).slice(-5).reverse();
+
+            new Chart(document.getElementById('top-5-monthly').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: top5Monthly.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 1-10)',
+                        data: top5Monthly.map(d => d.total),
+                        backgroundColor: ['#28a745', '#007bff', '#17a2b8', '#ffc107', '#dc3545'],
+                        borderColor: ['#218838', '#0056b3', '#138496', '#e0a800', '#c82333'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Top 5 Milkers (Month, July 1-10)' } }
+                }
+            });
+
+            new Chart(document.getElementById('worst-5-monthly').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: worst5Monthly.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 1-10)',
+                        data: worst5Monthly.map(d => d.total),
+                        backgroundColor: ['#dc3545', '#ffc107', '#17a2b8', '#007bff', '#28a745'],
+                        borderColor: ['#c82333', '#e0a800', '#138496', '#0056b3', '#218838'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Worst 5 Milkers (Month, July 1-10)' } }
                 }
             });
         }
