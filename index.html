@@ -424,27 +424,27 @@
         <div class="chart-container">
             <div>
                 <h3>Top 5 Milkers (Daily, July 29)</h3>
-                <canvas class="chart"></canvas>
+                <canvas class="chart" id="top-5-daily"></canvas>
             </div>
             <div>
                 <h3>Worst 5 Milkers (Daily, July 29)</h3>
-                <canvas class="chart"></canvas>
+                <canvas class="chart" id="worst-5-daily"></canvas>
             </div>
             <div>
                 <h3>Top 5 Milkers (Week, July 22-28)</h3>
-                <canvas class="chart"></canvas>
+                <canvas class="chart" id="top-5-weekly"></canvas>
             </div>
             <div>
                 <h3>Worst 5 Milkers (Week, July 22-28)</h3>
-                <canvas class="chart"></canvas>
+                <canvas class="chart" id="worst-5-weekly"></canvas>
             </div>
             <div>
                 <h3>Top 5 Milkers (Month, July 2025)</h3>
-                <canvas class="chart"></canvas>
+                <canvas class="chart" id="top-5-monthly"></canvas>
             </div>
             <div>
                 <h3>Worst 5 Milkers (Month, July 2025)</h3>
-                <canvas class="chart"></canvas>
+                <canvas class="chart" id="worst-5-monthly"></canvas>
             </div>
         </div>
     </div>
@@ -453,13 +453,271 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.21.0/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
     <script>
+        // Diagnostic to confirm library loading
         window.addEventListener('load', () => {
             console.log('Chart.js loaded:', typeof Chart !== 'undefined');
             console.log('XLSX loaded:', typeof XLSX !== 'undefined');
             console.log('Moment.js loaded:', typeof moment !== 'undefined');
         });
+
+        // Cow data
+        const cows = [
+            { name: "297 Mercy", birthDate: "2024-07-14" },
+            { name: "413 Magret", birthDate: "2024-07-17" },
+            { name: "427 Cece", birthDate: "2024-09-26" },
+            { name: "425 Angel", birthDate: "2024-10-01" },
+            { name: "093 Ritah", birthDate: "2024-10-10" },
+            { name: "059 Susan", birthDate: "2024-12-06" },
+            { name: "008 Frida", birthDate: "2024-12-08" },
+            { name: "434 Shana", birthDate: "2025-04-04" },
+            { name: "083 Kathy", birthDate: "2025-03-11" },
+            { name: "402 Kellen", birthDate: "2025-03-28" },
+            { name: "098 Jackline", birthDate: "2025-04-12" },
+            { name: "421 EVA", birthDate: "2025-04-18" },
+            { name: "099 Sarah", birthDate: "2025-04-20" },
+            { name: "521 Keza", birthDate: "2025-02-23" },
+            { name: "024 Kirabo", birthDate: "2025-04-25" },
+            { name: "403 Peace", birthDate: "2025-05-10" },
+            { name: "418 Irene", birthDate: "2025-05-17" },
+            { name: "296 Joan", birthDate: "2025-05-28" },
+            { name: "511 Siima", birthDate: "2025-06-22" },
+            { name: "021 BIra", birthDate: "2025-06-24" }
+        ];
+
+        // Milk production data (only one entry provided)
+        const productionData = [
+            { cowId: "297 Mercy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2, totalLiters: 6.5 }
+        ];
+
+        // Populate cow select dropdowns
+        function populateCowSelects() {
+            const editSelect = document.getElementById('edit-cow-select');
+            const productionSelect = document.getElementById('production-cow-select');
+            cows.forEach(cow => {
+                const option = document.createElement('option');
+                option.value = cow.name;
+                option.textContent = cow.name;
+                editSelect.appendChild(option.cloneNode(true));
+                productionSelect.appendChild(option);
+            });
+        }
+
+        // Calculate lactation period in weeks
+        function getLactationPeriod(birthDate) {
+            const today = moment();
+            const birth = moment(birthDate);
+            const weeks = today.diff(birth, 'weeks');
+            return weeks;
+        }
+
+        // Get lactation class for styling
+        function getLactationClass(weeks) {
+            if (weeks >= 1 && weeks <= 7) return 'lactation-green';
+            if (weeks >= 10 && weeks <= 30) return 'lactation-yellow';
+            if (weeks >= 40 && weeks <= 52) return 'lactation-red';
+            return '';
+        }
+
+        // Populate cow table
+        function populateCowTable() {
+            const tbody = document.getElementById('cow-table-body');
+            tbody.innerHTML = '';
+            cows.forEach(cow => {
+                const weeks = getLactationPeriod(cow.birthDate);
+                const months = Math.round(weeks / 4.33); // Approximate months
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="${getLactationClass(weeks)}">${cow.name}</td>
+                    <td>${cow.birthDate}</td>
+                    <td>${months}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editCow('${cow.name}')">Edit</button>
+                        <button class="delete-btn" onclick="deleteCow('${cow.name}')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Populate production table
+        function populateProductionTable() {
+            const tbody = document.getElementById('production-table-body');
+            tbody.innerHTML = '';
+            cows.forEach(cow => {
+                const row = document.createElement('tr');
+                const weeks = getLactationPeriod(cow.birthDate);
+                const months = Math.round(weeks / 4.33);
+                let totalLiters = 0;
+                let cells = `
+                    <td class="${getLactationClass(weeks)}">${cow.name}</td>
+                    <td>${cow.birthDate}</td>
+                    <td>${months}</td>
+                `;
+                // Initialize 31 days with AM/PM (62 columns)
+                for (let day = 1; day <= 31; day++) {
+                    const date = `2025-07-${day.toString().padStart(2, '0')}`;
+                    const entry = productionData.find(p => p.cowId === cow.name && p.date === date);
+                    const am = entry ? entry.morningLiters : 0;
+                    const pm = entry ? entry.eveningLiters : 0;
+                    totalLiters += (am + pm);
+                    cells += `<td>${am.toFixed(1)}</td><td>${pm.toFixed(1)}</td>`;
+                }
+                cells += `<td class="total-col">${totalLiters.toFixed(1)}</td>`;
+                cells += `
+                    <td>
+                        <button class="edit-btn" onclick="editProduction('${cow.name}')">Edit</button>
+                        <button class="delete-btn" onclick="deleteProduction('${cow.name}')">Delete</button>
+                    </td>
+                `;
+                row.innerHTML = cells;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Add cow (basic implementation)
+        function addCow() {
+            const name = document.getElementById('cow-name').value;
+            const birthDate = document.getElementById('last-birth-date').value;
+            if (name && birthDate) {
+                cows.push({ name, birthDate });
+                populateCowSelects();
+                populateCowTable();
+                populateProductionTable();
+                document.getElementById('cow-name').value = '';
+                document.getElementById('last-birth-date').value = '';
+            } else {
+                alert('Please enter cow name and birth date.');
+            }
+        }
+
+        // Edit cow (placeholder)
+        function editCow(name) {
+            const cow = cows.find(c => c.name === name);
+            if (cow) {
+                document.getElementById('cow-name').value = cow.name;
+                document.getElementById('last-birth-date').value = cow.birthDate;
+                alert(`Editing ${cow.name}. Update fields and click "Add Cow" to save.`);
+            }
+        }
+
+        // Delete cow (basic implementation)
+        function deleteCow(name) {
+            const index = cows.findIndex(c => c.name === name);
+            if (index !== -1) {
+                cows.splice(index, 1);
+                populateCowSelects();
+                populateCowTable();
+                populateProductionTable();
+            }
+        }
+
+        // Add production (basic implementation)
+        function addProduction() {
+            const cowId = document.getElementById('production-cow-select').value;
+            const date = document.getElementById('production-date').value;
+            const morningLiters = parseFloat(document.getElementById('morning-liters').value) || 0;
+            const eveningLiters = parseFloat(document.getElementById('evening-liters').value) || 0;
+            const totalLiters = morningLiters + eveningLiters;
+            if (cowId !== 'Select Cow' && date) {
+                productionData.push({ cowId, date, morningLiters, eveningLiters, totalLiters });
+                populateProductionTable();
+                document.getElementById('production-cow-select').value = 'Select Cow';
+                document.getElementById('production-date').value = '';
+                document.getElementById('morning-liters').value = '';
+                document.getElementById('evening-liters').value = '';
+            } else {
+                alert('Please select a cow and enter a date.');
+            }
+        }
+
+        // Edit production (placeholder)
+        function editProduction(cowId) {
+            alert(`Editing production for ${cowId}. Select cow and date, update fields, and click "Add Production" to save.`);
+        }
+
+        // Delete production (placeholder)
+        function deleteProduction(cowId) {
+            const index = productionData.findIndex(p => p.cowId === cowId);
+            if (index !== -1) {
+                productionData.splice(index, 1);
+                populateProductionTable();
+            }
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            const wsData = [
+                ['Cow No./Name', 'Last Birth Date', 'Lactation Period (Months)', ...Array.from({ length: 31 }, (_, i) => [`${i + 1} AM`, `${i + 1} PM`]).flat(), 'Total Liters']
+            ];
+            cows.forEach(cow => {
+                const weeks = getLactationPeriod(cow.birthDate);
+                const months = Math.round(weeks / 4.33);
+                let totalLiters = 0;
+                const row = [cow.name, cow.birthDate, months];
+                for (let day = 1; day <= 31; day++) {
+                    const date = `2025-07-${day.toString().padStart(2, '0')}`;
+                    const entry = productionData.find(p => p.cowId === cow.name && p.date === date);
+                    const am = entry ? entry.morningLiters : 0;
+                    const pm = entry ? entry.eveningLiters : 0;
+                    totalLiters += (am + pm);
+                    row.push(am, pm);
+                }
+                row.push(totalLiters);
+                wsData.push(row);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, 'Production July 2025');
+            XLSX.write(wb, 'production_july_2025.xlsx');
+        }
+
+        // Initialize chart (Top 5 Milkers, July 29)
+        function initCharts() {
+            const ctx = document.getElementById('top-5-daily').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['297 Mercy'], // Only one cow with data
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 1)',
+                        data: [6.5], // Only one entry
+                        backgroundColor: ['#28a745'],
+                        borderColor: ['#218838'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Liters'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        title: {
+                            display: true,
+                            text: 'Top 5 Milkers (Daily, July 1)'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize app
+        window.addEventListener('load', () => {
+            populateCowSelects();
+            populateCowTable();
+            populateProductionTable();
+            initCharts();
+        });
     </script>
-    <script src="index.js"></script>
     <script>
         (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'966db2ca1d2b5938',t:'MTc1MzgwMzQ1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
     </script>
