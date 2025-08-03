@@ -1,86 +1,467 @@
-[
-  {
-    "name": "297 Mercy",
-    "birthDate": "2024-07-14"
-  },
-  {
-    "name": "413 Magret",
-    "birthDate": "2024-07-17"
-  },
-  {
-    "name": "427 Cece",
-    "birthDate": "2024-09-26"
-  },
-  {
-    "name": "425 Angel",
-    "birthDate": "2024-10-01"
-  },
-  {
-    "name": "093 Ritah",
-    "birthDate": "2024-10-10"
-  },
-  {
-    "name": "059 Susan",
-    "birthDate": "2024-12-06"
-  },
-  {
-    "name": "008 Frida",
-    "birthDate": "2024-12-08"
-  },
-  {
-    "name": "434 Shana",
-    "birthDate": "2025-04-04"
-  },
-  {
-    "name": "083 Kathy",
-    "birthDate": "2025-03-11"
-  },
-  {
-    "name": "402 Kellen",
-    "birthDate": "2025-03-28"
-  },
-  {
-    "name": "098 Jackline",
-    "birthDate": "2025-04-12"
-  },
-  {
-    "name": "421 EVA",
-    "birthDate": "2025-04-18"
-  },
-  {
-    "name": "099 Sarah",
-    "birthDate": "2025-04-20"
-  },
-  {
-    "name": "521 Keza",
-    "birthDate": "2025-02-23"
-  },
-  {
-    "name": "024 Kirabo",
-    "birthDate": "2025-04-25"
-  },
-  {
-    "name": "403 Peace",
-    "birthDate": "2025-05-10"
-  },
-  {
-    "name": "418 Irene",
-    "birthDate": "2025-05-17"
-  },
-  {
-    "name": "296 Joan",
-    "birthDate": "2025-05-28"
-  },
-  {
-    "name": "511 Siima",
-    "birthDate": "2025-06-22"
-  },
-  {
-    "name": "021 BIra",
-    "birthDate": "2025-06-24"
-  }
-]
-[{cowId: "297 Mercy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2, totalLiters: 6.5},…]
-[0 … 99]
-[100 … 199]
-[200 … 214]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dairy Management App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+            background-color: #f4f4f9;
+        }
+        h1, h2, h3 {
+            color: #333;
+            font-size: 1.5em;
+        }
+        .section {
+            margin: 10px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        input, select {
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .edit-btn-main {
+            background-color: #007bff;
+            margin-left: 5px;
+        }
+        .edit-btn-main:hover {
+            background-color: #0056b3;
+        }
+        .export-btn {
+            background-color: #17a2b8;
+            margin-top: 10px;
+        }
+        .export-btn:hover {
+            background-color: #138496;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .date-header {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .ampm-header {
+            background-color: #f8f9fa;
+            font-size: 0.8em;
+        }
+        .totals-row {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .deduction-subrow {
+            background-color: #f1f1f1;
+            font-size: 0.8em;
+        }
+        .lactation-green {
+            background-color: #d4edda;
+        }
+        .lactation-yellow {
+            background-color: #fff3cd;
+        }
+        .lactation-red {
+            background-color: #f8d7da;
+        }
+        .key {
+            margin-top: 10px;
+            font-size: 0.8em;
+        }
+        .key div {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .edit-btn, .delete-btn {
+            padding: 4px 8px;
+            margin: 2px;
+            font-size: 0.75em;
+        }
+        .edit-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .total-col {
+            font-weight: bold;
+            background-color: #e9ecef;
+        }
+        .chart-container {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .chart {
+            max-width: 100%;
+            width: 100%;
+            min-width: 250px;
+        }
+        .deduction-group {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .deduction-group h4 {
+            margin: 0 0 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            h1 {
+                font-size: 1.2em;
+            }
+            h2, h3 {
+                font-size: 1em;
+            }
+            .section {
+                padding: 10px;
+            }
+            input, select, button {
+                font-size: 0.85em;
+                padding: 6px;
+            }
+            .chart {
+                max-width: 100%;
+            }
+            table {
+                font-size: 0.75em;
+            }
+            th, td {
+                padding: 4px;
+            }
+            .edit-btn, .delete-btn {
+                padding: 3px 6px;
+                font-size: 0.7em;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1em;
+            }
+            h2, h3 {
+                font-size: 0.9em;
+            }
+            input, select {
+                max-width: 100%;
+            }
+            button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .edit-btn-main {
+                margin-left: 0;
+            }
+            .chart {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Dairy Management App</h1>
+
+    <div class="section">
+        <h2>Manage Cows</h2>
+        <div class="input-group">
+            <label for="cow-name">Cow Name</label>
+            <input type="text" id="cow-name" placeholder="Enter cow name">
+        </div>
+        <div class="input-group">
+            <label for="last-birth-date">Last Birth Date</label>
+            <input type="date" id="last-birth-date">
+        </div>
+        <div class="input-group">
+            <label for="edit-cow-select">Select Cow to Edit</label>
+            <select id="edit-cow-select">
+                <option>Select Cow</option>
+            </select>
+        </div>
+        <button onclick="addCow()">Add Cow</button>
+        <button class="edit-btn-main" onclick="editCow()">Edit Cow</button>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cow Name</th>
+                        <th>Last Birth Date</th>
+                        <th>Lactation Period (Months)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="cow-table-body"></tbody>
+            </table>
+        </div>
+        <div class="key">
+            <div class="lactation-green"></div> 1-7 weeks (Green)<br>
+            <div class="lactation-yellow"></div> 10-30 weeks (Yellow)<br>
+            <div class="lactation-red"></div> 40-52 weeks (Red)
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Add Daily Milk Production</h2>
+        <div class="input-group">
+            <label for="production-cow-select">Cow Name</label>
+            <select id="production-cow-select">
+                <option>Select Cow</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="production-date">Date</label>
+            <input type="date" id="production-date">
+        </div>
+        <div class="input-group">
+            <label for="morning-liters">Morning Liters</label>
+            <input type="number" id="morning-liters" step="0.1" min="0" placeholder="Enter liters">
+        </div>
+        <div class="input-group">
+            <label for="evening-liters">Evening Liters</label>
+            <input type="number" id="evening-liters" step="0.1" min="0" placeholder="Enter liters">
+        </div>
+        <div class="deduction-group">
+            <h4>Morning Deductions</h4>
+            <div class="input-group">
+                <label for="morning-calf-milk">Calf Milk (Liters)</label>
+                <input type="number" id="morning-calf-milk" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+            <div class="input-group">
+                <label for="morning-home-use">Home Use (Liters)</label>
+                <input type="number" id="morning-home-use" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+            <div class="input-group">
+                <label for="morning-workers-milk">Workers Milk (Liters)</label>
+                <input type="number" id="morning-workers-milk" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+        </div>
+        <div class="deduction-group">
+            <h4>Evening Deductions</h4>
+            <div class="input-group">
+                <label for="evening-calf-milk">Calf Milk (Liters)</label>
+                <input type="number" id="evening-calf-milk" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+            <div class="input-group">
+                <label for="evening-home-use">Home Use (Liters)</label>
+                <input type="number" id="evening-home-use" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+            <div class="input-group">
+                <label for="evening-workers-milk">Workers Milk (Liters)</label>
+                <input type="number" id="evening-workers-milk" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+        </div>
+        <button onclick="addProduction()">Add Production</button>
+    </div>
+
+    <div class="section">
+        <h2>Production Analysis</h2>
+        <h3>Daily Production Entries (July 2025)</h3>
+        <button class="export-btn" onclick="exportToExcel()">Export to Excel</button>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Cow No./Name</th>
+                        <th rowspan="2">Last Birth Date</th>
+                        <th rowspan="2">Lactation Period (Months)</th>
+                        <th colspan="62">July 2025</th>
+                        <th rowspan="2">Total Liters</th>
+                        <th rowspan="2">Action</th>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="date-header">1</th>
+                        <th colspan="2" class="date-header">2</th>
+                        <th colspan="2" class="date-header">3</th>
+                        <th colspan="2" class="date-header">4</th>
+                        <th colspan="2" class="date-header">5</th>
+                        <th colspan="2" class="date-header">6</th>
+                        <th colspan="2" class="date-header">7</th>
+                        <th colspan="2" class="date-header">8</th>
+                        <th colspan="2" class="date-header">9</th>
+                        <th colspan="2" class="date-header">10</th>
+                        <th colspan="2" class="date-header">11</th>
+                        <th colspan="2" class="date-header">12</th>
+                        <th colspan="2" class="date-header">13</th>
+                        <th colspan="2" class="date-header">14</th>
+                        <th colspan="2" class="date-header">15</th>
+                        <th colspan="2" class="date-header">16</th>
+                        <th colspan="2" class="date-header">17</th>
+                        <th colspan="2" class="date-header">18</th>
+                        <th colspan="2" class="date-header">19</th>
+                        <th colspan="2" class="date-header">20</th>
+                        <th colspan="2" class="date-header">21</th>
+                        <th colspan="2" class="date-header">22</th>
+                        <th colspan="2" class="date-header">23</th>
+                        <th colspan="2" class="date-header">24</th>
+                        <th colspan="2" class="date-header">25</th>
+                        <th colspan="2" class="date-header">26</th>
+                        <th colspan="2" class="date-header">27</th>
+                        <th colspan="2" class="date-header">28</th>
+                        <th colspan="2" class="date-header">29</th>
+                        <th colspan="2" class="date-header">30</th>
+                        <th colspan="2" class="date-header">31</th>
+                    </tr>
+                    <tr>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                    </tr>
+                </thead>
+                <tbody id="production-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Production Charts</h2>
+        <div class="chart-container">
+            <div>
+                <h3>Top 5 Milkers (Daily, July 29)</h3>
+                <canvas class="chart"></canvas>
+            </div>
+            <div>
+                <h3>Worst 5 Milkers (Daily, July 29)</h3>
+                <canvas class="chart"></canvas>
+            </div>
+            <div>
+                <h3>Top 5 Milkers (Week, July 22-28)</h3>
+                <canvas class="chart"></canvas>
+            </div>
+            <div>
+                <h3>Worst 5 Milkers (Week, July 22-28)</h3>
+                <canvas class="chart"></canvas>
+            </div>
+            <div>
+                <h3>Top 5 Milkers (Month, July 2025)</h3>
+                <canvas class="chart"></canvas>
+            </div>
+            <div>
+                <h3>Worst 5 Milkers (Month, July 2025)</h3>
+                <canvas class="chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.21.0/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            console.log('Chart.js loaded:', typeof Chart !== 'undefined');
+            console.log('XLSX loaded:', typeof XLSX !== 'undefined');
+            console.log('Moment.js loaded:', typeof moment !== 'undefined');
+        });
+    </script>
+    <script src="index.js"></script>
+    <script>
+        (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'966db2ca1d2b5938',t:'MTc1MzgwMzQ1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+    </script>
+</body>
+</html>
