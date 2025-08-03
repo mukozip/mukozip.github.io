@@ -211,7 +211,7 @@
                     <tr>
                         <th>Cow Name</th>
                         <th>Last Birth Date</th>
-                        <th>Lactation Period (Months)</th>
+                        <th>Lactation Period (Weeks)</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -288,8 +288,8 @@
                     <tr>
                         <th rowspan="2">Cow No./Name</th>
                         <th rowspan="2">Last Birth Date</th>
-                        <th rowspan="2">Lactation Period (Months)</th>
-                        <th colspan="62">July 2025</th>
+                        <th rowspan="2">Lactation Period (Weeks)</th>
+                        <th colspan="22">July 2025</th>
                         <th rowspan="2">Total Liters</th>
                         <th rowspan="2">Action</th>
                     </tr>
@@ -305,58 +305,8 @@
                         <th colspan="2" class="date-header">9</th>
                         <th colspan="2" class="date-header">10</th>
                         <th colspan="2" class="date-header">11</th>
-                        <th colspan="2" class="date-header">12</th>
-                        <th colspan="2" class="date-header">13</th>
-                        <th colspan="2" class="date-header">14</th>
-                        <th colspan="2" class="date-header">15</th>
-                        <th colspan="2" class="date-header">16</th>
-                        <th colspan="2" class="date-header">17</th>
-                        <th colspan="2" class="date-header">18</th>
-                        <th colspan="2" class="date-header">19</th>
-                        <th colspan="2" class="date-header">20</th>
-                        <th colspan="2" class="date-header">21</th>
-                        <th colspan="2" class="date-header">22</th>
-                        <th colspan="2" class="date-header">23</th>
-                        <th colspan="2" class="date-header">24</th>
-                        <th colspan="2" class="date-header">25</th>
-                        <th colspan="2" class="date-header">26</th>
-                        <th colspan="2" class="date-header">27</th>
-                        <th colspan="2" class="date-header">28</th>
-                        <th colspan="2" class="date-header">29</th>
-                        <th colspan="2" class="date-header">30</th>
-                        <th colspan="2" class="date-header">31</th>
                     </tr>
                     <tr>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
-                        <th class="ampm-header">AM</th>
-                        <th class="ampm-header">PM</th>
                         <th class="ampm-header">AM</th>
                         <th class="ampm-header">PM</th>
                         <th class="ampm-header">AM</th>
@@ -427,7 +377,7 @@
             console.log('Moment.js loaded:', typeof moment !== 'undefined');
         });
 
-        // Cow data with converted Excel serial dates
+        // Cow data
         const cows = [
             { name: "297 Mercy", birthDate: "2024-07-14" },
             { name: "413 Magret", birthDate: "2024-07-17" },
@@ -447,148 +397,147 @@
             { name: "403 Peace", birthDate: "2025-05-10" },
             { name: "418 Irene", birthDate: "2025-05-17" },
             { name: "296 Joan", birthDate: "2025-05-28" },
-            { name: "511 Siima", birthDate: "2025-05-17" },
-            { name: "021 BIra", birthDate: "2025-05-17" }
+            { name: "511 Siima", birthDate: "2025-06-22" },
+            { name: "021 BIra", birthDate: "2025-06-24" }
         ];
 
         // Milk production data with deductions
         const productionData = [
             // 297 Mercy
-            {cowId: "297 Mercy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "297 Mercy", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "297 Mercy", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "297 Mercy", date: "2025-07-04", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "297 Mercy", date: "2025-07-05", morningLiters: 5.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "297 Mercy", date: "2025-07-06", morningLiters: 0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "297 Mercy", date: "2025-07-07", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "297 Mercy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "297 Mercy", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "297 Mercy", date: "2025-07-10", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "297 Mercy", date: "2025-07-11", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "297 Mercy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.25},
+            {cowId: "297 Mercy", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.5},
+            {cowId: "297 Mercy", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.25},
+            {cowId: "297 Mercy", date: "2025-07-04", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.25},
+            {cowId: "297 Mercy", date: "2025-07-05", morningLiters: 5.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19},
+            {cowId: "297 Mercy", date: "2025-07-06", morningLiters: 0, eveningLiters: 2.0, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 1.5},
+            {cowId: "297 Mercy", date: "2025-07-07", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.5},
+            {cowId: "297 Mercy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.5},
+            {cowId: "297 Mercy", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -10},
+            {cowId: "297 Mercy", date: "2025-07-10", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -6.5},
+            {cowId: "297 Mercy", date: "2025-07-11", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -0.75},
             // 413 Magret
-            {cowId: "413 Magret", date: "2025-07-01", morningLiters: 5.0, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "413 Magret", date: "2025-07-02", morningLiters: 5.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "413 Magret", date: "2025-07-03", morningLiters: 5.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "413 Magret", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "413 Magret", date: "2025-07-05", morningLiters: 5.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "413 Magret", date: "2025-07-06", morningLiters: 0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "413 Magret", date: "2025-07-07", morningLiters: 6.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "413 Magret", date: "2025-07-08", morningLiters: 5.5, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "413 Magret", date: "2025-07-09", morningLiters: 5.0, eveningLiters: 2.5, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "413 Magret", date: "2025-07-10", morningLiters: 5.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "413 Magret", date: "2025-07-11", morningLiters: 5.5, eveningLiters: 2.0, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "413 Magret", date: "2025-07-01", morningLiters: 5.0, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18.25},
+            {cowId: "413 Magret", date: "2025-07-02", morningLiters: 5.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19},
+            {cowId: "413 Magret", date: "2025-07-03", morningLiters: 5.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -17},
+            {cowId: "413 Magret", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18.25},
+            {cowId: "413 Magret", date: "2025-07-05", morningLiters: 5.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18.5},
+            {cowId: "413 Magret", date: "2025-07-06", morningLiters: 0, eveningLiters: 2.0, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 1.5},
+            {cowId: "413 Magret", date: "2025-07-07", morningLiters: 6.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -17.5},
+            {cowId: "413 Magret", date: "2025-07-08", morningLiters: 5.5, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -17.25},
+            {cowId: "413 Magret", date: "2025-07-09", morningLiters: 5.0, eveningLiters: 2.5, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -7.25},
+            {cowId: "413 Magret", date: "2025-07-10", morningLiters: 5.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -4.5},
+            {cowId: "413 Magret", date: "2025-07-11", morningLiters: 5.5, eveningLiters: 2.0, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 1.5},
             // 427 Cece
-            {cowId: "427 Cece", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "427 Cece", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "427 Cece", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "427 Cece", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "427 Cece", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "427 Cece", date: "2025-07-06", morningLiters: 0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "427 Cece", date: "2025-07-07", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "427 Cece", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "427 Cece", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "427 Cece", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "427 Cece", date: "2025-07-11", morningLiters: 2.0, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "427 Cece", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20.25},
+            {cowId: "427 Cece", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21},
+            {cowId: "427 Cece", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.5},
+            {cowId: "427 Cece", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20.75},
+            {cowId: "427 Cece", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21},
+            {cowId: "427 Cece", date: "2025-07-06", morningLiters: 0, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 1},
+            {cowId: "427 Cece", date: "2025-07-07", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21},
+            {cowId: "427 Cece", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20.25},
+            {cowId: "427 Cece", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -10},
+            {cowId: "427 Cece", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -7.25},
+            {cowId: "427 Cece", date: "2025-07-11", morningLiters: 2.0, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -2.25},
             // 425 Angel
-            {cowId: "425 Angel", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "425 Angel", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "425 Angel", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "425 Angel", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "425 Angel", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "425 Angel", date: "2025-07-06", morningLiters: 0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "425 Angel", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "425 Angel", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "425 Angel", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "425 Angel", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "425 Angel", date: "2025-07-11", morningLiters: 4.0, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "425 Angel", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.75},
+            {cowId: "425 Angel", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20},
+            {cowId: "425 Angel", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.5},
+            {cowId: "425 Angel", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19},
+            {cowId: "425 Angel", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20},
+            {cowId: "425 Angel", date: "2025-07-06", morningLiters: 0, eveningLiters: 2.0, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 1.5},
+            {cowId: "425 Angel", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20},
+            {cowId: "425 Angel", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.5},
+            {cowId: "425 Angel", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -10},
+            {cowId: "425 Angel", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -7.25},
+            {cowId: "425 Angel", date: "2025-07-11", morningLiters: 4.0, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -0.25},
             // 093 Ritah
-            {cowId: "093 Ritah", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "093 Ritah", date: "2025-07-02", morningLiters: 5.0, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "093 Ritah", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "093 Ritah", date: "2025-07-04", morningLiters: 4.5, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "093 Ritah", date: "2025-07-05", morningLiters: 4.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "093 Ritah", date: "2025-07-06", morningLiters: 0, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "093 Ritah", date: "2025-07-07", morningLiters: 4.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "093 Ritah", date: "2025-07-08", morningLiters: 5.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "093 Ritah", date: "2025-07-09", morningLiters: 5.0, eveningLiters: 3.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "093 Ritah", date: "2025-07-10", morningLiters: 5.5, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "093 Ritah", date: "2025-07-11", morningLiters: 4.5, eveningLiters: 3.0, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "093 Ritah", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18.75},
+            {cowId: "093 Ritah", date: "2025-07-02", morningLiters: 5.0, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18},
+            {cowId: "093 Ritah", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.25},
+            {cowId: "093 Ritah", date: "2025-07-04", morningLiters: 4.5, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.25},
+            {cowId: "093 Ritah", date: "2025-07-05", morningLiters: 4.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18.5},
+            {cowId: "093 Ritah", date: "2025-07-06", morningLiters: 0, eveningLiters: 3.0, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 2.5},
+            {cowId: "093 Ritah", date: "2025-07-07", morningLiters: 4.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18.5},
+            {cowId: "093 Ritah", date: "2025-07-08", morningLiters: 5.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -16.75},
+            {cowId: "093 Ritah", date: "2025-07-09", morningLiters: 5.0, eveningLiters: 3.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -7},
+            {cowId: "093 Ritah", date: "2025-07-10", morningLiters: 5.5, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -5.25},
+            {cowId: "093 Ritah", date: "2025-07-11", morningLiters: 4.5, eveningLiters: 3.0, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 1.5},
             // 059 Susan
-            {cowId: "059 Susan", date: "2025-07-01", morningLiters: 6.0, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "059 Susan", date: "2025-07-02", morningLiters: 5.5, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "059 Susan", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "059 Susan", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "059 Susan", date: "2025-07-05", morningLiters: 4.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "059 Susan", date: "2025-07-06", morningLiters: 0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "059 Susan", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "059 Susan", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "059 Susan", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "059 Susan", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 3.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "059 Susan", date: "2025-07-11", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "059 Susan", date: "2025-07-01", morningLiters: 6.0, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -17.75},
+            {cowId: "059 Susan", date: "2025-07-02", morningLiters: 5.5, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18},
+            {cowId: "059 Susan", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.25},
+            {cowId: "059 Susan", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18.75},
+            {cowId: "059 Susan", date: "2025-07-05", morningLiters: 4.5, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18.5},
+            {cowId: "059 Susan", date: "2025-07-06", morningLiters: 0, eveningLiters: 2.0, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 1.5},
+            {cowId: "059 Susan", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20},
+            {cowId: "059 Susan", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.5},
+            {cowId: "059 Susan", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -10},
+            {cowId: "059 Susan", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 3.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -5.25},
+            {cowId: "059 Susan", date: "2025-07-11", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -1.25},
             // 008 Frida
-            {cowId: "008 Frida", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "008 Frida", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "008 Frida", date: "2025-07-03", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "008 Frida", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "008 Frida", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "008 Frida", date: "2025-07-06", morningLiters: 0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "008 Frida", date: "2025-07-07", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "008 Frida", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "008 Frida", date: "2025-07-09", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "008 Frida", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "008 Frida", date: "2025-07-11", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "008 Frida", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21.75},
+            {cowId: "008 Frida", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -23},
+            {cowId: "008 Frida", date: "2025-07-03", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -22.5},
+            {cowId: "008 Frida", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -22.5},
+            {cowId: "008 Frida", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -22.5},
+            {cowId: "008 Frida", date: "2025-07-06", morningLiters: 0, eveningLiters: 0, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -0.5},
+            {cowId: "008 Frida", date: "2025-07-07", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -23},
+            {cowId: "008 Frida", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21.75},
+            {cowId: "008 Frida", date: "2025-07-09", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -12},
+            {cowId: "008 Frida", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -8.75},
+            {cowId: "008 Frida", date: "2025-07-11", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -2.75},
             // 434 Shana
-            {cowId: "434 Shana", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "434 Shana", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "434 Shana", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "434 Shana", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "434 Shana", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "434 Shana", date: "2025-07-06", morningLiters: 0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "434 Shana", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "434 Shana", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "434 Shana", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "434 Shana", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "434 Shana", date: "2025-07-11", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "434 Shana", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18.75},
+            {cowId: "434 Shana", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.5},
+            {cowId: "434 Shana", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.5},
+            {cowId: "434 Shana", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 2.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19},
+            {cowId: "434 Shana", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20},
+            {cowId: "434 Shana", date: "2025-07-06", morningLiters: 0, eveningLiters: 2.0, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 1.5},
+            {cowId: "434 Shana", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20},
+            {cowId: "434 Shana", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -19.75},
+            {cowId: "434 Shana", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -10},
+            {cowId: "434 Shana", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -7.25},
+            {cowId: "434 Shana", date: "2025-07-11", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -0.75},
             // 083 Kathy
-            {cowId: "083 Kathy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "083 Kathy", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "083 Kathy", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "083 Kathy", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "083 Kathy", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "083 Kathy", date: "2025-07-06", morningLiters: 0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "083 Kathy", date: "2025-07-07", morningLiters: 2.5, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "083 Kathy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "083 Kathy", date: "2025-07-09", morningLiters: 2.5, eveningLiters: 0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "083 Kathy", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "083 Kathy", date: "2025-07-11", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "083 Kathy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20.75},
+            {cowId: "083 Kathy", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -22},
+            {cowId: "083 Kathy", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21.5},
+            {cowId: "083 Kathy", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21.5},
+            {cowId: "083 Kathy", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -22},
+            {cowId: "083 Kathy", date: "2025-07-06", morningLiters: 0, eveningLiters: 0, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -0.5},
+            {cowId: "083 Kathy", date: "2025-07-07", morningLiters: 2.5, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -23.5},
+            {cowId: "083 Kathy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21.5},
+            {cowId: "083 Kathy", date: "2025-07-09", morningLiters: 2.5, eveningLiters: 0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -12.5},
+            {cowId: "083 Kathy", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -8.75},
+            {cowId: "083 Kathy", date: "2025-07-11", morningLiters: 4.0, eveningLiters: 0, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -1.75},
             // 402 Kellen
-            {cowId: "402 Kellen", date: "2025-07-01", morningLiters: 7.0, eveningLiters: 4.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "402 Kellen", date: "2025-07-02", morningLiters: 6.5, eveningLiters: 4.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "402 Kellen", date: "2025-07-03", morningLiters: 7.0, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "402 Kellen", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "402 Kellen", date: "2025-07-05", morningLiters: 5.0, eveningLiters: 3.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "402 Kellen", date: "2025-07-06", morningLiters: 0, eveningLiters: 4.0, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "402 Kellen", date: "2025-07-07", morningLiters: 6.0, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "402 Kellen", date: "2025-07-08", morningLiters: 6.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "402 Kellen", date: "2025-07-09", morningLiters: 6.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "402 Kellen", date: "2025-07-10", morningLiters: 6.0, eveningLiters: 2.5, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "402 Kellen", date: "2025-07-11", morningLiters: 5.0, eveningLiters: 2.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "402 Kellen", date: "2025-07-01", morningLiters: 7.0, eveningLiters: 4.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -14.75},
+            {cowId: "402 Kellen", date: "2025-07-02", morningLiters: 6.5, eveningLiters: 4.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -15},
+            {cowId: "402 Kellen", date: "2025-07-03", morningLiters: 7.0, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -16.5},
+            {cowId: "402 Kellen", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -18.75},
+            {cowId: "402 Kellen", date: "2025-07-05", morningLiters: 5.0, eveningLiters: 3.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -17.5},
+            {cowId: "402 Kellen", date: "2025-07-06", morningLiters: 0, eveningLiters: 4.0, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 3.5},
+            {cowId: "402 Kellen", date: "2025-07-07", morningLiters: 6.0, eveningLiters: 3.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -17},
+            {cowId: "402 Kellen", date: "2025-07-08", morningLiters: 6.0, eveningLiters: 2.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -17.5},
+            {cowId: "402 Kellen", date: "2025-07-09", morningLiters: 6.0, eveningLiters: 2.0, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -8},
+            {cowId: "402 Kellen", date: "2025-07-10", morningLiters: 6.0, eveningLiters: 2.5, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -4},
+            {cowId: "402 Kellen", date: "2025-07-11", morningLiters: 5.0, eveningLiters: 2.5, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 1.5},
             // 098 Jackline
-            {cowId: "098 Jackline", date: "2025-07-01", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "098 Jackline", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "098 Jackline", date: "2025-07-03", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "098 Jackline", date: "2025-07-04", morningLiters: 2.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "098 Jackline", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "098 Jackline", date: "2025-07-06", morningLiters: 0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 0, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "098 Jackline", date: "2025-07-07", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "098 Jackline", date: "2025-07-08", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "098 Jackline", date: "2025-07-09", morningLiters: 2.5, eveningLiters: 1.5, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "098 Jackline", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 1.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "098 Jackline", date: "2025-07-11", morningLiters: 3.0, eveningLiters: 1.0, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.5, eveningHomeUse: 0.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
+            {cowId: "098 Jackline", date: "2025-07-01", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20.75},
+            {cowId: "098 Jackline", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21.5},
+            {cowId: "098 Jackline", date: "2025-07-03", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20.75},
+            {cowId: "098 Jackline", date: "2025-07-04", morningLiters: 2.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21.25},
+            {cowId: "098 Jackline", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21},
+            {cowId: "098 Jackline", date: "2025-07-06", morningLiters: 0, eveningLiters: 1.5, morningCalfMilk: 0, eveningCalfMilk: 0, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: 1},
+            {cowId: "098 Jackline", date: "2025-07-07", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -21.5},
+            {cowId: "098 Jackline", date: "2025-07-08", morningLiters: 3.0, eveningLiters: 1.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -20.75},
+            {cowId: "098 Jackline", date: "2025-07-09", morningLiters: 2.5, eveningLiters: 1.5, morningCalfMilk: 5.5, eveningCalfMilk: 8, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -11},
+            {cowId: "098 Jackline", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 1.0, morningCalfMilk: 5.5, eveningCalfMilk: 4.5, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -7.75},
+            {cowId: "098 Jackline", date: "2025-07-11", morningLiters: 3.0, eveningLiters: 1.0, morningCalfMilk: 0, eveningCalfMilk: 5.5, morningHomeUse: 0.25, eveningHomeUse: 0.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -1.75},
             // 421 EVA
-            {cowId: "421 EVA", date: "2025-07-01", morningLiters: 7.0, eveningLiters: 3.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "421 EVA", date: "2025-07-02", morningLiters: 7.0, eveningLiters: 5.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "421 EVA", date: "2025-07-03", morningLiters: 7.0, eveningLiters: 3.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "421 EVA", date: "2025-07-04", morningLiters: 7.0, eveningLiters: 4.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2.5, eveningHomeUse: 2.5, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "421 EVA", date: "2025-07-05", morningLiters: 7.5, eveningLiters: 4.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 4, eveningHomeUse: 4, morningWorkersMilk: 0, eveningWorkersMilk: 0},
-            {cowId: "421 EVA", date: "2025-07-06", morningLit
+            {cowId: "421 EVA", date: "2025-07-01", morningLiters: 7.0, eveningLiters: 3.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -15.25},
+            {cowId: "421 EVA", date: "2025-07-02", morningLiters: 7.0, eveningLiters: 5.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 2, eveningHomeUse: 2, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -14},
+            {cowId: "421 EVA", date: "2025-07-03", morningLiters: 7.0, eveningLiters: 3.5, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -15.25},
+            {cowId: "421 EVA", date: "2025-07-04", morningLiters: 7.0, eveningLiters: 4.0, morningCalfMilk: 12, eveningCalfMilk: 12, morningHomeUse: 1.25, eveningHomeUse: 1.25, morningWorkersMilk: 0, eveningWorkersMilk: 0, totalLiters: -14.75},
+            {cowId: "421 EVA", date: "2025-07-05", morningLiters: 7
