@@ -149,7 +149,7 @@
         </div>
         <div class="input-group">
             <label for="prodDate">Date</label>
-            <input type="date" id="prodDate" value="2025-08-03">
+            <input type="date" id="prodDate" value="2025-08-04">
         </div>
         <div class="input-group">
             <label for="morningLiters">Morning Liters</label>
@@ -252,7 +252,7 @@
             {"name":"413 Magret","birthDate":"2024-07-17"},
             {"name":"427 Cece","birthDate":"2024-09-26"},
             {"name":"425 Angel","birthDate":"2024-10-01"},
-            {"name":"093 Ritah","birthDate":"2025-10-10"},
+            {"name":"093 Ritah","birthDate":"2024-10-10"},
             {"name":"059 Susan","birthDate":"2024-12-06"},
             {"name":"008 Frida","birthDate":"2024-12-08"},
             {"name":"434 Shana","birthDate":"2025-04-04"},
@@ -267,13 +267,13 @@
             {"name":"418 Irene","birthDate":"2025-05-17"},
             {"name":"296 Joan","birthDate":"2025-05-28"},
             {"name":"511 Siima","birthDate":"2025-06-22"},
-            {"name":"021 BIra","birthDate":"2025-06-24"}
+            {"name":"021 Bira","birthDate":"2025-06-24"}
         ];
         let cows = JSON.parse(localStorage.getItem('cows')) || defaultCows;
 
         let productionData = JSON.parse(localStorage.getItem('productionData')) || [];
         let deductionsData = JSON.parse(localStorage.getItem('deductionsData')) || [];
-        const currentDate = moment('2025-08-03 15:38');
+        const currentDate = moment('2025-08-04 12:31');
 
         if (productionData.length === 0) {
             const sampleData = [
@@ -370,7 +370,6 @@
                 {cowId: "427 Cece", date: "2025-07-29", morningLiters: 1.0, eveningLiters: 0.0},
                 {cowId: "427 Cece", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0},
                 {cowId: "427 Cece", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0},
-                // Add more data for other cows similarly...
                 {cowId: "425 Angel", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 2.0},
                 {cowId: "425 Angel", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 2.0},
                 {cowId: "425 Angel", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0},
@@ -557,7 +556,6 @@
                 {cowId: "083 Kathy", date: "2025-07-29", morningLiters: 0.5, eveningLiters: 0.0},
                 {cowId: "083 Kathy", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0},
                 {cowId: "083 Kathy", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0},
-                // Extend for remaining cows (402 Kellen to 021 BIra) with similar patterns
                 {cowId: "402 Kellen", date: "2025-07-01", morningLiters: 4.0, eveningLiters: 2.0},
                 {cowId: "402 Kellen", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 2.0},
                 {cowId: "402 Kellen", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0},
@@ -642,4 +640,9 @@
                 {cowId: "421 EVA", date: "2025-07-20", morningLiters: 2.0, eveningLiters: 1.0},
                 {cowId: "421 EVA", date: "2025-07-21", morningLiters: 2.0, eveningLiters: 1.0},
                 {cowId: "421 EVA", date: "2025-07-22", morningLiters: 2.0, eveningLiters: 1.0},
-                {cowId: "421 EVA", date
+                {cowId: "421 EVA", date: "2025-07-23", morningLiters: 1.5, eveningLiters: 0.5},
+                {cowId: "421 EVA", date: "2025-07-24", morningLiters: 1.5, eveningLiters: 0.5},
+                {cowId: "421 EVA", date: "2025-07-25", morningLiters: 1.5, eveningLiters: 0.5},
+                {cowId: "421 EVA", date: "2025-07-26", morningLiters: 1.0, eveningLiters: 0.5},
+                {cowId: "421 EVA", date: "2025-07-27", morningLiters: 1.0, eveningLiters: 0.5},
+                {cowId: "421 EVA", date: "2025-
