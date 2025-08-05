@@ -4,65 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dairy Management App</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px;
             background-color: #f4f4f9;
         }
-        h1, h2 {
+        h1, h2, h3 {
             color: #333;
+            font-size: 1.5em;
         }
         .section {
-            margin: 20px 0;
-            padding: 20px;
+            margin: 10px 0;
+            padding: 15px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
+            font-size: 0.9em;
         }
         input, select {
             padding: 8px;
-            width: 200px;
+            width: 100%;
+            max-width: 300px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            box-sizing: border-box;
         }
         button {
-            padding: 10px 20px;
+            padding: 8px 16px;
             background-color: #28a745;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 0.9em;
         }
         button:hover {
             background-color: #218838;
         }
+        .edit-btn-main {
+            background-color: #007bff;
+            margin-left: 5px;
+        }
+        .edit-btn-main:hover {
+            background-color: #0056b3;
+        }
+        .export-btn {
+            background-color: #17a2b8;
+            margin-top: 10px;
+        }
+        .export-btn:hover {
+            background-color: #138496;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            overflow-x: auto;
+            font-size: 0.85em;
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 6px;
             text-align: center;
             white-space: nowrap;
         }
         th {
             background-color: #f2f2f2;
+        }
+        .date-header {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .ampm-header {
+            background-color: #f8f9fa;
+            font-size: 0.8em;
+        }
+        .totals-row {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .deduction-subrow {
+            background-color: #f1f1f1;
+            font-size: 0.8em;
         }
         .lactation-green {
             background-color: #d4edda;
@@ -75,19 +111,19 @@
         }
         .key {
             margin-top: 10px;
-            font-size: 0.9em;
+            font-size: 0.8em;
         }
         .key div {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 15px;
+            height: 15px;
             margin-right: 5px;
             vertical-align: middle;
         }
         .edit-btn, .delete-btn {
-            padding: 5px 10px;
+            padding: 4px 8px;
             margin: 2px;
-            font-size: 0.8em;
+            font-size: 0.75em;
         }
         .edit-btn {
             background-color: #007bff;
@@ -105,6 +141,80 @@
             font-weight: bold;
             background-color: #e9ecef;
         }
+        .chart-container {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .chart {
+            max-width: 100%;
+            width: 100%;
+            min-width: 250px;
+        }
+        .deduction-group {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .deduction-group h4 {
+            margin: 0 0 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            h1 {
+                font-size: 1.2em;
+            }
+            h2, h3 {
+                font-size: 1em;
+            }
+            .section {
+                padding: 10px;
+            }
+            input, select, button {
+                font-size: 0.85em;
+                padding: 6px;
+            }
+            .chart {
+                max-width: 100%;
+            }
+            table {
+                font-size: 0.75em;
+            }
+            th, td {
+                padding: 4px;
+            }
+            .edit-btn, .delete-btn {
+                padding: 3px 6px;
+                font-size: 0.7em;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1em;
+            }
+            h2, h3 {
+                font-size: 0.9em;
+            }
+            input, select {
+                max-width: 100%;
+            }
+            button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .edit-btn-main {
+                margin-left: 0;
+            }
+            .chart {
+                min-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -113,51 +223,90 @@
     <div class="section">
         <h2>Manage Cows</h2>
         <div class="input-group">
-            <label for="cowName">Cow Name</label>
-            <input type="text" id="cowName" placeholder="e.g., 297 Mercy">
+            <label for="cow-name">Cow Name</label>
+            <input type="text" id="cow-name" placeholder="Enter cow name">
         </div>
         <div class="input-group">
-            <label for="birthDate">Last Birth Date</label>
-            <input type="date" id="birthDate" value="">
+            <label for="last-birth-date">Last Birth Date</label>
+            <input type="date" id="last-birth-date">
+        </div>
+        <div class="input-group">
+            <label for="edit-cow-select">Select Cow to Edit</label>
+            <select id="edit-cow-select">
+                <option>Select Cow</option>
+            </select>
         </div>
         <button onclick="addCow()">Add Cow</button>
-        <table id="cowListTable">
-            <thead>
-                <tr>
-                    <th>Cow Name</th>
-                    <th>Last Birth Date</th>
-                    <th>Lactation Period (Months)</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="cowListBody"></tbody>
-        </table>
+        <button class="edit-btn-main" onclick="editCow()">Edit Cow</button>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cow Name</th>
+                        <th>Last Birth Date</th>
+                        <th>Lactation Period (Months)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="cow-table-body"></tbody>
+            </table>
+        </div>
         <div class="key">
-            <div style="background-color: #d4edda;"></div> 1-7 weeks (Green)
-            <div style="background-color: #fff3cd; margin-left: 10px;"></div> 10-30 weeks (Yellow)
-            <div style="background-color: #f8d7da; margin-left: 10px;"></div> 40-52 weeks (Red)
+            <div class="lactation-green"></div> 1-7 weeks (Green)<br>
+            <div class="lactation-yellow"></div> 10-30 weeks (Yellow)<br>
+            <div class="lactation-red"></div> 40-52 weeks (Red)
         </div>
     </div>
 
     <div class="section">
         <h2>Add Daily Milk Production</h2>
         <div class="input-group">
-            <label for="prodCow">Cow Name</label>
-            <select id="prodCow">
-                <option value="">Select Cow</option>
+            <label for="production-cow-select">Cow Name</label>
+            <select id="production-cow-select">
+                <option>Select Cow</option>
             </select>
         </div>
         <div class="input-group">
-            <label for="prodDate">Date</label>
-            <input type="date" id="prodDate" value="2025-08-04">
+            <label for="production-date">Date</label>
+            <input type="date" id="production-date">
         </div>
         <div class="input-group">
-            <label for="morningLiters">Morning Liters</label>
-            <input type="number" id="morningLiters" step="0.1" min="0" value="0">
+            <label for="morning-liters">Morning Liters</label>
+            <input type="number" id="morning-liters" step="0.1" min="0" placeholder="Enter liters">
         </div>
         <div class="input-group">
-            <label for="eveningLiters">Evening Liters</label>
-            <input type="number" id="eveningLiters" step="0.1" min="0" value="0">
+            <label for="evening-liters">Evening Liters</label>
+            <input type="number" id="evening-liters" step="0.1" min="0" placeholder="Enter liters">
+        </div>
+        <div class="deduction-group">
+            <h4>Morning Deductions</h4>
+            <div class="input-group">
+                <label for="morning-calf-milk">Calf Milk (Liters)</label>
+                <input type="number" id="morning-calf-milk" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+            <div class="input-group">
+                <label for="morning-home-use">Home Use (Liters)</label>
+                <input type="number" id="morning-home-use" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+            <div class="input-group">
+                <label for="morning-workers-milk">Workers Milk (Liters)</label>
+                <input type="number" id="morning-workers-milk" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+        </div>
+        <div class="deduction-group">
+            <h4>Evening Deductions</h4>
+            <div class="input-group">
+                <label for="evening-calf-milk">Calf Milk (Liters)</label>
+                <input type="number" id="evening-calf-milk" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+            <div class="input-group">
+                <label for="evening-home-use">Home Use (Liters)</label>
+                <input type="number" id="evening-home-use" step="0.1" min="0" placeholder="Enter liters">
+            </div>
+            <div class="input-group">
+                <label for="evening-workers-milk">Workers Milk (Liters)</label>
+                <input type="number" id="evening-workers-milk" step="0.1" min="0" placeholder="Enter liters">
+            </div>
         </div>
         <button onclick="addProduction()">Add Production</button>
     </div>
@@ -165,408 +314,603 @@
     <div class="section">
         <h2>Production Analysis</h2>
         <h3>Daily Production Entries (July 2025)</h3>
-        <table id="dailyProductionTable">
-            <thead>
-                <tr>
-                    <th>Cow No./Name</th>
-                    <th>Last Birth Date</th>
-                    <th>Lactation Period (Months)</th>
-                    <th>1 AM</th>
-                    <th>1 PM</th>
-                    <th>2 AM</th>
-                    <th>2 PM</th>
-                    <th>3 AM</th>
-                    <th>3 PM</th>
-                    <th>4 AM</th>
-                    <th>4 PM</th>
-                    <th>5 AM</th>
-                    <th>5 PM</th>
-                    <th>6 AM</th>
-                    <th>6 PM</th>
-                    <th>7 AM</th>
-                    <th>7 PM</th>
-                    <th>8 AM</th>
-                    <th>8 PM</th>
-                    <th>9 AM</th>
-                    <th>9 PM</th>
-                    <th>10 AM</th>
-                    <th>10 PM</th>
-                    <th>11 AM</th>
-                    <th>11 PM</th>
-                    <th>12 AM</th>
-                    <th>12 PM</th>
-                    <th>13 AM</th>
-                    <th>13 PM</th>
-                    <th>14 AM</th>
-                    <th>14 PM</th>
-                    <th>15 AM</th>
-                    <th>15 PM</th>
-                    <th>16 AM</th>
-                    <th>16 PM</th>
-                    <th>17 AM</th>
-                    <th>17 PM</th>
-                    <th>18 AM</th>
-                    <th>18 PM</th>
-                    <th>19 AM</th>
-                    <th>19 PM</th>
-                    <th>20 AM</th>
-                    <th>20 PM</th>
-                    <th>21 AM</th>
-                    <th>21 PM</th>
-                    <th>22 AM</th>
-                    <th>22 PM</th>
-                    <th>23 AM</th>
-                    <th>23 PM</th>
-                    <th>24 AM</th>
-                    <th>24 PM</th>
-                    <th>25 AM</th>
-                    <th>25 PM</th>
-                    <th>26 AM</th>
-                    <th>26 PM</th>
-                    <th>27 AM</th>
-                    <th>27 PM</th>
-                    <th>28 AM</th>
-                    <th>28 PM</th>
-                    <th>29 AM</th>
-                    <th>29 PM</th>
-                    <th>30 AM</th>
-                    <th>30 PM</th>
-                    <th>31 AM</th>
-                    <th>31 PM</th>
-                    <th>Total Liters</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="dailyProductionBody"></tbody>
-        </table>
+        <button class="export-btn" onclick="exportToExcel()">Export to Excel</button>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Cow No./Name</th>
+                        <th rowspan="2">Last Birth Date</th>
+                        <th rowspan="2">Lactation Period (Months)</th>
+                        <th colspan="62">July 2025</th>
+                        <th rowspan="2">Total Liters</th>
+                        <th rowspan="2">Action</th>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="date-header">1</th>
+                        <th colspan="2" class="date-header">2</th>
+                        <th colspan="2" class="date-header">3</th>
+                        <th colspan="2" class="date-header">4</th>
+                        <th colspan="2" class="date-header">5</th>
+                        <th colspan="2" class="date-header">6</th>
+                        <th colspan="2" class="date-header">7</th>
+                        <th colspan="2" class="date-header">8</th>
+                        <th colspan="2" class="date-header">9</th>
+                        <th colspan="2" class="date-header">10</th>
+                        <th colspan="2" class="date-header">11</th>
+                        <th colspan="2" class="date-header">12</th>
+                        <th colspan="2" class="date-header">13</th>
+                        <th colspan="2" class="date-header">14</th>
+                        <th colspan="2" class="date-header">15</th>
+                        <th colspan="2" class="date-header">16</th>
+                        <th colspan="2" class="date-header">17</th>
+                        <th colspan="2" class="date-header">18</th>
+                        <th colspan="2" class="date-header">19</th>
+                        <th colspan="2" class="date-header">20</th>
+                        <th colspan="2" class="date-header">21</th>
+                        <th colspan="2" class="date-header">22</th>
+                        <th colspan="2" class="date-header">23</th>
+                        <th colspan="2" class="date-header">24</th>
+                        <th colspan="2" class="date-header">25</th>
+                        <th colspan="2" class="date-header">26</th>
+                        <th colspan="2" class="date-header">27</th>
+                        <th colspan="2" class="date-header">28</th>
+                        <th colspan="2" class="date-header">29</th>
+                        <th colspan="2" class="date-header">30</th>
+                        <th colspan="2" class="date-header">31</th>
+                    </tr>
+                    <tr>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                        <th class="ampm-header">AM</th>
+                        <th class="ampm-header">PM</th>
+                    </tr>
+                </thead>
+                <tbody id="production-table-body"></tbody>
+            </table>
+        </div>
     </div>
 
-    <script>
-        if (typeof Chart === 'undefined') {
-            console.error('Chart.js failed to load. Please check the CDN link or internet connection.');
-            alert('Failed to load Chart.js. Please check your internet connection or try again later.');
-        }
+    <div class="section">
+        <h2>Production Charts</h2>
+        <div class="chart-container">
+            <div>
+                <h3>Top 5 Milkers (Daily, July 10)</h3>
+                <canvas class="chart" id="top-5-daily"></canvas>
+            </div>
+            <div>
+                <h3>Worst 5 Milkers (Daily, July 10)</h3>
+                <canvas class="chart" id="worst-5-daily"></canvas>
+            </div>
+            <div>
+                <h3>Top 5 Milkers (Week, July 5-10)</h3>
+                <canvas class="chart" id="top-5-weekly"></canvas>
+            </div>
+            <div>
+                <h3>Worst 5 Milkers (Week, July 5-10)</h3>
+                <canvas class="chart" id="worst-5-weekly"></canvas>
+            </div>
+            <div>
+                <h3>Top 5 Milkers (Month, July 1-10)</h3>
+                <canvas class="chart" id="top-5-monthly"></canvas>
+            </div>
+            <div>
+                <h3>Worst 5 Milkers (Month, July 1-10)</h3>
+                <canvas class="chart" id="worst-5-monthly"></canvas>
+            </div>
+        </div>
+    </div>
 
-        let cows = [
-            {"name":"297 Mercy","birthDate":"2024-07-14"},
-            {"name":"413 Magret","birthDate":"2024-07-17"},
-            {"name":"427 Cece","birthDate":"2024-09-26"},
-            {"name":"425 Angel","birthDate":"2024-10-01"},
-            {"name":"093 Ritah","birthDate":"2024-10-10"},
-            {"name":"059 Susan","birthDate":"2024-12-06"},
-            {"name":"008 Frida","birthDate":"2024-12-08"},
-            {"name":"434 Shana","birthDate":"2025-04-04"},
-            {"name":"083 Kathy","birthDate":"2025-03-11"},
-            {"name":"402 Kellen","birthDate":"2025-03-28"},
-            {"name":"098 Jackline","birthDate":"2025-04-12"},
-            {"name":"421 EVA","birthDate":"2025-04-18"},
-            {"name":"099 Sarah","birthDate":"2025-04-20"},
-            {"name":"521 Keza","birthDate":"2025-02-23"},
-            {"name":"024 Kirabo","birthDate":"2025-04-25"},
-            {"name":"403 Peace","birthDate":"2025-05-10"},
-            {"name":"418 Irene","birthDate":"2025-05-17"},
-            {"name":"296 Joan","birthDate":"2025-05-28"},
-            {"name":"511 Siima","birthDate":"2025-06-22"},
-            {"name":"021 Bira","birthDate":"2025-06-24"}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.21.0/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
+    <script>
+        // Diagnostic to confirm library loading
+        window.addEventListener('load', () => {
+            console.log('Chart.js loaded:', typeof Chart !== 'undefined');
+            console.log('XLSX loaded:', typeof XLSX !== 'undefined');
+            console.log('Moment.js loaded:', typeof moment !== 'undefined');
+        });
+
+        // Cow data
+        const cows = [
+            { name: "297 Mercy", birthDate: "2024-07-14" },
+            { name: "413 Magret", birthDate: "2024-07-17" },
+            { name: "427 Cece", birthDate: "2024-09-26" },
+            { name: "425 Angel", birthDate: "2024-10-01" },
+            { name: "093 Ritah", birthDate: "2024-10-10" },
+            { name: "059 Susan", birthDate: "2024-12-06" },
+            { name: "008 Frida", birthDate: "2024-12-08" },
+            { name: "434 Shana", birthDate: "2025-04-04" },
+            { name: "083 Kathy", birthDate: "2025-03-11" },
+            { name: "402 Kellen", birthDate: "2025-03-28" },
+            { name: "098 Jackline", birthDate: "2025-04-12" },
+            { name: "421 EVA", birthDate: "2025-04-18" },
+            { name: "099 Sarah", birthDate: "2025-04-20" },
+            { name: "521 Keza", birthDate: "2025-02-23" },
+            { name: "024 Kirabo", birthDate: "2025-04-25" },
+            { name: "403 Peace", birthDate: "2025-05-10" },
+            { name: "418 Irene", birthDate: "2025-05-17" },
+            { name: "296 Joan", birthDate: "2025-05-28" },
+            { name: "511 Siima", birthDate: "2025-06-22" },
+            { name: "021 BIra", birthDate: "2025-06-24" }
         ];
 
-        let productionData = [
+        // Milk production data
+        const productionData = [
             {cowId: "297 Mercy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
             {cowId: "297 Mercy", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
             {cowId: "297 Mercy", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
             {cowId: "297 Mercy", date: "2025-07-04", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
             {cowId: "297 Mercy", date: "2025-07-05", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
-            {cowId: "297 Mercy", date: "2025-07-06", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
             {cowId: "297 Mercy", date: "2025-07-07", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
             {cowId: "297 Mercy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "297 Mercy", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "297 Mercy", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "297 Mercy", date: "2025-07-11", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "297 Mercy", date: "2025-07-12", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "297 Mercy", date: "2025-07-13", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "297 Mercy", date: "2025-07-14", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "297 Mercy", date: "2025-07-15", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "297 Mercy", date: "2025-07-16", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "297 Mercy", date: "2025-07-17", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "297 Mercy", date: "2025-07-18", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "297 Mercy", date: "2025-07-19", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "297 Mercy", date: "2025-07-20", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "297 Mercy", date: "2025-07-21", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "297 Mercy", date: "2025-07-22", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "297 Mercy", date: "2025-07-23", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "297 Mercy", date: "2025-07-24", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "297 Mercy", date: "2025-07-25", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "297 Mercy", date: "2025-07-26", morningLiters: 1.5, eveningLiters: 0.5, totalLiters: 2.0},
-            {cowId: "297 Mercy", date: "2025-07-27", morningLiters: 1.5, eveningLiters: 0.5, totalLiters: 2.0},
-            {cowId: "297 Mercy", date: "2025-07-28", morningLiters: 1.5, eveningLiters: 0.5, totalLiters: 2.0},
-            {cowId: "297 Mercy", date: "2025-07-29", morningLiters: 1.0, eveningLiters: 0.5, totalLiters: 1.5},
-            {cowId: "297 Mercy", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
-            {cowId: "297 Mercy", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
+            {cowId: "297 Mercy", date: "2025-07-11", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
             {cowId: "413 Magret", date: "2025-07-01", morningLiters: 5.0, eveningLiters: 2.5, totalLiters: 7.5},
             {cowId: "413 Magret", date: "2025-07-02", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
             {cowId: "413 Magret", date: "2025-07-03", morningLiters: 5.5, eveningLiters: 3.0, totalLiters: 8.5},
             {cowId: "413 Magret", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.5, totalLiters: 7.5},
             {cowId: "413 Magret", date: "2025-07-05", morningLiters: 5.5, eveningLiters: 2.0, totalLiters: 7.5},
-            {cowId: "413 Magret", date: "2025-07-06", morningLiters: 5.5, eveningLiters: 2.0, totalLiters: 7.5},
             {cowId: "413 Magret", date: "2025-07-07", morningLiters: 6.5, eveningLiters: 2.0, totalLiters: 8.5},
             {cowId: "413 Magret", date: "2025-07-08", morningLiters: 5.5, eveningLiters: 2.5, totalLiters: 8.0},
             {cowId: "413 Magret", date: "2025-07-09", morningLiters: 5.0, eveningLiters: 2.5, totalLiters: 7.5},
             {cowId: "413 Magret", date: "2025-07-10", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
-            {cowId: "413 Magret", date: "2025-07-11", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
-            {cowId: "413 Magret", date: "2025-07-12", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
-            {cowId: "413 Magret", date: "2025-07-13", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
-            {cowId: "413 Magret", date: "2025-07-14", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
-            {cowId: "413 Magret", date: "2025-07-15", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
-            {cowId: "413 Magret", date: "2025-07-16", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "413 Magret", date: "2025-07-17", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "413 Magret", date: "2025-07-18", morningLiters: 4.0, eveningLiters: 1.5, totalLiters: 5.5},
-            {cowId: "413 Magret", date: "2025-07-19", morningLiters: 4.0, eveningLiters: 1.5, totalLiters: 5.5},
-            {cowId: "413 Magret", date: "2025-07-20", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "413 Magret", date: "2025-07-21", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "413 Magret", date: "2025-07-22", morningLiters: 3.5, eveningLiters: 1.0, totalLiters: 4.5},
-            {cowId: "413 Magret", date: "2025-07-23", morningLiters: 3.0, eveningLiters: 1.0, totalLiters: 4.0},
-            {cowId: "413 Magret", date: "2025-07-24", morningLiters: 3.0, eveningLiters: 1.0, totalLiters: 4.0},
-            {cowId: "413 Magret", date: "2025-07-25", morningLiters: 3.0, eveningLiters: 1.0, totalLiters: 4.0},
-            {cowId: "413 Magret", date: "2025-07-26", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "413 Magret", date: "2025-07-27", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "413 Magret", date: "2025-07-28", morningLiters: 2.5, eveningLiters: 0.5, totalLiters: 3.0},
-            {cowId: "413 Magret", date: "2025-07-29", morningLiters: 2.0, eveningLiters: 0.5, totalLiters: 2.5},
-            {cowId: "413 Magret", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
-            {cowId: "413 Magret", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
+            {cowId: "413 Magret", date: "2025-07-11", morningLiters: 5.5, eveningLiters: 2.0, totalLiters: 7.5},
             {cowId: "427 Cece", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
             {cowId: "427 Cece", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 2.0, totalLiters: 5.0},
             {cowId: "427 Cece", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "427 Cece", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
             {cowId: "427 Cece", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "427 Cece", date: "2025-07-06", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
             {cowId: "427 Cece", date: "2025-07-07", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
             {cowId: "427 Cece", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
             {cowId: "427 Cece", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
             {cowId: "427 Cece", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "427 Cece", date: "2025-07-11", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "427 Cece", date: "2025-07-12", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "427 Cece", date: "2025-07-13", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "427 Cece", date: "2025-07-14", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "427 Cece", date: "2025-07-15", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "427 Cece", date: "2025-07-16", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "427 Cece", date: "2025-07-17", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "427 Cece", date: "2025-07-18", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "427 Cece", date: "2025-07-19", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "427 Cece", date: "2025-07-20", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "427 Cece", date: "2025-07-21", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "427 Cece", date: "2025-07-22", morningLiters: 1.5, eveningLiters: 0.5, totalLiters: 2.0},
-            {cowId: "427 Cece", date: "2025-07-23", morningLiters: 1.5, eveningLiters: 0.5, totalLiters: 2.0},
-            {cowId: "427 Cece", date: "2025-07-24", morningLiters: 1.5, eveningLiters: 0.5, totalLiters: 2.0},
-            {cowId: "427 Cece", date: "2025-07-25", morningLiters: 1.5, eveningLiters: 0.5, totalLiters: 2.0},
-            {cowId: "427 Cece", date: "2025-07-26", morningLiters: 1.0, eveningLiters: 0.5, totalLiters: 1.5},
-            {cowId: "427 Cece", date: "2025-07-27", morningLiters: 1.0, eveningLiters: 0.5, totalLiters: 1.5},
-            {cowId: "427 Cece", date: "2025-07-28", morningLiters: 1.0, eveningLiters: 0.5, totalLiters: 1.5},
-            {cowId: "427 Cece", date: "2025-07-29", morningLiters: 1.0, eveningLiters: 0.0, totalLiters: 1.0},
-            {cowId: "427 Cece", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
-            {cowId: "427 Cece", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
             {cowId: "425 Angel", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
             {cowId: "425 Angel", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "425 Angel", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "425 Angel", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 2.5, totalLiters: 6.5},
             {cowId: "425 Angel", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "425 Angel", date: "2025-07-06", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "425 Angel", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "425 Angel", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "425 Angel", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "425 Angel", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "425 Angel", date: "2025-07-11", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "425 Angel", date: "2025-07-12", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "425 Angel", date: "2025-07-13", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "425 Angel", date: "2025-07-14", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "425 Angel", date: "2025-07-15", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "425 Angel", date: "2025-07-16", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "425 Angel", date: "2025-07-17", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "425 Angel", date: "2025-07-18", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "425 Angel", date: "2025-07-19", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "425 Angel", date: "2025-07-20", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "425 Angel", date: "2025-07-21", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "425 Angel", date: "2025-07-22", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "425 Angel", date: "2025-07-23", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "425 Angel", date: "2025-07-24", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "425 Angel", date: "2025-07-25", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "425 Angel", date: "2025-07-26", morningLiters: 1.5, eveningLiters: 0.5, totalLiters: 2.0},
-            {cowId: "425 Angel", date: "2025-07-27", morningLiters: 1.5, eveningLiters: 0.5, totalLiters: 2.0},
-            {cowId: "425 Angel", date: "2025-07-28", morningLiters: 1.5, eveningLiters: 0.5, totalLiters: 2.0},
-            {cowId: "425 Angel", date: "2025-07-29", morningLiters: 1.0, eveningLiters: 0.5, totalLiters: 1.5},
-            {cowId: "425 Angel", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
-            {cowId: "425 Angel", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
             {cowId: "093 Ritah", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 3.0, totalLiters: 7.5},
             {cowId: "093 Ritah", date: "2025-07-02", morningLiters: 5.0, eveningLiters: 3.0, totalLiters: 8.0},
             {cowId: "093 Ritah", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 3.0, totalLiters: 7.0},
             {cowId: "093 Ritah", date: "2025-07-04", morningLiters: 4.5, eveningLiters: 2.5, totalLiters: 7.0},
             {cowId: "093 Ritah", date: "2025-07-05", morningLiters: 4.5, eveningLiters: 3.0, totalLiters: 7.5},
-            {cowId: "093 Ritah", date: "2025-07-06", morningLiters: 4.5, eveningLiters: 3.0, totalLiters: 7.5},
             {cowId: "093 Ritah", date: "2025-07-07", morningLiters: 4.5, eveningLiters: 3.0, totalLiters: 7.5},
             {cowId: "093 Ritah", date: "2025-07-08", morningLiters: 5.5, eveningLiters: 3.0, totalLiters: 8.5},
             {cowId: "093 Ritah", date: "2025-07-09", morningLiters: 5.0, eveningLiters: 3.0, totalLiters: 8.0},
             {cowId: "093 Ritah", date: "2025-07-10", morningLiters: 5.5, eveningLiters: 2.0, totalLiters: 7.5},
-            {cowId: "093 Ritah", date: "2025-07-11", morningLiters: 5.5, eveningLiters: 2.0, totalLiters: 7.5},
-            {cowId: "093 Ritah", date: "2025-07-12", morningLiters: 5.5, eveningLiters: 2.0, totalLiters: 7.5},
-            {cowId: "093 Ritah", date: "2025-07-13", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
-            {cowId: "093 Ritah", date: "2025-07-14", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
-            {cowId: "093 Ritah", date: "2025-07-15", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
-            {cowId: "093 Ritah", date: "2025-07-16", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
-            {cowId: "093 Ritah", date: "2025-07-17", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
-            {cowId: "093 Ritah", date: "2025-07-18", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
-            {cowId: "093 Ritah", date: "2025-07-19", morningLiters: 4.0, eveningLiters: 1.5, totalLiters: 5.5},
-            {cowId: "093 Ritah", date: "2025-07-20", morningLiters: 4.0, eveningLiters: 1.5, totalLiters: 5.5},
-            {cowId: "093 Ritah", date: "2025-07-21", morningLiters: 4.0, eveningLiters: 1.5, totalLiters: 5.5},
-            {cowId: "093 Ritah", date: "2025-07-22", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "093 Ritah", date: "2025-07-23", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "093 Ritah", date: "2025-07-24", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "093 Ritah", date: "2025-07-25", morningLiters: 3.0, eveningLiters: 1.0, totalLiters: 4.0},
-            {cowId: "093 Ritah", date: "2025-07-26", morningLiters: 3.0, eveningLiters: 1.0, totalLiters: 4.0},
-            {cowId: "093 Ritah", date: "2025-07-27", morningLiters: 3.0, eveningLiters: 1.0, totalLiters: 4.0},
-            {cowId: "093 Ritah", date: "2025-07-28", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "093 Ritah", date: "2025-07-29", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "093 Ritah", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
-            {cowId: "093 Ritah", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
             {cowId: "059 Susan", date: "2025-07-01", morningLiters: 6.0, eveningLiters: 2.5, totalLiters: 8.5},
             {cowId: "059 Susan", date: "2025-07-02", morningLiters: 5.5, eveningLiters: 2.5, totalLiters: 8.0},
             {cowId: "059 Susan", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
             {cowId: "059 Susan", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.0, totalLiters: 7.0},
             {cowId: "059 Susan", date: "2025-07-05", morningLiters: 4.5, eveningLiters: 3.0, totalLiters: 7.5},
-            {cowId: "059 Susan", date: "2025-07-06", morningLiters: 4.5, eveningLiters: 3.0, totalLiters: 7.5},
             {cowId: "059 Susan", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "059 Susan", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "059 Susan", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
             {cowId: "059 Susan", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 3.0, totalLiters: 6.5},
-            {cowId: "059 Susan", date: "2025-07-11", morningLiters: 3.5, eveningLiters: 3.0, totalLiters: 6.5},
-            {cowId: "059 Susan", date: "2025-07-12", morningLiters: 3.5, eveningLiters: 3.0, totalLiters: 6.5},
-            {cowId: "059 Susan", date: "2025-07-13", morningLiters: 3.0, eveningLiters: 2.5, totalLiters: 5.5},
-            {cowId: "059 Susan", date: "2025-07-14", morningLiters: 3.0, eveningLiters: 2.5, totalLiters: 5.5},
-            {cowId: "059 Susan", date: "2025-07-15", morningLiters: 3.0, eveningLiters: 2.5, totalLiters: 5.5},
-            {cowId: "059 Susan", date: "2025-07-16", morningLiters: 3.0, eveningLiters: 2.0, totalLiters: 5.0},
-            {cowId: "059 Susan", date: "2025-07-17", morningLiters: 3.0, eveningLiters: 2.0, totalLiters: 5.0},
-            {cowId: "059 Susan", date: "2025-07-18", morningLiters: 2.5, eveningLiters: 2.0, totalLiters: 4.5},
-            {cowId: "059 Susan", date: "2025-07-19", morningLiters: 2.5, eveningLiters: 2.0, totalLiters: 4.5},
-            {cowId: "059 Susan", date: "2025-07-20", morningLiters: 2.5, eveningLiters: 2.0, totalLiters: 4.5},
-            {cowId: "059 Susan", date: "2025-07-21", morningLiters: 2.0, eveningLiters: 1.5, totalLiters: 3.5},
-            {cowId: "059 Susan", date: "2025-07-22", morningLiters: 2.0, eveningLiters: 1.5, totalLiters: 3.5},
-            {cowId: "059 Susan", date: "2025-07-23", morningLiters: 2.0, eveningLiters: 1.5, totalLiters: 3.5},
-            {cowId: "059 Susan", date: "2025-07-24", morningLiters: 1.5, eveningLiters: 1.0, totalLiters: 2.5},
-            {cowId: "059 Susan", date: "2025-07-25", morningLiters: 1.5, eveningLiters: 1.0, totalLiters: 2.5},
-            {cowId: "059 Susan", date: "2025-07-26", morningLiters: 1.5, eveningLiters: 1.0, totalLiters: 2.5},
-            {cowId: "059 Susan", date: "2025-07-27", morningLiters: 1.0, eveningLiters: 1.0, totalLiters: 2.0},
-            {cowId: "059 Susan", date: "2025-07-28", morningLiters: 1.0, eveningLiters: 0.5, totalLiters: 1.5},
-            {cowId: "059 Susan", date: "2025-07-29", morningLiters: 1.0, eveningLiters: 0.5, totalLiters: 1.5},
-            {cowId: "059 Susan", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
-            {cowId: "059 Susan", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
             {cowId: "008 Frida", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 0.0, totalLiters: 3.5},
             {cowId: "008 Frida", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
             {cowId: "008 Frida", date: "2025-07-03", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
             {cowId: "008 Frida", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
             {cowId: "008 Frida", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 0.0, totalLiters: 3.5},
-            {cowId: "008 Frida", date: "2025-07-06", morningLiters: 3.5, eveningLiters: 0.0, totalLiters: 3.5},
             {cowId: "008 Frida", date: "2025-07-07", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
             {cowId: "008 Frida", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 0.0, totalLiters: 3.5},
             {cowId: "008 Frida", date: "2025-07-09", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
             {cowId: "008 Frida", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
-            {cowId: "008 Frida", date: "2025-07-11", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
-            {cowId: "008 Frida", date: "2025-07-12", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
-            {cowId: "008 Frida", date: "2025-07-13", morningLiters: 2.5, eveningLiters: 0.0, totalLiters: 2.5},
-            {cowId: "008 Frida", date: "2025-07-14", morningLiters: 2.5, eveningLiters: 0.0, totalLiters: 2.5},
-            {cowId: "008 Frida", date: "2025-07-15", morningLiters: 2.5, eveningLiters: 0.0, totalLiters: 2.5},
-            {cowId: "008 Frida", date: "2025-07-16", morningLiters: 2.0, eveningLiters: 0.0, totalLiters: 2.0},
-            {cowId: "008 Frida", date: "2025-07-17", morningLiters: 2.0, eveningLiters: 0.0, totalLiters: 2.0},
-            {cowId: "008 Frida", date: "2025-07-18", morningLiters: 2.0, eveningLiters: 0.0, totalLiters: 2.0},
-            {cowId: "008 Frida", date: "2025-07-19", morningLiters: 2.0, eveningLiters: 0.0, totalLiters: 2.0},
-            {cowId: "008 Frida", date: "2025-07-20", morningLiters: 1.5, eveningLiters: 0.0, totalLiters: 1.5},
-            {cowId: "008 Frida", date: "2025-07-21", morningLiters: 1.5, eveningLiters: 0.0, totalLiters: 1.5},
-            {cowId: "008 Frida", date: "2025-07-22", morningLiters: 1.5, eveningLiters: 0.0, totalLiters: 1.5},
-            {cowId: "008 Frida", date: "2025-07-23", morningLiters: 1.0, eveningLiters: 0.0, totalLiters: 1.0},
-            {cowId: "008 Frida", date: "2025-07-24", morningLiters: 1.0, eveningLiters: 0.0, totalLiters: 1.0},
-            {cowId: "008 Frida", date: "2025-07-25", morningLiters: 1.0, eveningLiters: 0.0, totalLiters: 1.0},
-            {cowId: "008 Frida", date: "2025-07-26", morningLiters: 1.0, eveningLiters: 0.0, totalLiters: 1.0},
-            {cowId: "008 Frida", date: "2025-07-27", morningLiters: 0.5, eveningLiters: 0.0, totalLiters: 0.5},
-            {cowId: "008 Frida", date: "2025-07-28", morningLiters: 0.5, eveningLiters: 0.0, totalLiters: 0.5},
-            {cowId: "008 Frida", date: "2025-07-29", morningLiters: 0.5, eveningLiters: 0.0, totalLiters: 0.5},
-            {cowId: "008 Frida", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
-            {cowId: "008 Frida", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
             {cowId: "434 Shana", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.5, totalLiters: 7.0},
             {cowId: "434 Shana", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0, totalLiters: 6.5},
             {cowId: "434 Shana", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "434 Shana", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 2.5, totalLiters: 6.5},
             {cowId: "434 Shana", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "434 Shana", date: "2025-07-06", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "434 Shana", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "434 Shana", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
             {cowId: "434 Shana", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
             {cowId: "434 Shana", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
-            {cowId: "434 Shana", date: "2025-07-11", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
-            {cowId: "434 Shana", date: "2025-07-12", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
-            {cowId: "434 Shana", date: "2025-07-13", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
-            {cowId: "434 Shana", date: "2025-07-14", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "434 Shana", date: "2025-07-15", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "434 Shana", date: "2025-07-16", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "434 Shana", date: "2025-07-17", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "434 Shana", date: "2025-07-18", morningLiters: 2.5, eveningLiters: 1.5, totalLiters: 4.0},
-            {cowId: "434 Shana", date: "2025-07-19", morningLiters: 2.5, eveningLiters: 1.5, totalLiters: 4.0},
-            {cowId: "434 Shana", date: "2025-07-20", morningLiters: 2.5, eveningLiters: 1.5, totalLiters: 4.0},
-            {cowId: "434 Shana", date: "2025-07-21", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "434 Shana", date: "2025-07-22", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "434 Shana", date: "2025-07-23", morningLiters: 2.0, eveningLiters: 1.0, totalLiters: 3.0},
-            {cowId: "434 Shana", date: "2025-07-24", morningLiters: 1.5, eveningLiters: 1.0, totalLiters: 2.5},
-            {cowId: "434 Shana", date: "2025-07-25", morningLiters: 1.5, eveningLiters: 1.0, totalLiters: 2.5},
-            {cowId: "434 Shana", date: "2025-07-26", morningLiters: 1.5, eveningLiters: 1.0, totalLiters: 2.5},
-            {cowId: "434 Shana", date: "2025-07-27", morningLiters: 1.0, eveningLiters: 0.5, totalLiters: 1.5},
-            {cowId: "434 Shana", date: "2025-07-28", morningLiters: 1.0, eveningLiters: 0.5, totalLiters: 1.5},
-            {cowId: "434 Shana", date: "2025-07-29", morningLiters: 1.0, eveningLiters: 0.5, totalLiters: 1.5},
-            {cowId: "434 Shana", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
-            {cowId: "434 Shana", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
             {cowId: "083 Kathy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 0.0, totalLiters: 4.5},
             {cowId: "083 Kathy", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
             {cowId: "083 Kathy", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
             {cowId: "083 Kathy", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
             {cowId: "083 Kathy", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
-            {cowId: "083 Kathy", date: "2025-07-06", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
             {cowId: "083 Kathy", date: "2025-07-07", morningLiters: 2.5, eveningLiters: 0.0, totalLiters: 2.5},
             {cowId: "083 Kathy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 0.0, totalLiters: 4.0},
             {cowId: "083 Kathy", date: "2025-07-09", morningLiters: 2.5, eveningLiters: 0.0, totalLiters: 2.5},
-            {cowId: "083 Kathy", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
-            {cowId: "083 Kathy", date: "2025-07-11", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
-            {cowId: "083 Kathy", date: "2025-07-12", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0},
-            {cowId: "083 Kathy", date: "2025-07-13", morningLiters: 2.5, eveningLiters: 0.0, totalLiters: 2.5},
-            {cowId: "083 Kathy", date: "2025-07-14", morningLiters: 2.5, eveningLiters: 0.0, totalLiters: 2.5},
-            {cowId: "083 Kathy", date: "2025-07-15", morningLiters: 2.5, eveningLiters: 0.0, totalLiters: 2.5},
-            {cowId: "083 Kathy", date: "2025-07-16", morningLiters: 2.0, eveningLiters: 0.0, totalLiters: 2.0},
-            {cowId: "083 Kathy", date: "2025-07-17", morningLiters: 2.0, eveningLiters: 0.0, totalLiters: 2.0},
-            {cowId: "083 Kathy", date: "2025-07-18", morningLiters: 2.0, eveningLiters: 0.0, totalLiters: 2.0},
-            {cowId: "083 Kathy", date: "2025-07-19", morningLiters: 2.0, eveningLiters: 0.0, totalLiters: 2.0},
-            {cowId: "083 Kathy", date: "2025-07-20", morningLiters: 1.5, eveningLiters: 0.0, totalLiters: 1.5},
-            {cowId: "083 Kathy", date: "2025-07-21", morningLiters: 1.5, eveningLiters: 0.0, totalLiters: 1.5},
-            {cowId: "083 Kathy", date: "2025-07-22", morningLiters: 1.5, eveningLiters: 0.0, totalLiters: 1.5},
-            {cowId: "083 Kathy", date: "2025-07-23", morningLiters: 1.0, eveningLiters: 0.0, totalLiters: 1.0},
-            {cowId: "083 Kathy", date: "2025-07-24", morningLiters: 1.0, eveningLiters: 0.0, totalLiters: 1.0},
-            {cowId: "083 Kathy", date: "2025-07-25", morningLiters: 1.0, eveningLiters: 0.0, totalLiters: 1.0},
-            {cowId: "083 Kathy", date: "2025-07-26", morningLiters: 1.0, eveningLiters: 0.0, totalLiters: 1.0},
-            {cowId: "083 Kathy", date: "2025-07-27", morningLiters: 0.5, eveningLiters: 0.0, totalLiters: 0.5},
-            {cowId: "083 Kathy", date: "2025-07-28", morningLiters: 0.5, eveningLiters: 0.0, totalLiters: 0.5},
-            {cowId: "083 Kathy", date: "2025-07-29", morningLiters: 0.5, eveningLiters: 0.0, totalLiters: 0.5},
-            {cowId: "083 Kathy", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
-            {cowId: "083 Kathy", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0, totalLiters: 0.0},
-            {cowId: "402 Kellen", date: "2025-07-01", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "402 Kellen", date: "2025-07-02", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "402 Kellen", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "402 Kellen", date: "2025-07-04", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "402 Kellen", date: "2025-07-05", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "402 Kellen", date: "2025-07-06", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "402 Kellen", date: "2025-07-07", morningLiters: 4.0, eveningLiters: 2.0, totalLiters: 6.0},
-            {cowId: "402 Kellen", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
-            {cowId: "402 Kellen", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 2.0, totalLiters: 5.5},
-            {cowId: "402 Kellen", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "402 Kellen", date: "2025-07-11", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "402 Kellen", date: "2025-07-12", morningLiters: 3.5, eveningLiters: 1.5, totalLiters: 5.0},
-            {cowId: "402 Kellen", date: "2025-07-13", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "402 Kellen", date: "2025-07-14", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "402 Kellen", date: "2025-07-15", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "402 Kellen", date: "2025-07-16", morningLiters: 3.0, eveningLiters: 1.5, totalLiters: 4.5},
-            {cowId: "402 Kellen", date: "2025-07-17", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "402 Kellen", date: "2025-07-18", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "402 Kellen", date: "2025-07-19", morningLiters: 2.5, eveningLiters: 1.0, totalLiters: 3.5},
-            {cowId: "402 Kellen", date: "2025-07-20", morningLiters: 2.5,
+            {cowId: "083 Kathy", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0.0, totalLiters: 3.0}
+        ];
+
+        // Populate cow select dropdowns
+        function populateCowSelects() {
+            const editSelect = document.getElementById('edit-cow-select');
+            const productionSelect = document.getElementById('production-cow-select');
+            cows.forEach(cow => {
+                const option = document.createElement('option');
+                option.value = cow.name;
+                option.textContent = cow.name;
+                editSelect.appendChild(option.cloneNode(true));
+                productionSelect.appendChild(option);
+            });
+        }
+
+        // Calculate lactation period in weeks
+        function getLactationPeriod(birthDate) {
+            const today = moment();
+            const birth = moment(birthDate);
+            const weeks = today.diff(birth, 'weeks');
+            return weeks;
+        }
+
+        // Get lactation class for styling
+        function getLactationClass(weeks) {
+            if (weeks >= 1 && weeks <= 7) return 'lactation-green';
+            if (weeks >= 10 && weeks <= 30) return 'lactation-yellow';
+            if (weeks >= 40 && weeks <= 52) return 'lactation-red';
+            return '';
+        }
+
+        // Populate cow table
+        function populateCowTable() {
+            const tbody = document.getElementById('cow-table-body');
+            tbody.innerHTML = '';
+            cows.forEach(cow => {
+                const weeks = getLactationPeriod(cow.birthDate);
+                const months = Math.round(weeks / 4.33);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="${getLactationClass(weeks)}">${cow.name}</td>
+                    <td>${cow.birthDate}</td>
+                    <td>${months}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editCow('${cow.name}')">Edit</button>
+                        <button class="delete-btn" onclick="deleteCow('${cow.name}')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Populate production table
+        function populateProductionTable() {
+            const tbody = document.getElementById('production-table-body');
+            tbody.innerHTML = '';
+            cows.forEach(cow => {
+                const weeks = getLactationPeriod(cow.birthDate);
+                const months = Math.round(weeks / 4.33);
+                let totalLiters = 0;
+                let cells = `
+                    <td class="${getLactationClass(weeks)}">${cow.name}</td>
+                    <td>${cow.birthDate}</td>
+                    <td>${months}</td>
+                `;
+                for (let day = 1; day <= 31; day++) {
+                    const date = `2025-07-${day.toString().padStart(2, '0')}`;
+                    const entry = productionData.find(p => p.cowId === cow.name && p.date === date);
+                    const am = entry ? entry.morningLiters : 0;
+                    const pm = entry ? entry.eveningLiters : 0;
+                    totalLiters += (am + pm);
+                    cells += `<td>${am.toFixed(1)}</td><td>${pm.toFixed(1)}</td>`;
+                }
+                cells += `<td class="total-col">${totalLiters.toFixed(1)}</td>`;
+                cells += `
+                    <td>
+                        <button class="edit-btn" onclick="editProduction('${cow.name}')">Edit</button>
+                        <button class="delete-btn" onclick="deleteProduction('${cow.name}')">Delete</button>
+                    </td>
+                `;
+                const row = document.createElement('tr');
+                row.innerHTML = cells;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Add cow
+        function addCow() {
+            const name = document.getElementById('cow-name').value;
+            const birthDate = document.getElementById('last-birth-date').value;
+            if (name && birthDate) {
+                cows.push({ name, birthDate });
+                populateCowSelects();
+                populateCowTable();
+                populateProductionTable();
+                document.getElementById('cow-name').value = '';
+                document.getElementById('last-birth-date').value = '';
+            } else {
+                alert('Please enter cow name and birth date.');
+            }
+        }
+
+        // Edit cow (placeholder)
+        function editCow(name) {
+            const cow = cows.find(c => c.name === name);
+            if (cow) {
+                document.getElementById('cow-name').value = cow.name;
+                document.getElementById('last-birth-date').value = cow.birthDate;
+                alert(`Editing ${cow.name}. Update fields and click "Add Cow" to save.`);
+            }
+        }
+
+        // Delete cow
+        function deleteCow(name) {
+            const index = cows.findIndex(c => c.name === name);
+            if (index !== -1) {
+                cows.splice(index, 1);
+                productionData = productionData.filter(p => p.cowId !== name);
+                populateCowSelects();
+                populateCowTable();
+                populateProductionTable();
+                initCharts();
+            }
+        }
+
+        // Add production
+        function addProduction() {
+            const cowId = document.getElementById('production-cow-select').value;
+            const date = document.getElementById('production-date').value;
+            const morningLiters = parseFloat(document.getElementById('morning-liters').value) || 0;
+            const eveningLiters = parseFloat(document.getElementById('evening-liters').value) || 0;
+            const totalLiters = morningLiters + eveningLiters;
+            if (cowId !== 'Select Cow' && date) {
+                productionData.push({ cowId, date, morningLiters, eveningLiters, totalLiters });
+                populateProductionTable();
+                initCharts();
+                document.getElementById('production-cow-select').value = 'Select Cow';
+                document.getElementById('production-date').value = '';
+                document.getElementById('morning-liters').value = '';
+                document.getElementById('evening-liters').value = '';
+            } else {
+                alert('Please select a cow and enter a date.');
+            }
+        }
+
+        // Edit production (placeholder)
+        function editProduction(cowId) {
+            alert(`Editing production for ${cowId}. Select cow and date, update fields, and click "Add Production" to save.`);
+        }
+
+        // Delete production
+        function deleteProduction(cowId) {
+            productionData = productionData.filter(p => p.cowId !== cowId);
+            populateProductionTable();
+            initCharts();
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            const wsData = [
+                ['Cow No./Name', 'Last Birth Date', 'Lactation Period (Months)', ...Array.from({ length: 31 }, (_, i) => [`${i + 1} AM`, `${i + 1} PM`]).flat(), 'Total Liters']
+            ];
+            cows.forEach(cow => {
+                const weeks = getLactationPeriod(cow.birthDate);
+                const months = Math.round(weeks / 4.33);
+                let totalLiters = 0;
+                const row = [cow.name, cow.birthDate, months];
+                for (let day = 1; day <= 31; day++) {
+                    const date = `2025-07-${day.toString().padStart(2, '0')}`;
+                    const entry = productionData.find(p => p.cowId === cow.name && p.date === date);
+                    const am = entry ? entry.morningLiters : 0;
+                    const pm = entry ? entry.eveningLiters : 0;
+                    totalLiters += (am + pm);
+                    row.push(am, pm);
+                }
+                row.push(totalLiters);
+                wsData.push(row);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, 'Production July 2025');
+            XLSX.write(wb, 'production_july_2025.xlsx');
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Daily (July 10)
+            const dailyData = cows.map(cow => {
+                const entry = productionData.find(p => p.cowId === cow.name && p.date === '2025-07-10');
+                return { name: cow.name, total: entry ? entry.totalLiters : 0 };
+            }).sort((a, b) => b.total - a.total);
+            
+            const top5Daily = dailyData.slice(0, 5);
+            const worst5Daily = dailyData.filter(d => d.total > 0).slice(-5).reverse();
+            
+            new Chart(document.getElementById('top-5-daily').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: top5Daily.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 10)',
+                        data: top5Daily.map(d => d.total),
+                        backgroundColor: ['#28a745', '#007bff', '#17a2b8', '#ffc107', '#dc3545'],
+                        borderColor: ['#218838', '#0056b3', '#138496', '#e0a800', '#c82333'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Top 5 Milkers (Daily, July 10)' } }
+                }
+            });
+
+            new Chart(document.getElementById('worst-5-daily').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: worst5Daily.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 10)',
+                        data: worst5Daily.map(d => d.total),
+                        backgroundColor: ['#dc3545', '#ffc107', '#17a2b8', '#007bff', '#28a745'],
+                        borderColor: ['#c82333', '#e0a800', '#138496', '#0056b3', '#218838'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Worst 5 Milkers (Daily, July 10)' } }
+                }
+            });
+
+            // Weekly (July 5-10)
+            const weeklyData = cows.map(cow => {
+                const total = productionData
+                    .filter(p => p.cowId === cow.name && p.date >= '2025-07-05' && p.date <= '2025-07-10')
+                    .reduce((sum, p) => sum + p.totalLiters, 0);
+                return { name: cow.name, total };
+            }).sort((a, b) => b.total - a.total);
+            
+            const top5Weekly = weeklyData.slice(0, 5);
+            const worst5Weekly = weeklyData.filter(d => d.total > 0).slice(-5).reverse();
+
+            new Chart(document.getElementById('top-5-weekly').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: top5Weekly.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 5-10)',
+                        data: top5Weekly.map(d => d.total),
+                        backgroundColor: ['#28a745', '#007bff', '#17a2b8', '#ffc107', '#dc3545'],
+                        borderColor: ['#218838', '#0056b3', '#138496', '#e0a800', '#c82333'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Top 5 Milkers (Week, July 5-10)' } }
+                }
+            });
+
+            new Chart(document.getElementById('worst-5-weekly').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: worst5Weekly.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 5-10)',
+                        data: worst5Weekly.map(d => d.total),
+                        backgroundColor: ['#dc3545', '#ffc107', '#17a2b8', '#007bff', '#28a745'],
+                        borderColor: ['#c82333', '#e0a800', '#138496', '#0056b3', '#218838'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Worst 5 Milkers (Week, July 5-10)' } }
+                }
+            });
+
+            // Monthly (July 1-10)
+            const monthlyData = cows.map(cow => {
+                const total = productionData
+                    .filter(p => p.cowId === cow.name && p.date >= '2025-07-01' && p.date <= '2025-07-10')
+                    .reduce((sum, p) => sum + p.totalLiters, 0);
+                return { name: cow.name, total };
+            }).sort((a, b) => b.total - a.total);
+            
+            const top5Monthly = monthlyData.slice(0, 5);
+            const worst5Monthly = monthlyData.filter(d => d.total > 0).slice(-5).reverse();
+
+            new Chart(document.getElementById('top-5-monthly').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: top5Monthly.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 1-10)',
+                        data: top5Monthly.map(d => d.total),
+                        backgroundColor: ['#28a745', '#007bff', '#17a2b8', '#ffc107', '#dc3545'],
+                        borderColor: ['#218838', '#0056b3', '#138496', '#e0a800', '#c82333'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Top 5 Milkers (Month, July 1-10)' } }
+                }
+            });
+
+            new Chart(document.getElementById('worst-5-monthly').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: worst5Monthly.map(d => d.name),
+                    datasets: [{
+                        label: 'Milk Production (Liters, July 1-10)',
+                        data: worst5Monthly.map(d => d.total),
+                        backgroundColor: ['#dc3545', '#ffc107', '#17a2b8', '#007bff', '#28a745'],
+                        borderColor: ['#c82333', '#e0a800', '#138496', '#0056b3', '#218838'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Liters' } } },
+                    plugins: { legend: { display: true }, title: { display: true, text: 'Worst 5 Milkers (Month, July 1-10)' } }
+                }
+            });
+        }
+
+        // Initialize app
+        window.addEventListener('load', () => {
+            populateCowSelects();
+            populateCowTable();
+            populateProductionTable();
+            initCharts();
+        });
+    </script>
+    <script>
+        (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'966db2ca1d2b5938',t:'MTc1MzgwMzQ1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+    </script>
+</body>
+</html>
