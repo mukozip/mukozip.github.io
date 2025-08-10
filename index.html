@@ -21,8 +21,9 @@ const initialCows = [
 
 const App = () => {
   const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
-  const [amProduction, setAmProduction] = useState('');
-  const [pmProduction, setPmProduction] = useState('');
+  // Initializing with 0 instead of '' to prevent the "cannot be parsed" error
+  const [amProduction, setAmProduction] = useState(0);
+  const [pmProduction, setPmProduction] = useState(0);
   const [cowData, setCowData] = useState([]);
   const [userId, setUserId] = useState('');
   const [isAuthReady, setIsAuthReady] = useState(false);
@@ -43,6 +44,7 @@ const App = () => {
 
   const parseValue = (value) => {
     const num = parseFloat(value);
+    // Ensure that if value is an empty string, it defaults to 0
     return isNaN(num) ? 0 : num;
   };
   
@@ -173,11 +175,13 @@ const App = () => {
 
         const currentCow = combinedCows.find(cow => cow.name === selectedCow);
         if (currentCow && currentCow.milk_data[selectedDate]) {
+          // Set to a number, not an empty string
           setAmProduction(currentCow.milk_data[selectedDate].am);
           setPmProduction(currentCow.milk_data[selectedDate].pm);
         } else {
-          setAmProduction('');
-          setPmProduction('');
+          // Reset to 0 when no data is found
+          setAmProduction(0);
+          setPmProduction(0);
         }
 
       }, (error) => {
@@ -199,6 +203,7 @@ const App = () => {
     
     const currentCow = cowData.find(cow => cow.name === cowName);
     const dayData = {
+      // Ensure values are numbers before saving
       am: parseValue(amProduction),
       pm: parseValue(pmProduction),
       total: parseValue(amProduction) + parseValue(pmProduction),
@@ -230,8 +235,8 @@ const App = () => {
       setAmProduction(newCow.milk_data[selectedDate].am);
       setPmProduction(newCow.milk_data[selectedDate].pm);
     } else {
-      setAmProduction('');
-      setPmProduction('');
+      setAmProduction(0);
+      setPmProduction(0);
     }
   };
 
@@ -244,8 +249,8 @@ const App = () => {
         setAmProduction(currentCow.milk_data[newDate].am);
         setPmProduction(currentCow.milk_data[newDate].pm);
     } else {
-        setAmProduction('');
-        setPmProduction('');
+        setAmProduction(0);
+        setPmProduction(0);
     }
   };
 
