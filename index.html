@@ -242,7 +242,8 @@ const App = () => {
 
   const handleDateChange = (e) => {
     const newDate = e.target.value;
-    setSelectedDate(newDate);
+    // Fix: If the date input is cleared, default to today's date to prevent the warning.
+    setSelectedDate(newDate || today);
 
     const currentCow = cowData.find(cow => cow.name === selectedCow);
     if (currentCow && currentCow.milk_data[newDate]) {
