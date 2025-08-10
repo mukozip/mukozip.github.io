@@ -36,8 +36,6 @@ const App = () => {
   const [chartData, setChartData] = useState({ daily: [], weekly: [], monthly: [] });
   const [activeTab, setActiveTab] = useState('daily');
   
-  const currentDay = new Date(selectedDate).getDate();
-
   const showMessage = (msg) => {
     setMessage(msg);
     setShowMessageBox(true);
@@ -47,38 +45,48 @@ const App = () => {
     const num = parseFloat(value);
     return isNaN(num) ? 0 : num;
   };
-
+  
   // Helper function to calculate weekly production
   const getWeeklyProduction = (cow) => {
     let weekTotal = 0;
     const now = new Date(selectedDate);
-    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay())); // Sunday
-    const endOfWeek = new Date(now.setDate(now.getDate() + 6)); // Saturday
+    const day = now.getDay();
+    const startOfWeek = new Date(now.setDate(now.getDate() - day));
     
-    for (const day in cow.milk_data) {
-        const dayDate = new Date(selectedDate.split('-')[0], selectedDate.split('-')[1] - 1, day);
-        if (dayDate >= startOfWeek && dayDate <= endOfWeek) {
-            weekTotal += cow.milk_data[day].total || 0;
+    // Create a new date object for the end of the week to avoid mutation issues
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    for (const date in cow.milk_data) {
+        const entryDate = new Date(date);
+        if (entryDate >= startOfWeek && entryDate <= endOfWeek) {
+            weekTotal += cow.milk_data[date].total || 0;
         }
     }
     return weekTotal;
   };
-
+  
   // Helper function to calculate monthly production
   const getMonthlyProduction = (cow) => {
     let monthTotal = 0;
-    for (const day in cow.milk_data) {
-      monthTotal += cow.milk_data[day].total || 0;
+    const selectedMonth = new Date(selectedDate).getMonth();
+    const selectedYear = new Date(selectedDate).getFullYear();
+    
+    for (const date in cow.milk_data) {
+      const entryDate = new Date(date);
+      if (entryDate.getMonth() === selectedMonth && entryDate.getFullYear() === selectedYear) {
+        monthTotal += cow.milk_data[date].total || 0;
+      }
     }
     return monthTotal;
   };
 
-  // Process data for charts whenever cowData changes
+  // Process data for charts whenever cowData or selectedDate changes
   useEffect(() => {
     if (cowData.length > 0) {
       const processedData = cowData.map(cow => ({
         ...cow,
-        dailyTotal: cow.milk_data[currentDay]?.total || 0,
+        dailyTotal: cow.milk_data[selectedDate]?.total || 0,
         weeklyTotal: getWeeklyProduction(cow),
         monthlyTotal: getMonthlyProduction(cow),
       }));
@@ -103,7 +111,7 @@ const App = () => {
         },
       });
     }
-  }, [cowData, currentDay, selectedDate]);
+  }, [cowData, selectedDate]);
 
   useEffect(() => {
     const initFirebase = async () => {
@@ -164,9 +172,9 @@ const App = () => {
         setCowData(combinedCows);
 
         const currentCow = combinedCows.find(cow => cow.name === selectedCow);
-        if (currentCow && currentCow.milk_data[currentDay]) {
-          setAmProduction(currentCow.milk_data[currentDay].am);
-          setPmProduction(currentCow.milk_data[currentDay].pm);
+        if (currentCow && currentCow.milk_data[selectedDate]) {
+          setAmProduction(currentCow.milk_data[selectedDate].am);
+          setPmProduction(currentCow.milk_data[selectedDate].pm);
         } else {
           setAmProduction('');
           setPmProduction('');
@@ -178,7 +186,7 @@ const App = () => {
 
       return () => unsubscribe();
     }
-  }, [isAuthReady, firebaseServices, userId, selectedCow, currentDay]);
+  }, [isAuthReady, firebaseServices, userId, selectedCow, selectedDate]);
 
   const handleSave = async () => {
     if (!isAuthReady || !firebaseServices.db || !userId) {
@@ -203,7 +211,7 @@ const App = () => {
         ...currentCow,
         milk_data: {
           ...currentCow.milk_data,
-          [currentDay]: dayData,
+          [selectedDate]: dayData,
         },
       }, { merge: true });
       showMessage("Data saved successfully!");
@@ -218,9 +226,9 @@ const App = () => {
     setSelectedCow(newCowName);
     
     const newCow = cowData.find(cow => cow.name === newCowName);
-    if (newCow && newCow.milk_data[currentDay]) {
-      setAmProduction(newCow.milk_data[currentDay].am);
-      setPmProduction(newCow.milk_data[currentDay].pm);
+    if (newCow && newCow.milk_data[selectedDate]) {
+      setAmProduction(newCow.milk_data[selectedDate].am);
+      setPmProduction(newCow.milk_data[selectedDate].pm);
     } else {
       setAmProduction('');
       setPmProduction('');
@@ -232,11 +240,9 @@ const App = () => {
     setSelectedDate(newDate);
 
     const currentCow = cowData.find(cow => cow.name === selectedCow);
-    const newDay = new Date(newDate).getDate();
-
-    if (currentCow && currentCow.milk_data[newDay]) {
-        setAmProduction(currentCow.milk_data[newDay].am);
-        setPmProduction(currentCow.milk_data[newDay].pm);
+    if (currentCow && currentCow.milk_data[newDate]) {
+        setAmProduction(currentCow.milk_data[newDate].am);
+        setPmProduction(currentCow.milk_data[newDate].pm);
     } else {
         setAmProduction('');
         setPmProduction('');
@@ -363,7 +369,7 @@ const App = () => {
               onClick={handleSave}
               className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-105"
             >
-              Save Data for Day {currentDay}
+              Save Data for {selectedDate}
             </button>
           </div>
           
