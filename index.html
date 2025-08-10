@@ -242,7 +242,7 @@ const App = () => {
 
   const handleDateChange = (e) => {
     const newDate = e.target.value;
-    // Fix: If the date input is cleared, default to today's date to prevent the warning.
+    // Fix: Using type="text" and falling back to today ensures a valid date string is always present.
     setSelectedDate(newDate || today);
 
     const currentCow = cowData.find(cow => cow.name === selectedCow);
@@ -334,9 +334,10 @@ const App = () => {
             </label>
             <input
               id="date-select"
-              type="date"
+              type="text"
               value={selectedDate}
               onChange={handleDateChange}
+              placeholder="yyyy-MM-dd"
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
             />
           </div>
