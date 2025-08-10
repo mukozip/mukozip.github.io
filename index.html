@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -22,7 +21,7 @@ const initialCows = [
 
 const App = () => {
   const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
-  // Initializing with 0 instead of '' to prevent the "cannot be parsed" error
+  // Initializing with 0 to prevent the "cannot be parsed" error
   const [amProduction, setAmProduction] = useState(0);
   const [pmProduction, setPmProduction] = useState(0);
   const [cowData, setCowData] = useState([]);
@@ -348,9 +347,13 @@ const App = () => {
               </label>
               <input
                 id="am-input"
-                type="number"
+                type="text" // Changed from number to text to prevent warnings
                 value={amProduction}
-                onChange={(e) => setAmProduction(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // If the input is empty, set state to 0, otherwise parse the float
+                  setAmProduction(value === '' ? 0 : parseFloat(value));
+                }}
                 placeholder="Enter AM data"
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               />
@@ -361,9 +364,13 @@ const App = () => {
               </label>
               <input
                 id="pm-input"
-                type="number"
+                type="text" // Changed from number to text to prevent warnings
                 value={pmProduction}
-                onChange={(e) => setPmProduction(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // If the input is empty, set state to 0, otherwise parse the float
+                  setPmProduction(value === '' ? 0 : parseFloat(value));
+                }}
                 placeholder="Enter PM data"
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               />
