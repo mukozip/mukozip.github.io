@@ -21,9 +21,9 @@ const initialCows = [
 
 const App = () => {
   const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
-  // Initializing with 0 to prevent the "cannot be parsed" error
-  const [amProduction, setAmProduction] = useState(0);
-  const [pmProduction, setPmProduction] = useState(0);
+  // Input values are now managed as strings to prevent browser warnings.
+  const [amProduction, setAmProduction] = useState('');
+  const [pmProduction, setPmProduction] = useState('');
   const [cowData, setCowData] = useState([]);
   const [userId, setUserId] = useState('');
   const [isAuthReady, setIsAuthReady] = useState(false);
@@ -175,13 +175,13 @@ const App = () => {
 
         const currentCow = combinedCows.find(cow => cow.name === selectedCow);
         if (currentCow && currentCow.milk_data[selectedDate]) {
-          // Set to a number, not an empty string
-          setAmProduction(currentCow.milk_data[selectedDate].am);
-          setPmProduction(currentCow.milk_data[selectedDate].pm);
+          // Set to a string from the number value
+          setAmProduction(String(currentCow.milk_data[selectedDate].am));
+          setPmProduction(String(currentCow.milk_data[selectedDate].pm));
         } else {
-          // Reset to 0 when no data is found
-          setAmProduction(0);
-          setPmProduction(0);
+          // Set to empty string for a clear input field when no data is found
+          setAmProduction('');
+          setPmProduction('');
         }
 
       }, (error) => {
@@ -203,7 +203,7 @@ const App = () => {
     
     const currentCow = cowData.find(cow => cow.name === cowName);
     const dayData = {
-      // Ensure values are numbers before saving
+      // Ensure values are parsed from strings to numbers before saving
       am: parseValue(amProduction),
       pm: parseValue(pmProduction),
       total: parseValue(amProduction) + parseValue(pmProduction),
@@ -232,11 +232,11 @@ const App = () => {
     
     const newCow = cowData.find(cow => cow.name === newCowName);
     if (newCow && newCow.milk_data[selectedDate]) {
-      setAmProduction(newCow.milk_data[selectedDate].am);
-      setPmProduction(newCow.milk_data[selectedDate].pm);
+      setAmProduction(String(newCow.milk_data[selectedDate].am));
+      setPmProduction(String(newCow.milk_data[selectedDate].pm));
     } else {
-      setAmProduction(0);
-      setPmProduction(0);
+      setAmProduction('');
+      setPmProduction('');
     }
   };
 
@@ -246,11 +246,11 @@ const App = () => {
 
     const currentCow = cowData.find(cow => cow.name === selectedCow);
     if (currentCow && currentCow.milk_data[newDate]) {
-        setAmProduction(currentCow.milk_data[newDate].am);
-        setPmProduction(currentCow.milk_data[newDate].pm);
+        setAmProduction(String(currentCow.milk_data[newDate].am));
+        setPmProduction(String(currentCow.milk_data[newDate].pm));
     } else {
-        setAmProduction(0);
-        setPmProduction(0);
+        setAmProduction('');
+        setPmProduction('');
     }
   };
 
@@ -347,13 +347,9 @@ const App = () => {
               </label>
               <input
                 id="am-input"
-                type="text" // Changed from number to text to prevent warnings
+                type="text"
                 value={amProduction}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  // If the input is empty, set state to 0, otherwise parse the float
-                  setAmProduction(value === '' ? 0 : parseFloat(value));
-                }}
+                onChange={(e) => setAmProduction(e.target.value)}
                 placeholder="Enter AM data"
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               />
@@ -364,13 +360,9 @@ const App = () => {
               </label>
               <input
                 id="pm-input"
-                type="text" // Changed from number to text to prevent warnings
+                type="text"
                 value={pmProduction}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  // If the input is empty, set state to 0, otherwise parse the float
-                  setPmProduction(value === '' ? 0 : parseFloat(value));
-                }}
+                onChange={(e) => setPmProduction(e.target.value)}
                 placeholder="Enter PM data"
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               />
