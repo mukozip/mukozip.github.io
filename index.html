@@ -1,524 +1,436 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dairy Management App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 10px;
-            background-color: #f4f4f9;
-        }
-        h1, h2, h3 {
-            color: #333;
-            font-size: 1.5em;
-        }
-        .section {
-            margin: 10px 0;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .input-group {
-            margin-bottom: 10px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 0.9em;
-        }
-        input, select {
-            padding: 8px;
-            width: 100%;
-            max-width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        .edit-btn-main {
-            background-color: #007bff;
-            margin-left: 5px;
-        }
-        .edit-btn-main:hover {
-            background-color: #0056b3;
-        }
-        .export-btn {
-            background-color: #17a2b8;
-            margin-top: 10px;
-        }
-        .export-btn:hover {
-            background-color: #138496;
-        }
-        .table-container {
-            overflow-x: auto;
-            margin-top: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85em;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 6px;
-            text-align: center;
-            white-space: nowrap;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .totals-row {
-            background-color: #e9ecef;
-            font-weight: bold;
-        }
-        .lactation-green {
-            background-color: #d4edda;
-        }
-        .lactation-yellow {
-            background-color: #fff3cd;
-        }
-        .lactation-red {
-            background-color: #f8d7da;
-        }
-        .key {
-            margin-top: 10px;
-            font-size: 0.8em;
-        }
-        .key div {
-            display: inline-block;
-            width: 15px;
-            height: 15px;
-            margin-right: 5px;
-            vertical-align: middle;
-        }
-        .edit-btn, .delete-btn {
-            padding: 4px 8px;
-            margin: 2px;
-            font-size: 0.75em;
-        }
-        .edit-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-        .delete-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-        .total-col {
-            font-weight: bold;
-            background-color: #e9ecef;
-        }
-        .chart-container {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .chart {
-            max-width: 100%;
-            width: 100%;
-            min-width: 250px;
-        }
-        .deduction-group {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .deduction-group h4 {
-            margin: 0 0 10px;
-            font-size: 0.9em;
-            color: #555;
-        }
-        @media (max-width: 768px) {
-            body {
-                padding: 5px;
-            }
-            h1 {
-                font-size: 1.2em;
-            }
-            h2, h3 {
-                font-size: 1em;
-            }
-            .section {
-                padding: 10px;
-            }
-            input, select, button {
-                font-size: 0.85em;
-                padding: 6px;
-            }
-            .chart {
-                max-width: 100%;
-            }
-            table {
-                font-size: 0.75em;
-            }
-            th, td {
-                padding: 4px;
-            }
-            .edit-btn, .delete-btn {
-                padding: 3px 6px;
-                font-size: 0.7em;
-            }
-        }
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1em;
-            }
-            h2, h3 {
-                font-size: 0.9em;
-            }
-            input, select {
-                max-width: 100%;
-            }
-            button {
-                width: 100%;
-                margin: 5px 0;
-            }
-            .edit-btn-main {
-                margin-left: 0;
-            }
-            .chart {
-                min-width: 100%;
-            }
-        }
-    </style>
-</head>
-<body>
-    <h1>Dairy Management App</h1>
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, setDoc, onSnapshot, collection } from 'firebase/firestore';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-    <div class="section">
-        <h2>Manage Cows</h2>
-        <div class="input-group">
-            <label for="cow-name">Cow Name</label>
-            <input type="text" id="cow-name" placeholder="Enter cow name">
-        </div>
-        <div class="input-group">
-            <label for="last-birth-date">Last Birth Date</label>
-            <input type="date" id="last-birth-date">
-        </div>
-        <div class="input-group">
-            <label for="edit-cow-select">Select Cow to Edit</label>
-            <select id="edit-cow-select">
-                <option value="">Select Cow</option>
-            </select>
-        </div>
-        <button onclick="addCow()">Add Cow</button>
-        <button class="edit-btn-main" onclick="editCow()">Edit Cow</button>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cow Name</th>
-                        <th>Last Birth Date</th>
-                        <th>Lactation Period (Months)</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="cow-table-body"></tbody>
-            </table>
-        </div>
-        <div class="key">
-            <div class="lactation-green"></div> 1-7 weeks (Green)<br>
-            <div class="lactation-yellow"></div> 10-30 weeks (Yellow)<br>
-            <div class="lactation-red"></div> 40-52 weeks (Red)
-        </div>
-    </div>
+// Mock data from the user's provided CSV snippet
+const initialCows = [
+  { name: 'MERCY', lastCalvingDate: '2024-07-14', totalMonthlyProduction: 64.5 },
+  { name: 'MAGRET', lastCalvingDate: '2024-07-17', totalMonthlyProduction: 78.5 },
+  { name: 'SARAH', lastCalvingDate: '2025-04-18', totalMonthlyProduction: 62.5 },
+  { name: 'KEZA', lastCalvingDate: '2025-04-23', totalMonthlyProduction: 53.0 },
+  { name: 'KIRABO', lastCalvingDate: '2025-04-25', totalMonthlyProduction: 70.0 },
+  { name: 'MALA', lastCalvingDate: '2024-08-10', totalMonthlyProduction: 68.0 },
+  { name: 'JANET', lastCalvingDate: '2025-01-01', totalMonthlyProduction: 85.0 },
+  { name: 'LUCKY', lastCalvingDate: '2025-02-15', totalMonthlyProduction: 72.0 },
+  { name: 'SUNNY', lastCalvingDate: '2024-09-20', totalMonthlyProduction: 55.0 },
+  { name: 'ROSE', lastCalvingDate: '2024-11-11', totalMonthlyProduction: 60.0 },
+  { name: 'DAISY', lastCalvingDate: '2024-10-05', totalMonthlyProduction: 58.0 },
+];
 
-    <div class="section">
-        <h2>Add Daily Milk Production</h2>
-        <div class="input-group">
-            <label for="production-cow-select">Cow Name</label>
-            <select id="production-cow-select">
-                <option value="">Select Cow</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label for="production-date">Date</label>
-            <input type="date" id="production-date">
-        </div>
-        <div class="input-group">
-            <label for="morning-liters">Morning Liters</label>
-            <input type="number" id="morning-liters" step="0.1" min="0" placeholder="Enter liters">
-        </div>
-        <div class="input-group">
-            <label for="evening-liters">Evening Liters</label>
-            <input type="number" id="evening-liters" step="0.1" min="0" placeholder="Enter liters">
-        </div>
-        <div class="deduction-group">
-            <h4>Morning Deductions</h4>
-            <div class="input-group">
-                <label for="morning-calf-milk">Calf Milk (Liters)</label>
-                <input type="number" id="morning-calf-milk" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-            <div class="input-group">
-                <label for="morning-home-use">Home Use (Liters)</label>
-                <input type="number" id="morning-home-use" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-            <div class="input-group">
-                <label for="morning-workers-milk">Workers Milk (Liters)</label>
-                <input type="number" id="morning-workers-milk" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-        </div>
-        <div class="deduction-group">
-            <h4>Evening Deductions</h4>
-            <div class="input-group">
-                <label for="evening-calf-milk">Calf Milk (Liters)</label>
-                <input type="number" id="evening-calf-milk" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-            <div class="input-group">
-                <label for="evening-home-use">Home Use (Liters)</label>
-                <input type="number" id="evening-home-use" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-            <div class="input-group">
-                <label for="evening-workers-milk">Workers Milk (Liters)</label>
-                <input type="number" id="evening-workers-milk" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-        </div>
-        <button onclick="addProduction()">Add Production</button>
-    </div>
+const App = () => {
+  const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
+  const [amProduction, setAmProduction] = useState('');
+  const [pmProduction, setPmProduction] = useState('');
+  const [cowData, setCowData] = useState([]);
+  const [userId, setUserId] = useState('');
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [firebaseServices, setFirebaseServices] = useState({ db: null, auth: null });
+  const [message, setMessage] = useState('');
+  const [showMessageBox, setShowMessageBox] = useState(false);
+  const today = new Date().toISOString().split('T')[0];
+  const [selectedDate, setSelectedDate] = useState(today);
 
-    <div class="section">
-        <h2>Production Analysis</h2>
-        <h3>Daily Production Entries (July 2025)</h3>
-        <button class="export-btn" onclick="exportToExcel()">Export to Excel</button>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cow No./Name</th>
-                        <th>Time</th>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>3</th>
-                        <th>4</th>
-                        <th>5</th>
-                        <th>6</th>
-                        <th>7</th>
-                        <th>8</th>
-                        <th>9</th>
-                        <th>10</th>
-                        <th>11</th>
-                        <th>12</th>
-                        <th>13</th>
-                        <th>14</th>
-                        <th>15</th>
-                        <th>16</th>
-                        <th>17</th>
-                        <th>18</th>
-                        <th>19</th>
-                        <th>20</th>
-                        <th>21</th>
-                        <th>22</th>
-                        <th>23</th>
-                        <th>24</th>
-                        <th>25</th>
-                        <th>26</th>
-                        <th>27</th>
-                        <th>28</th>
-                        <th>29</th>
-                        <th>30</th>
-                        <th>31</th>
-                        <th>Total Daily Production</th>
-                        <th>Total Monthly Production</th>
-                        <th>Last Calving Date</th>
-                        <th>Days of Pdn Since Calving</th>
-                        <th>Months of Preg</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="production-table-body"></tbody>
-            </table>
-        </div>
-    </div>
+  // States for chart data and active chart tab
+  const [chartData, setChartData] = useState({ daily: [], weekly: [], monthly: [] });
+  const [activeTab, setActiveTab] = useState('daily');
+  
+  const currentDay = new Date(selectedDate).getDate();
 
-    <div class="section">
-        <h2>Production Charts</h2>
-        <div class="chart-container">
-            <div>
-                <h3>Top 5 Milkers (Daily, July 10)</h3>
-                <canvas class="chart" id="top-5-daily"></canvas>
-            </div>
-            <div>
-                <h3>Worst 5 Milkers (Daily, July 10)</h3>
-                <canvas class="chart" id="worst-5-daily"></canvas>
-            </div>
-            <div>
-                <h3>Top 5 Milkers (Week, July 5-10)</h3>
-                <canvas class="chart" id="top-5-weekly"></canvas>
-            </div>
-            <div>
-                <h3>Worst 5 Milkers (Week, July 5-10)</h3>
-                <canvas class="chart" id="worst-5-weekly"></canvas>
-            </div>
-            <div>
-                <h3>Top 5 Milkers (Month, July 1-10)</h3>
-                <canvas class="chart" id="top-5-monthly"></canvas>
-            </div>
-            <div>
-                <h3>Worst 5 Milkers (Month, July 1-10)</h3>
-                <canvas class="chart" id="worst-5-monthly"></canvas>
-            </div>
-        </div>
-    </div>
+  const showMessage = (msg) => {
+    setMessage(msg);
+    setShowMessageBox(true);
+  };
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.21.0/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
-    <script>
-        // Diagnostic to confirm library loading
-        window.addEventListener('load', () => {
-            console.log('Chart.js loaded:', typeof Chart !== 'undefined');
-            console.log('XLSX loaded:', typeof XLSX !== 'undefined');
-            console.log('Moment.js loaded:', typeof moment !== 'undefined');
-            populateCowSelects();
-            populateCowTable();
-            populateProductionTable();
-            initCharts();
+  const parseValue = (value) => {
+    const num = parseFloat(value);
+    return isNaN(num) ? 0 : num;
+  };
+
+  // Helper function to calculate weekly production
+  const getWeeklyProduction = (cow) => {
+    let weekTotal = 0;
+    const now = new Date(selectedDate);
+    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay())); // Sunday
+    const endOfWeek = new Date(now.setDate(now.getDate() + 6)); // Saturday
+    
+    for (const day in cow.milk_data) {
+        const dayDate = new Date(selectedDate.split('-')[0], selectedDate.split('-')[1] - 1, day);
+        if (dayDate >= startOfWeek && dayDate <= endOfWeek) {
+            weekTotal += cow.milk_data[day].total || 0;
+        }
+    }
+    return weekTotal;
+  };
+
+  // Helper function to calculate monthly production
+  const getMonthlyProduction = (cow) => {
+    let monthTotal = 0;
+    for (const day in cow.milk_data) {
+      monthTotal += cow.milk_data[day].total || 0;
+    }
+    return monthTotal;
+  };
+
+  // Process data for charts whenever cowData changes
+  useEffect(() => {
+    if (cowData.length > 0) {
+      const processedData = cowData.map(cow => ({
+        ...cow,
+        dailyTotal: cow.milk_data[currentDay]?.total || 0,
+        weeklyTotal: getWeeklyProduction(cow),
+        monthlyTotal: getMonthlyProduction(cow),
+      }));
+
+      // Sort and get top/worst 5 for each period
+      const sortedDaily = [...processedData].sort((a, b) => b.dailyTotal - a.dailyTotal);
+      const sortedWeekly = [...processedData].sort((a, b) => b.weeklyTotal - a.weeklyTotal);
+      const sortedMonthly = [...processedData].sort((a, b) => b.monthlyTotal - a.monthlyTotal);
+
+      setChartData({
+        daily: {
+          top: sortedDaily.slice(0, 5),
+          worst: sortedDaily.slice(-5),
+        },
+        weekly: {
+          top: sortedWeekly.slice(0, 5),
+          worst: sortedWeekly.slice(-5),
+        },
+        monthly: {
+          top: sortedMonthly.slice(0, 5),
+          worst: sortedMonthly.slice(-5),
+        },
+      });
+    }
+  }, [cowData, currentDay, selectedDate]);
+
+  useEffect(() => {
+    const initFirebase = async () => {
+      try {
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        setFirebaseServices({ db, auth });
+
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            setUserId(user.uid);
+          } else {
+            try {
+              await signInAnonymously(auth);
+            } catch (error) {
+              console.error("Anonymous sign-in failed:", error);
+            }
+          }
+          setIsAuthReady(true);
         });
 
-        // Cow data
-        let cows = [
-            { name: "297 Mercy", birthDate: "2024-07-14" },
-            { name: "413 Magret", birthDate: "2024-07-17" },
-            { name: "427 Cece", birthDate: "2024-09-26" },
-            { name: "425 Angel", birthDate: "2024-10-01" },
-            { name: "093 Ritah", birthDate: "2024-10-10" },
-            { name: "059 Susan", birthDate: "2024-12-06" },
-            { name: "008 Frida", birthDate: "2024-12-08" },
-            { name: "434 Shana", birthDate: "2025-04-04" },
-            { name: "083 Kathy", birthDate: "2025-03-11" },
-            { name: "402 Kellen", birthDate: "2025-03-28" },
-            { name: "098 Jackline", birthDate: "2025-04-12" },
-            { name: "421 EVA", birthDate: "2025-04-18" },
-            { name: "099 Sarah", birthDate: "2025-04-20" },
-            { name: "521 Keza", birthDate: "2025-02-23" },
-            { name: "024 Kirabo", birthDate: "2025-04-25" },
-            { name: "403 Peace", birthDate: "2025-05-10" },
-            { name: "418 Irene", birthDate: "2025-05-17" },
-            { name: "296 Joan", birthDate: "2025-05-28" },
-            { name: "511 Siima", birthDate: "2025-06-22" },
-            { name: "021 BIra", birthDate: "2025-06-24" }
-        ];
+        if (initialAuthToken) {
+          await signInWithCustomToken(auth, initialAuthToken);
+        }
+      } catch (error) {
+        console.error("Firebase initialization or authentication failed:", error);
+      }
+    };
+    initFirebase();
+  }, []);
 
-        // Production data
-        let productionData = [
-            { cowId: "297 Mercy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.0 },
-            { cowId: "297 Mercy", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0 },
-            { cowId: "297 Mercy", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0 },
-            { cowId: "297 Mercy", date: "2025-07-04", morningLiters: 4.5, eveningLiters: 2.0 },
-            { cowId: "297 Mercy", date: "2025-07-05", morningLiters: 5.0, eveningLiters: 2.0 },
-            { cowId: "297 Mercy", date: "2025-07-06", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-07", morningLiters: 4.5, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-11", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-12", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-13", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-14", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-15", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-16", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-17", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-18", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-19", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-20", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-21", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-22", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-23", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-24", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-25", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-26", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-27", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-28", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-29", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0 },
+  useEffect(() => {
+    if (isAuthReady && firebaseServices.db && userId) {
+      const { db } = firebaseServices;
+      const collectionPath = `/artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/users/${userId}/milk_production`;
+      const q = collection(db, collectionPath);
+      
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const fetchedCows = {};
+        querySnapshot.forEach((doc) => {
+          fetchedCows[doc.id] = doc.data();
+        });
+        
+        const combinedCows = initialCows.map(cow => {
+          const fetchedData = fetchedCows[cow.name] || {};
+          return {
+            ...cow,
+            ...fetchedData,
+            milk_data: fetchedData.milk_data || {},
+          };
+        });
+        
+        setCowData(combinedCows);
 
-            { cowId: "413 Magret", date: "2025-07-01", morningLiters: 5.0, eveningLiters: 2.5 },
-            { cowId: "413 Magret", date: "2025-07-02", morningLiters: 5.0, eveningLiters: 2.0 },
-            { cowId: "413 Magret", date: "2025-07-03", morningLiters: 5.5, eveningLiters: 3.0 },
-            { cowId: "413 Magret", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.5 },
-            { cowId: "413 Magret", date: "2025-07-05", morningLiters: 5.5, eveningLiters: 2.0 },
-            { cowId: "413 Magret", date: "2025-07-06", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-07", morningLiters: 6.5, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-08", morningLiters: 5.5, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-09", morningLiters: 5.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-10", morningLiters: 5.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-11", morningLiters: 5.5, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-12", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-13", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-14", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-15", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-16", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-17", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-18", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-19", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-20", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-21", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-22", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-23", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-24", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-25", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-26", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-27", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-28", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-29", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0 },
+        const currentCow = combinedCows.find(cow => cow.name === selectedCow);
+        if (currentCow && currentCow.milk_data[currentDay]) {
+          setAmProduction(currentCow.milk_data[currentDay].am);
+          setPmProduction(currentCow.milk_data[currentDay].pm);
+        } else {
+          setAmProduction('');
+          setPmProduction('');
+        }
 
-            { cowId: "427 Cece", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 1.5 },
-            { cowId: "427 Cece", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 2.0 },
-            { cowId: "427 Cece", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0 },
-            { cowId: "427 Cece", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 1.5 },
-            { cowId: "427 Cece", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 1.5 },
-            { cowId: "427 Cece", date: "2025-07-06", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-07", morningLiters: 3.5, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-11", morningLiters: 2.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-12", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-13", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-14", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-15", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-16", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-17", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-18", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-19", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-20", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-21", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-22", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-23", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-24", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-25", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-26", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-27", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-28", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-29", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0 },
+      }, (error) => {
+        console.error("Error fetching Firestore data:", error);
+      });
 
-            { cowId: "425 Angel", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 2.0 },
-            { cowId: "425 Angel", date: "2025-07-02", morningLiters:
+      return () => unsubscribe();
+    }
+  }, [isAuthReady, firebaseServices, userId, selectedCow, currentDay]);
+
+  const handleSave = async () => {
+    if (!isAuthReady || !firebaseServices.db || !userId) {
+      showMessage("Authentication not ready. Please wait a moment.");
+      return;
+    }
+
+    const { db } = firebaseServices;
+    const cowName = selectedCow;
+    
+    const currentCow = cowData.find(cow => cow.name === cowName);
+    const dayData = {
+      am: parseValue(amProduction),
+      pm: parseValue(pmProduction),
+      total: parseValue(amProduction) + parseValue(pmProduction),
+    };
+    
+    const cowRef = doc(db, `/artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/users/${userId}/milk_production`, cowName);
+
+    try {
+      await setDoc(cowRef, {
+        ...currentCow,
+        milk_data: {
+          ...currentCow.milk_data,
+          [currentDay]: dayData,
+        },
+      }, { merge: true });
+      showMessage("Data saved successfully!");
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      showMessage("Error saving data. Please try again.");
+    }
+  };
+
+  const handleCowChange = (e) => {
+    const newCowName = e.target.value;
+    setSelectedCow(newCowName);
+    
+    const newCow = cowData.find(cow => cow.name === newCowName);
+    if (newCow && newCow.milk_data[currentDay]) {
+      setAmProduction(newCow.milk_data[currentDay].am);
+      setPmProduction(newCow.milk_data[currentDay].pm);
+    } else {
+      setAmProduction('');
+      setPmProduction('');
+    }
+  };
+
+  const handleDateChange = (e) => {
+    const newDate = e.target.value;
+    setSelectedDate(newDate);
+
+    const currentCow = cowData.find(cow => cow.name === selectedCow);
+    const newDay = new Date(newDate).getDate();
+
+    if (currentCow && currentCow.milk_data[newDay]) {
+        setAmProduction(currentCow.milk_data[newDay].am);
+        setPmProduction(currentCow.milk_data[newDay].pm);
+    } else {
+        setAmProduction('');
+        setPmProduction('');
+    }
+  };
+
+  const totalDailyProduction = parseValue(amProduction) + parseValue(pmProduction);
+  const selectedCowData = cowData.find(cow => cow.name === selectedCow);
+  
+  const renderChart = (title, data, dataKey) => (
+    <div className="w-full">
+      <h3 className="text-xl font-semibold text-center mb-4 text-gray-800">{title}</h3>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart
+          data={data}
+          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          layout="vertical"
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <YAxis dataKey="name" type="category" interval={0} axisLine={false} tickLine={false} />
+          <XAxis type="number" dataKey={dataKey} />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey={dataKey} fill="#8884d8" name="Liters" radius={[5, 5, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+
+  const renderCharts = (period) => {
+    const dataKey = `${period}Total`;
+    const chartTitle = (isTop) => `${isTop ? 'Top' : 'Worst'} 5 ${period.charAt(0).toUpperCase() + period.slice(1)} Milkers`;
+
+    return (
+      <div className="space-y-8 mt-6">
+        {renderChart(chartTitle(true), chartData[period]?.top, dataKey)}
+        {renderChart(chartTitle(false), chartData[period]?.worst, dataKey)}
+      </div>
+    );
+  };
+
+  if (!isAuthReady) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="text-xl font-semibold text-gray-700">
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center p-4">
+      <div className="w-full max-w-2xl bg-white p-6 rounded-2xl shadow-xl border border-gray-200 mb-8">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Cow Milk Production
+        </h1>
+        {userId && (
+          <div className="text-center text-sm text-gray-500 mb-4">
+            User ID: <span className="font-mono text-gray-700 break-words">{userId}</span>
+          </div>
+        )}
+        <div className="space-y-4">
+          <label htmlFor="cow-select" className="block text-gray-700 font-medium">
+            Select Cow:
+          </label>
+          <select
+            id="cow-select"
+            value={selectedCow}
+            onChange={handleCowChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+          >
+            {initialCows.map((cow) => (
+              <option key={cow.name} value={cow.name}>
+                {cow.name}
+              </option>
+            ))}
+          </select>
+
+          <div className="mt-4">
+            <label htmlFor="date-select" className="block text-gray-700 font-medium">
+              Select Date:
+            </label>
+            <input
+              id="date-select"
+              type="date"
+              value={selectedDate}
+              onChange={handleDateChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <div>
+              <label htmlFor="am-input" className="block text-gray-700 font-medium mb-1">
+                Morning (AM) Production (Liters)
+              </label>
+              <input
+                id="am-input"
+                type="number"
+                value={amProduction}
+                onChange={(e) => setAmProduction(e.target.value)}
+                placeholder="Enter AM data"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              />
+            </div>
+            <div>
+              <label htmlFor="pm-input" className="block text-gray-700 font-medium mb-1">
+                Evening (PM) Production (Liters)
+              </label>
+              <input
+                id="pm-input"
+                type="number"
+                value={pmProduction}
+                onChange={(e) => setPmProduction(e.target.value)}
+                placeholder="Enter PM data"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              />
+            </div>
+          </div>
+          
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={handleSave}
+              className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-105"
+            >
+              Save Data for Day {currentDay}
+            </button>
+          </div>
+          
+          {selectedCowData && (
+            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg text-gray-800 shadow-inner">
+              <h3 className="text-xl font-semibold mb-2">Summary for {selectedCowData.name}</h3>
+              <p className="text-lg">
+                <span className="font-medium">Total Daily Production:</span> {totalDailyProduction.toFixed(1)} Liters
+              </p>
+              <p className="text-sm text-gray-600 mt-1">
+                Last Calving Date: {selectedCowData.lastCalvingDate || 'N/A'}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="w-full max-w-2xl bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+          Production Charts
+        </h2>
+        
+        {/* Tabs for different time periods */}
+        <div className="flex justify-center border-b border-gray-200 mb-6">
+          <button
+            onClick={() => setActiveTab('daily')}
+            className={`px-4 py-2 font-semibold text-lg ${activeTab === 'daily' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+          >
+            Daily
+          </button>
+          <button
+            onClick={() => setActiveTab('weekly')}
+            className={`px-4 py-2 font-semibold text-lg ${activeTab === 'weekly' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+          >
+            Weekly
+          </button>
+          <button
+            onClick={() => setActiveTab('monthly')}
+            className={`px-4 py-2 font-semibold text-lg ${activeTab === 'monthly' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+          >
+            Monthly
+          </button>
+        </div>
+
+        {/* Render charts based on active tab */}
+        {activeTab === 'daily' && renderCharts('daily')}
+        {activeTab === 'weekly' && renderCharts('weekly')}
+        {activeTab === 'monthly' && renderCharts('monthly')}
+      </div>
+      
+      {/* Custom Message Box */}
+      {showMessageBox && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center">
+            <p className="text-gray-800 text-lg mb-4">{message}</p>
+            <button
+              onClick={() => setShowMessageBox(false)}
+              className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;
