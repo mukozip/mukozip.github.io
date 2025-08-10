@@ -21,7 +21,6 @@ const initialCows = [
 
 const App = () => {
   const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
-  // Input values are now managed as strings to prevent browser warnings.
   const [amProduction, setAmProduction] = useState('');
   const [pmProduction, setPmProduction] = useState('');
   const [cowData, setCowData] = useState([]);
@@ -32,7 +31,6 @@ const App = () => {
   const [showMessageBox, setShowMessageBox] = useState(false);
   const today = new Date().toISOString().split('T')[0];
   const [selectedDate, setSelectedDate] = useState(today);
-  // New state to hold the raw input from the text field
   const [dateInput, setDateInput] = useState(today);
 
   // States for chart data and active chart tab
@@ -46,18 +44,15 @@ const App = () => {
 
   const parseValue = (value) => {
     const num = parseFloat(value);
-    // Ensure that if value is an empty string, it defaults to 0
     return isNaN(num) ? 0 : num;
   };
   
-  // Helper function to calculate weekly production
   const getWeeklyProduction = (cow) => {
     let weekTotal = 0;
     const now = new Date(selectedDate);
     const day = now.getDay();
     const startOfWeek = new Date(now.setDate(now.getDate() - day));
     
-    // Create a new date object for the end of the week to avoid mutation issues
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
 
@@ -70,7 +65,6 @@ const App = () => {
     return weekTotal;
   };
   
-  // Helper function to calculate monthly production
   const getMonthlyProduction = (cow) => {
     let monthTotal = 0;
     const selectedMonth = new Date(selectedDate).getMonth();
@@ -85,7 +79,6 @@ const App = () => {
     return monthTotal;
   };
 
-  // Process data for charts whenever cowData or selectedDate changes
   useEffect(() => {
     if (cowData.length > 0) {
       const processedData = cowData.map(cow => ({
@@ -95,7 +88,6 @@ const App = () => {
         monthlyTotal: getMonthlyProduction(cow),
       }));
 
-      // Sort and get top/worst 5 for each period
       const sortedDaily = [...processedData].sort((a, b) => b.dailyTotal - a.dailyTotal);
       const sortedWeekly = [...processedData].sort((a, b) => b.weeklyTotal - a.weeklyTotal);
       const sortedMonthly = [...processedData].sort((a, b) => b.monthlyTotal - a.monthlyTotal);
@@ -177,11 +169,9 @@ const App = () => {
 
         const currentCow = combinedCows.find(cow => cow.name === selectedCow);
         if (currentCow && currentCow.milk_data[selectedDate]) {
-          // Set to a string from the number value
           setAmProduction(String(currentCow.milk_data[selectedDate].am));
           setPmProduction(String(currentCow.milk_data[selectedDate].pm));
         } else {
-          // Set to empty string for a clear input field when no data is found
           setAmProduction('');
           setPmProduction('');
         }
@@ -205,7 +195,6 @@ const App = () => {
     
     const currentCow = cowData.find(cow => cow.name === cowName);
     const dayData = {
-      // Ensure values are parsed from strings to numbers before saving
       am: parseValue(amProduction),
       pm: parseValue(pmProduction),
       total: parseValue(amProduction) + parseValue(pmProduction),
@@ -244,15 +233,12 @@ const App = () => {
 
   const handleDateChange = (e) => {
     const newDateString = e.target.value;
-    // Always update the raw input state
     setDateInput(newDateString);
 
-    // Use a regex to validate the date format before updating the functional state
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (dateRegex.test(newDateString)) {
         setSelectedDate(newDateString);
     } else if (newDateString === '') {
-        // If the field is cleared, reset to today
         setSelectedDate(today);
     }
   };
