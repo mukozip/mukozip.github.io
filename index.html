@@ -32,6 +32,8 @@ const App = () => {
   const [showMessageBox, setShowMessageBox] = useState(false);
   const today = new Date().toISOString().split('T')[0];
   const [selectedDate, setSelectedDate] = useState(today);
+  // New state to hold the raw input from the text field
+  const [dateInput, setDateInput] = useState(today);
 
   // States for chart data and active chart tab
   const [chartData, setChartData] = useState({ daily: [], weekly: [], monthly: [] });
@@ -241,17 +243,17 @@ const App = () => {
   };
 
   const handleDateChange = (e) => {
-    const newDate = e.target.value;
-    // Fix: Using type="text" and falling back to today ensures a valid date string is always present.
-    setSelectedDate(newDate || today);
+    const newDateString = e.target.value;
+    // Always update the raw input state
+    setDateInput(newDateString);
 
-    const currentCow = cowData.find(cow => cow.name === selectedCow);
-    if (currentCow && currentCow.milk_data[newDate]) {
-        setAmProduction(String(currentCow.milk_data[newDate].am));
-        setPmProduction(String(currentCow.milk_data[newDate].pm));
-    } else {
-        setAmProduction('');
-        setPmProduction('');
+    // Use a regex to validate the date format before updating the functional state
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (dateRegex.test(newDateString)) {
+        setSelectedDate(newDateString);
+    } else if (newDateString === '') {
+        // If the field is cleared, reset to today
+        setSelectedDate(today);
     }
   };
 
@@ -335,7 +337,7 @@ const App = () => {
             <input
               id="date-select"
               type="text"
-              value={selectedDate}
+              value={dateInput}
               onChange={handleDateChange}
               placeholder="yyyy-MM-dd"
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
