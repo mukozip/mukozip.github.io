@@ -27,6 +27,20 @@
             collection,
         };
     </script>
+
+    <script>
+        window.__app_id = "YOUR_APP_ID"; // Example: "1:1234567890:web:xxxxxxxxxxxxxxxxx"
+        window.__firebase_config = JSON.stringify({
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        });
+        window.__initial_auth_token = null;
+    </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
@@ -57,8 +71,8 @@
         ];
 
         const App = () => {
-            // FIX: Destructure Recharts components directly from the global scope
-            const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = window;
+            // FIX: Destructure Recharts components from the global `Recharts` object
+            const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
             const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
             const [amProduction, setAmProduction] = useState('');
             const [pmProduction, setPmProduction] = useState('');
