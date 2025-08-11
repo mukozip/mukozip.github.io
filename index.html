@@ -71,7 +71,7 @@
         ];
 
         const App = () => {
-            // FIX: Destructure Recharts components from the global `Recharts` object
+            // Recharts components are correctly destructured from the global Recharts object
             const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
             const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
             const [amProduction, setAmProduction] = useState('');
