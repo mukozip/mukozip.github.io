@@ -29,6 +29,7 @@
     </script>
 
     <script>
+        // Paste your actual Firebase credentials here
         window.__app_id = "YOUR_APP_ID"; // Example: "1:1234567890:web:xxxxxxxxxxxxxxxxx"
         window.__firebase_config = JSON.stringify({
             apiKey: "YOUR_API_KEY",
@@ -71,7 +72,6 @@
         ];
 
         const App = () => {
-            // FIX: Destructure Recharts components directly from the global 'window' object
             const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = window;
             const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
             const [amProduction, setAmProduction] = useState('');
