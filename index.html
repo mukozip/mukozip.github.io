@@ -39,7 +39,6 @@
 
     <script type="text/babel">
         const { useState, useEffect } = React;
-        const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
         const { initializeApp, getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, getFirestore, doc, setDoc, onSnapshot, collection } = window.firebase;
 
         // Mock data from the user's provided CSV snippet
@@ -58,6 +57,8 @@
         ];
 
         const App = () => {
+            // FIX: Recharts is now destructured inside the component body
+            const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
             const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
             const [amProduction, setAmProduction] = useState('');
             const [pmProduction, setPmProduction] = useState('');
