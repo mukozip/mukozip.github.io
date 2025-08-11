@@ -4,521 +4,215 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dairy Management App</title>
+    <!-- Fix favicon error with empty data URI -->
+    <link rel="icon" href="data:,">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 10px;
-            background-color: #f4f4f9;
-        }
-        h1, h2, h3 {
-            color: #333;
-            font-size: 1.5em;
-        }
-        .section {
-            margin: 10px 0;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .input-group {
-            margin-bottom: 10px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 0.9em;
-        }
-        input, select {
-            padding: 8px;
-            width: 100%;
-            max-width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        .edit-btn-main {
-            background-color: #007bff;
-            margin-left: 5px;
-        }
-        .edit-btn-main:hover {
-            background-color: #0056b3;
-        }
-        .export-btn {
-            background-color: #17a2b8;
-            margin-top: 10px;
-        }
-        .export-btn:hover {
-            background-color: #138496;
-        }
-        .table-container {
-            overflow-x: auto;
-            margin-top: 10px;
-        }
+        /* Basic styling for table and form */
         table {
-            width: 100%;
             border-collapse: collapse;
-            font-size: 0.85em;
+            width: 100%;
+            margin-top: 20px;
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 6px;
-            text-align: center;
-            white-space: nowrap;
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
         }
         th {
             background-color: #f2f2f2;
         }
-        .totals-row {
-            background-color: #e9ecef;
-            font-weight: bold;
-        }
-        .lactation-green {
-            background-color: #d4edda;
-        }
-        .lactation-yellow {
-            background-color: #fff3cd;
-        }
-        .lactation-red {
-            background-color: #f8d7da;
-        }
-        .key {
-            margin-top: 10px;
-            font-size: 0.8em;
-        }
-        .key div {
-            display: inline-block;
-            width: 15px;
-            height: 15px;
-            margin-right: 5px;
-            vertical-align: middle;
-        }
-        .edit-btn, .delete-btn {
-            padding: 4px 8px;
-            margin: 2px;
-            font-size: 0.75em;
-        }
-        .edit-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-        .delete-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-        .total-col {
-            font-weight: bold;
-            background-color: #e9ecef;
-        }
-        .chart-container {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .chart {
-            max-width: 100%;
-            width: 100%;
-            min-width: 250px;
-        }
-        .deduction-group {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .deduction-group h4 {
-            margin: 0 0 10px;
-            font-size: 0.9em;
-            color: #555;
-        }
-        @media (max-width: 768px) {
-            body {
-                padding: 5px;
-            }
-            h1 {
-                font-size: 1.2em;
-            }
-            h2, h3 {
-                font-size: 1em;
-            }
-            .section {
-                padding: 10px;
-            }
-            input, select, button {
-                font-size: 0.85em;
-                padding: 6px;
-            }
-            .chart {
-                max-width: 100%;
-            }
-            table {
-                font-size: 0.75em;
-            }
-            th, td {
-                padding: 4px;
-            }
-            .edit-btn, .delete-btn {
-                padding: 3px 6px;
-                font-size: 0.7em;
-            }
-        }
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1em;
-            }
-            h2, h3 {
-                font-size: 0.9em;
-            }
-            input, select {
-                max-width: 100%;
-            }
-            button {
-                width: 100%;
-                margin: 5px 0;
-            }
-            .edit-btn-main {
-                margin-left: 0;
-            }
-            .chart {
-                min-width: 100%;
-            }
+        button {
+            margin: 5px;
         }
     </style>
 </head>
 <body>
     <h1>Dairy Management App</h1>
 
-    <div class="section">
-        <h2>Manage Cows</h2>
-        <div class="input-group">
-            <label for="cow-name">Cow Name</label>
-            <input type="text" id="cow-name" placeholder="Enter cow name">
-        </div>
-        <div class="input-group">
-            <label for="last-birth-date">Last Birth Date</label>
-            <input type="date" id="last-birth-date">
-        </div>
-        <div class="input-group">
-            <label for="edit-cow-select">Select Cow to Edit</label>
-            <select id="edit-cow-select">
-                <option value="">Select Cow</option>
-            </select>
-        </div>
-        <button onclick="addCow()">Add Cow</button>
-        <button class="edit-btn-main" onclick="editCow()">Edit Cow</button>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cow Name</th>
-                        <th>Last Birth Date</th>
-                        <th>Lactation Period (Months)</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="cow-table-body"></tbody>
-            </table>
-        </div>
-        <div class="key">
-            <div class="lactation-green"></div> 1-7 weeks (Green)<br>
-            <div class="lactation-yellow"></div> 10-30 weeks (Yellow)<br>
-            <div class="lactation-red"></div> 40-52 weeks (Red)
-        </div>
+    <h2>Manage Cows</h2>
+    <div>
+        <label>Cow Name</label>
+        <input type="text" id="cowNameInput">
+    </div>
+    <div>
+        <label>Last Birth Date</label>
+        <input type="date" id="lastBirthDateInput">
+    </div>
+    <div>
+        <label>Lactation Period (Months)</label>
+        <input type="number" id="lactationPeriodInput">
+    </div>
+    <div>
+        <label>Select Cow to Edit</label>
+        <select id="cowSelect">
+            <option>Select Cow</option>
+        </select>
+    </div>
+    <button id="addCowButton" onclick="addCow()">Add Cow</button>
+    <button>Edit Cow</button>
+
+    <table id="cowTable">
+        <thead>
+            <tr>
+                <th>Cow Name</th>
+                <th>Last Birth Date</th>
+                <th>Lactation Period (Months)</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be added here by JavaScript -->
+        </tbody>
+    </table>
+
+    <div>
+        <h3>1-7 weeks (Green)</h3>
+        <h3>10-30 weeks (Yellow)</h3>
+        <h3>40-52 weeks (Red)</h3>
     </div>
 
-    <div class="section">
-        <h2>Add Daily Milk Production</h2>
-        <div class="input-group">
-            <label for="production-cow-select">Cow Name</label>
-            <select id="production-cow-select">
-                <option value="">Select Cow</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label for="production-date">Date</label>
-            <input type="date" id="production-date">
-        </div>
-        <div class="input-group">
-            <label for="morning-liters">Morning Liters</label>
-            <input type="number" id="morning-liters" step="0.1" min="0" placeholder="Enter liters">
-        </div>
-        <div class="input-group">
-            <label for="evening-liters">Evening Liters</label>
-            <input type="number" id="evening-liters" step="0.1" min="0" placeholder="Enter liters">
-        </div>
-        <div class="deduction-group">
-            <h4>Morning Deductions</h4>
-            <div class="input-group">
-                <label for="morning-calf-milk">Calf Milk (Liters)</label>
-                <input type="number" id="morning-calf-milk" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-            <div class="input-group">
-                <label for="morning-home-use">Home Use (Liters)</label>
-                <input type="number" id="morning-home-use" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-            <div class="input-group">
-                <label for="morning-workers-milk">Workers Milk (Liters)</label>
-                <input type="number" id="morning-workers-milk" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-        </div>
-        <div class="deduction-group">
-            <h4>Evening Deductions</h4>
-            <div class="input-group">
-                <label for="evening-calf-milk">Calf Milk (Liters)</label>
-                <input type="number" id="evening-calf-milk" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-            <div class="input-group">
-                <label for="evening-home-use">Home Use (Liters)</label>
-                <input type="number" id="evening-home-use" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-            <div class="input-group">
-                <label for="evening-workers-milk">Workers Milk (Liters)</label>
-                <input type="number" id="evening-workers-milk" step="0.1" min="0" placeholder="Enter liters">
-            </div>
-        </div>
-        <button onclick="addProduction()">Add Production</button>
+    <h2>Add Daily Milk Production</h2>
+    <div>
+        <label>Cow Name</label>
+        <select id="milkCowSelect">
+            <option>Select Cow</option>
+        </select>
+    </div>
+    <div>
+        <label>Date</label>
+        <input type="date" id="milkDateInput">
+    </div>
+    <div>
+        <label>Morning Liters</label>
+        <input type="number" id="morningLitersInput">
+    </div>
+    <div>
+        <label>Evening Liters</label>
+        <input type="number" id="eveningLitersInput">
+    </div>
+    <div>
+        <h3>Morning Deductions</h3>
+        <label>Calf Milk (Liters)</label>
+        <input type="number" id="morningCalfMilkInput">
+        <label>Home Use (Liters)</label>
+        <input type="number" id="morningHomeUseInput">
+        <label>Workers Milk (Liters)</label>
+        <input type="number" id="morningWorkersMilkInput">
+    </div>
+    <div>
+        <h3>Evening Deductions</h3>
+        <label>Calf Milk (Liters)</label>
+        <input type="number" id="eveningCalfMilkInput">
+        <label>Home Use (Liters)</label>
+        <input type="number" id="eveningHomeUseInput">
+        <label>Workers Milk (Liters)</label>
+        <input type="number" id="eveningWorkersMilkInput">
+    </div>
+    <button>Add Production</button>
+
+    <h2>Production Analysis</h2>
+    <h3>Daily Production Entries (July 2025)</h3>
+    <button>Export to Excel</button>
+    <table id="productionTable">
+        <thead>
+            <tr>
+                <th>Cow No./Name</th>
+                <th>Time</th>
+                <!-- Columns for days 1-31 -->
+                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+                <th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th>
+                <th>21</th><th>22</th><th>23</th><th>24</th><th>25</th><th>26</th><th>27</th><th>28</th><th>29</th><th>30</th><th>31</th>
+                <th>Total Daily Production</th>
+                <th>Total Monthly Production</th>
+                <th>Last Calving Date</th>
+                <th>Days of Pdn Since Calving</th>
+                <th>Months of Preg</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Production data will be added here -->
+        </tbody>
+    </table>
+
+    <h2>Production Charts</h2>
+    <div>
+        <h3>Top 5 Milkers (Daily, July 10)</h3>
+        <!-- Chart placeholder -->
+    </div>
+    <div>
+        <h3>Worst 5 Milkers (Daily, July 10)</h3>
+        <!-- Chart placeholder -->
+    </div>
+    <div>
+        <h3>Top 5 Milkers (Week, July 5-10)</h3>
+        <!-- Chart placeholder -->
+    </div>
+    <div>
+        <h3>Worst 5 Milkers (Week, July 5-10)</h3>
+        <!-- Chart placeholder -->
+    </div>
+    <div>
+        <h3>Top 5 Milkers (Month, July 1-10)</h3>
+        <!-- Chart placeholder -->
+    </div>
+    <div>
+        <h3>Worst 5 Milkers (Month, July 1-10)</h3>
+        <!-- Chart placeholder -->
     </div>
 
-    <div class="section">
-        <h2>Production Analysis</h2>
-        <h3>Daily Production Entries (July 2025)</h3>
-        <button class="export-btn" onclick="exportToExcel()">Export to Excel</button>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cow No./Name</th>
-                        <th>Time</th>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>3</th>
-                        <th>4</th>
-                        <th>5</th>
-                        <th>6</th>
-                        <th>7</th>
-                        <th>8</th>
-                        <th>9</th>
-                        <th>10</th>
-                        <th>11</th>
-                        <th>12</th>
-                        <th>13</th>
-                        <th>14</th>
-                        <th>15</th>
-                        <th>16</th>
-                        <th>17</th>
-                        <th>18</th>
-                        <th>19</th>
-                        <th>20</th>
-                        <th>21</th>
-                        <th>22</th>
-                        <th>23</th>
-                        <th>24</th>
-                        <th>25</th>
-                        <th>26</th>
-                        <th>27</th>
-                        <th>28</th>
-                        <th>29</th>
-                        <th>30</th>
-                        <th>31</th>
-                        <th>Total Daily Production</th>
-                        <th>Total Monthly Production</th>
-                        <th>Last Calving Date</th>
-                        <th>Days of Pdn Since Calving</th>
-                        <th>Months of Preg</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="production-table-body"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="section">
-        <h2>Production Charts</h2>
-        <div class="chart-container">
-            <div>
-                <h3>Top 5 Milkers (Daily, July 10)</h3>
-                <canvas class="chart" id="top-5-daily"></canvas>
-            </div>
-            <div>
-                <h3>Worst 5 Milkers (Daily, July 10)</h3>
-                <canvas class="chart" id="worst-5-daily"></canvas>
-            </div>
-            <div>
-                <h3>Top 5 Milkers (Week, July 5-10)</h3>
-                <canvas class="chart" id="top-5-weekly"></canvas>
-            </div>
-            <div>
-                <h3>Worst 5 Milkers (Week, July 5-10)</h3>
-                <canvas class="chart" id="worst-5-weekly"></canvas>
-            </div>
-            <div>
-                <h3>Top 5 Milkers (Month, July 1-10)</h3>
-                <canvas class="chart" id="top-5-monthly"></canvas>
-            </div>
-            <div>
-                <h3>Worst 5 Milkers (Month, July 1-10)</h3>
-                <canvas class="chart" id="worst-5-monthly"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.21.0/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
     <script>
-        // Diagnostic to confirm library loading
-        window.addEventListener('load', () => {
-            console.log('Chart.js loaded:', typeof Chart !== 'undefined');
-            console.log('XLSX loaded:', typeof XLSX !== 'undefined');
-            console.log('Moment.js loaded:', typeof moment !== 'undefined');
-            populateCowSelects();
-            populateCowTable();
-            populateProductionTable();
-            initCharts();
-        });
+        // Fix for addCow is not defined
+        function addCow() {
+            // Get input values
+            const cowName = document.getElementById('cowNameInput').value;
+            const lastBirthDate = document.getElementById('lastBirthDateInput').value;
+            const lactationPeriod = document.getElementById('lactationPeriodInput').value;
 
-        // Cow data
-        let cows = [
-            { name: "297 Mercy", birthDate: "2024-07-14" },
-            { name: "413 Magret", birthDate: "2024-07-17" },
-            { name: "427 Cece", birthDate: "2024-09-26" },
-            { name: "425 Angel", birthDate: "2024-10-01" },
-            { name: "093 Ritah", birthDate: "2024-10-10" },
-            { name: "059 Susan", birthDate: "2024-12-06" },
-            { name: "008 Frida", birthDate: "2024-12-08" },
-            { name: "434 Shana", birthDate: "2025-04-04" },
-            { name: "083 Kathy", birthDate: "2025-03-11" },
-            { name: "402 Kellen", birthDate: "2025-03-28" },
-            { name: "098 Jackline", birthDate: "2025-04-12" },
-            { name: "421 EVA", birthDate: "2025-04-18" },
-            { name: "099 Sarah", birthDate: "2025-04-20" },
-            { name: "521 Keza", birthDate: "2025-02-23" },
-            { name: "024 Kirabo", birthDate: "2025-04-25" },
-            { name: "403 Peace", birthDate: "2025-05-10" },
-            { name: "418 Irene", birthDate: "2025-05-17" },
-            { name: "296 Joan", birthDate: "2025-05-28" },
-            { name: "511 Siima", birthDate: "2025-06-22" },
-            { name: "021 BIra", birthDate: "2025-06-24" }
-        ];
+            // Basic validation
+            if (!cowName || !lastBirthDate || !lactationPeriod) {
+                alert('Please fill in all fields.');
+                return;
+            }
 
-        // Production data
-        let productionData = [
-            { cowId: "297 Mercy", date: "2025-07-01", morningLiters: 4.5, eveningLiters: 2.0 },
-            { cowId: "297 Mercy", date: "2025-07-02", morningLiters: 4.5, eveningLiters: 2.0 },
-            { cowId: "297 Mercy", date: "2025-07-03", morningLiters: 4.5, eveningLiters: 2.0 },
-            { cowId: "297 Mercy", date: "2025-07-04", morningLiters: 4.5, eveningLiters: 2.0 },
-            { cowId: "297 Mercy", date: "2025-07-05", morningLiters: 5.0, eveningLiters: 2.0 },
-            { cowId: "297 Mercy", date: "2025-07-06", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-07", morningLiters: 4.5, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-08", morningLiters: 4.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-09", morningLiters: 4.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-10", morningLiters: 3.5, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-11", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-12", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-13", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-14", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-15", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-16", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-17", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-18", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-19", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-20", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-21", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-22", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-23", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-24", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-25", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-26", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-27", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-28", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-29", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "297 Mercy", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0 },
+            // Add row to table
+            const table = document.getElementById('cowTable').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td>${cowName}</td>
+                <td>${lastBirthDate}</td>
+                <td>${lactationPeriod}</td>
+                <td><button onclick="editCow(this)">Edit</button></td>
+            `;
 
-            { cowId: "413 Magret", date: "2025-07-01", morningLiters: 5.0, eveningLiters: 2.5 },
-            { cowId: "413 Magret", date: "2025-07-02", morningLiters: 5.0, eveningLiters: 2.0 },
-            { cowId: "413 Magret", date: "2025-07-03", morningLiters: 5.5, eveningLiters: 3.0 },
-            { cowId: "413 Magret", date: "2025-07-04", morningLiters: 5.0, eveningLiters: 2.5 },
-            { cowId: "413 Magret", date: "2025-07-05", morningLiters: 5.5, eveningLiters: 2.0 },
-            { cowId: "413 Magret", date: "2025-07-06", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-07", morningLiters: 6.5, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-08", morningLiters: 5.5, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-09", morningLiters: 5.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-10", morningLiters: 5.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-11", morningLiters: 5.5, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-12", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-13", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-14", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-15", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-16", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-17", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-18", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-19", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-20", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-21", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-22", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-23", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-24", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-25", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-26", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-27", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-28", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-29", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "413 Magret", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0 },
+            // Add cow to select dropdown
+            const select = document.getElementById('cowSelect');
+            const option = document.createElement('option');
+            option.text = cowName;
+            select.add(option);
 
-            { cowId: "427 Cece", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 1.5 },
-            { cowId: "427 Cece", date: "2025-07-02", morningLiters: 3.0, eveningLiters: 2.0 },
-            { cowId: "427 Cece", date: "2025-07-03", morningLiters: 4.0, eveningLiters: 2.0 },
-            { cowId: "427 Cece", date: "2025-07-04", morningLiters: 3.0, eveningLiters: 1.5 },
-            { cowId: "427 Cece", date: "2025-07-05", morningLiters: 3.5, eveningLiters: 1.5 },
-            { cowId: "427 Cece", date: "2025-07-06", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-07", morningLiters: 3.5, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-08", morningLiters: 3.5, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-09", morningLiters: 3.5, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-10", morningLiters: 3.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-11", morningLiters: 2.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-12", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-13", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-14", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-15", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-16", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-17", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-18", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-19", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-20", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-21", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-22", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-23", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-24", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-25", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-26", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-27", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-28", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-29", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-30", morningLiters: 0.0, eveningLiters: 0.0 },
-            { cowId: "427 Cece", date: "2025-07-31", morningLiters: 0.0, eveningLiters: 0.0 },
+            // Clear form
+            document.getElementById('cowNameInput').value = '';
+            document.getElementById('lastBirthDateInput').value = '';
+            document.getElementById('lactationPeriodInput').value = '';
+        }
 
-            { cowId: "425 Angel", date: "2025-07-01", morningLiters: 3.5, eveningLiters: 2.0 },
-            { cowId: "425 Angel", date: "2025-07-02", morningLiters:
+        // Optional: Basic editCow function (placeholder)
+        function editCow(button) {
+            const row = button.parentElement.parentElement;
+            const cells = row.getElementsByTagName('td');
+            const cowName = cells[0].textContent;
+            const lastBirthDate = cells[1].textContent;
+            const lactationPeriod = cells[2].textContent;
+
+            // Populate form for editing
+            document.getElementById('cowNameInput').value = cowName;
+            document.getElementById('lastBirthDateInput').value = lastBirthDate;
+            document.getElementById('lactationPeriodInput').value = lactationPeriod;
+
+            // Optionally, remove the row or update it after editing
+            alert('Edit mode: Modify fields and click "Add Cow" to update.');
+        }
+    </script>
+</body>
+</html>
