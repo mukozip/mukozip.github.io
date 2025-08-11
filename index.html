@@ -57,8 +57,8 @@
         ];
 
         const App = () => {
-            // FIX: Recharts is now destructured inside the component body
-            const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
+            // FIX: Destructure Recharts components directly from the global scope
+            const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = window;
             const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
             const [amProduction, setAmProduction] = useState('');
             const [pmProduction, setPmProduction] = useState('');
