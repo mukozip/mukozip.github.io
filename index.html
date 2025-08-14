@@ -26,7 +26,7 @@
             width: 60px;
             padding: 4px;
         }
-        input[type="text"], input[type="date"] {
+        input[type="text"], input[type="date"], select {
             padding: 4px;
             margin: 5px;
             width: 150px;
@@ -61,6 +61,9 @@
         }
         .ranking-table th {
             background-color: #e0e0e0;
+        }
+        .date-selector {
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -152,9 +155,38 @@
     </table>
 
     <div class="ranking-section">
-        <h2>Top 5 Milk Producers</h2>
+        <h2>Daily Milk Producers by Date</h2>
+        <div class="date-selector">
+            <label for="dateSelect">Select Date:</label>
+            <select id="dateSelect" onchange="updateDailyRankings(this.value)">
+                <!-- Dates will be populated dynamically -->
+            </select>
+        </div>
         <table class="ranking-table" id="topDailyTable">
-            <caption>Top 5 Daily Milk Producers</caption>
+            <caption id="topDailyCaption">Top 5 Daily Milk Producers</caption>
+            <thead>
+                <tr><th>Rank</th><th>Cow</th><th>Total Milk (L)</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <table class="ranking-table" id="worstDailyTable">
+            <caption id="worstDailyCaption">Worst 5 Daily Milk Producers</caption>
+            <thead>
+                <tr><th>Rank</th><th>Cow</th><th>Total Milk (L)</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <h2>All Rankings</h2>
+        <table class="ranking-table" id="allTopDailyTable">
+            <caption>Top 5 Daily Milk Producers (All Days)</caption>
+            <thead>
+                <tr><th>Day</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <table class="ranking-table" id="allWorstDailyTable">
+            <caption>Worst 5 Daily Milk Producers (All Days)</caption>
             <thead>
                 <tr><th>Day</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
             </thead>
@@ -167,26 +199,17 @@
             </thead>
             <tbody></tbody>
         </table>
-        <table class="ranking-table" id="topMonthlyTable">
-            <caption>Top 5 Monthly Milk Producers</caption>
-            <thead>
-                <tr><th>Rank</th><th>Cow</th><th>Total Milk (L)</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        <h2>Worst 5 Milk Producers</h2>
-        <table class="ranking-table" id="worstDailyTable">
-            <caption>Worst 5 Daily Milk Producers</caption>
-            <thead>
-                <tr><th>Day</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
         <table class="ranking-table" id="worstWeeklyTable">
             <caption>Worst 5 Weekly Milk Producers</caption>
             <thead>
                 <tr><th>Week</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <table class="ranking-table" id="topMonthlyTable">
+            <caption>Top 5 Monthly Milk Producers</caption>
+            <thead>
+                <tr><th>Rank</th><th>Cow</th><th>Total Milk (L)</th></tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -203,6 +226,7 @@
         const today = new Date(2025, 7, 14); // August 14, 2025 (month is 0-based)
         let cowCount = 0;
         let currentMonth = 'July';
+        let selectedDate = '1'; // Default to day 1
 
         // Fixed cow data from Excel (without production)
         const fixedCowsFromExcel = [
@@ -274,6 +298,7 @@
 
         let fixedCows = JSON.parse(localStorage.getItem('fixedCows')) || fixedCowsFromExcel;
         let productionData = JSON.parse(localStorage.getItem('productionData')) || {};
+        cowCount = fixedCows.length; // Initialize cowCount based on fixedCows
 
         if (!productionData['July']) {
             productionData['July'] = {
@@ -286,18 +311,40 @@
             };
         }
 
+        // Ensure productionData for each month has enough production arrays
+        Object.keys(productionData).forEach(month => {
+            while (productionData[month].productions.length < fixedCows.length) {
+                productionData[month].productions.push({ amValues: Array(31).fill(''), pmValues: Array(31).fill('') });
+            }
+        });
+
         localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
         localStorage.setItem('productionData', JSON.stringify(productionData));
 
         // Load initial month
         window.onload = function() {
             document.getElementById('monthSelect').value = currentMonth;
+            populateDateDropdown();
             loadMonth(currentMonth);
         };
+
+        function populateDateDropdown() {
+            const dateSelect = document.getElementById('dateSelect');
+            dateSelect.innerHTML = '';
+            for (let d = 1; d <= 31; d++) {
+                const option = document.createElement('option');
+                option.value = d;
+                option.textContent = `${currentMonth} ${d}`;
+                dateSelect.appendChild(option);
+            }
+            dateSelect.value = selectedDate;
+        }
 
         function changeMonth(newMonth) {
             saveCurrentMonth();
             currentMonth = newMonth;
+            selectedDate = '1'; // Reset to day 1
+            populateDateDropdown();
             loadMonth(currentMonth);
         }
 
@@ -339,19 +386,29 @@
                 };
             }
 
+            // Ensure productions array matches fixedCows length
+            while (productionData[month].productions.length < fixedCows.length) {
+                productionData[month].productions.push({ amValues: Array(31).fill(''), pmValues: Array(31).fill('') });
+            }
+
             const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
             tbody.innerHTML = '';
 
             const productions = productionData[month].productions;
             fixedCows.forEach((cow, index) => {
-                addCowToTable(cow, productions[index].amValues, productions[index].pmValues);
+                if (productions[index]) {
+                    addCowToTable(cow, productions[index].amValues, productions[index].pmValues);
+                } else {
+                    console.error(`No production data for cow ${cow.displayName} at index ${index}`);
+                    addCowToTable(cow, Array(31).fill(''), Array(31).fill(''));
+                }
             });
 
             removeDeductionsRows();
             addDeductionsRows(productionData[month].deductions);
             document.getElementById('tableCaption').textContent = `${month} Records`;
 
-            recalculate(); // Moved after addDeductionsRows
+            recalculate();
         }
 
         function removeDeductionsRows() {
@@ -630,16 +687,79 @@
 
             // Update rankings
             updateRankings(cowDailyTotals, cowMonthlyTotals);
+            updateDailyRankings(selectedDate);
 
             console.log(`Recalculated: AM Total=${totalAMAll.toFixed(1)}, PM Total=${totalPMAll.toFixed(1)}, Total Net=${totalNet.toFixed(1)}`);
         }
 
-        function updateRankings(cowDailyTotals, cowMonthlyTotals) {
-            // Daily Rankings
+        function updateDailyRankings(day) {
+            selectedDate = day;
+            const dayIndex = parseInt(day) - 1;
             const topDailyTbody = document.getElementById('topDailyTable').getElementsByTagName('tbody')[0];
             const worstDailyTbody = document.getElementById('worstDailyTable').getElementsByTagName('tbody')[0];
             topDailyTbody.innerHTML = '';
             worstDailyTbody.innerHTML = '';
+
+            // Update captions
+            document.getElementById('topDailyCaption').textContent = `Top 5 Daily Milk Producers for ${currentMonth} ${day}`;
+            document.getElementById('worstDailyCaption').textContent = `Worst 5 Daily Milk Producers for ${currentMonth} ${day}`;
+
+            // Calculate daily totals for the selected day
+            const cowDailyTotals = [];
+            const tableBody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
+            for (let i = 0; i < tableBody.rows.length; i += 2) {
+                const amRow = tableBody.rows[i];
+                const pmRow = tableBody.rows[i + 1];
+                const displayName = pmRow.cells[0].textContent;
+                const amVal = parseFloat(amRow.cells[dayIndex + 2].querySelector('input').value) || 0;
+                const pmVal = parseFloat(pmRow.cells[dayIndex + 2].querySelector('input').value) || 0;
+                cowDailyTotals.push({ cow: displayName, total: amVal + pmVal });
+            }
+
+            // Sort and filter
+            const sorted = cowDailyTotals
+                .filter(c => c.total > 0 || cowDailyTotals.every(c => c.total === 0))
+                .sort((a, b) => b.total - a.total);
+            const top5 = sorted.slice(0, 5);
+            const worst5 = sorted.slice(-5).reverse();
+
+            // Populate top 5
+            if (sorted.length === 0 || top5.every(c => c.total === 0)) {
+                const row = topDailyTbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 3;
+                cell.textContent = `No production data for ${currentMonth} ${day}`;
+            } else {
+                top5.forEach((cow, i) => {
+                    const row = topDailyTbody.insertRow();
+                    row.insertCell().textContent = i + 1;
+                    row.insertCell().textContent = cow.cow;
+                    row.insertCell().textContent = cow.total.toFixed(1);
+                });
+            }
+
+            // Populate worst 5
+            if (sorted.length === 0 || worst5.every(c => c.total === 0)) {
+                const row = worstDailyTbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 3;
+                cell.textContent = `No production data for ${currentMonth} ${day}`;
+            } else {
+                worst5.forEach((cow, i) => {
+                    const row = worstDailyTbody.insertRow();
+                    row.insertCell().textContent = i + 1;
+                    row.insertCell().textContent = cow.cow;
+                    row.insertCell().textContent = cow.total.toFixed(1);
+                });
+            }
+        }
+
+        function updateRankings(cowDailyTotals, cowMonthlyTotals) {
+            // Daily Rankings (All Days)
+            const allTopDailyTbody = document.getElementById('allTopDailyTable').getElementsByTagName('tbody')[0];
+            const allWorstDailyTbody = document.getElementById('allWorstDailyTable').getElementsByTagName('tbody')[0];
+            allTopDailyTbody.innerHTML = '';
+            allWorstDailyTbody.innerHTML = '';
             for (let d = 0; d < 31; d++) {
                 const sorted = cowDailyTotals[d]
                     .filter(c => c.total > 0 || cowDailyTotals[d].every(c => c.total === 0))
@@ -647,11 +767,11 @@
                 const top5 = sorted.slice(0, 5);
                 const worst5 = sorted.slice(-5).reverse();
                 if (sorted.length > 0) {
-                    const topRow = topDailyTbody.insertRow();
+                    const topRow = allTopDailyTbody.insertRow();
                     topRow.insertCell().textContent = d + 1;
                     top5.forEach(cow => topRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)} L)`);
                     while (topRow.cells.length < 6) topRow.insertCell().textContent = '';
-                    const worstRow = worstDailyTbody.insertRow();
+                    const worstRow = allWorstDailyTbody.insertRow();
                     worstRow.insertCell().textContent = d + 1;
                     worst5.forEach(cow => worstRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)} L)`);
                     while (worstRow.cells.length < 6) worstRow.insertCell().textContent = '';
