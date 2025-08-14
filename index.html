@@ -92,6 +92,7 @@
         <option value="December">December</option>
     </select>
     <button onclick="saveCurrentMonth()">Save</button>
+    <button onclick="exportToCSV()">Export to CSV</button>
     
     <table id="milkTable">
         <caption id="tableCaption">July Records</caption>
@@ -560,6 +561,34 @@
             netLitersRow.cells[33].textContent = totalNet.toFixed(1);
 
             console.log(`Recalculated: AM Total=${totalAMAll.toFixed(1)}, PM Total=${totalPMAll.toFixed(1)}, Total Net=${totalNet.toFixed(1)}`);
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            const table = document.getElementById('milkTable');
+            const rows = table.rows;
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const rowData = [];
+                for (let j = 0; j < row.cells.length; j++) {
+                    const cell = row.cells[j];
+                    let cellText = cell.textContent || cell.innerText;
+                    if (cell.querySelector('input')) {
+                        cellText = cell.querySelector('input').value;
+                    }
+                    rowData.push(`"${cellText.replace(/"/g, '""')}"`);
+                }
+                csvContent += rowData.join(",") + "\r\n";
+            }
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `${currentMonth}_Records.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
