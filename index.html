@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dairy Management App</title>
-    <link rel="icon" type="image/png" href="/favicon.png"> <!-- Updated to .png -->
+    <link rel="icon" type="image/png" href="/favicon.png">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -76,7 +76,25 @@
     </div>
     <div id="message" class="message"></div>
     
+    <label for="monthSelect">Month:</label>
+    <select id="monthSelect" onchange="changeMonth(this.value)">
+        <option value="January">January</option>
+        <option value="February">February</option>
+        <option value="March">March</option>
+        <option value="April">April</option>
+        <option value="May">May</option>
+        <option value="June">June</option>
+        <option value="July">July</option>
+        <option value="August">August</option>
+        <option value="September">September</option>
+        <option value="October">October</option>
+        <option value="November">November</option>
+        <option value="December">December</option>
+    </select>
+    <button onclick="saveCurrentMonth()">Save</button>
+    
     <table id="milkTable">
+        <caption id="tableCaption">July Records</caption>
         <thead>
             <tr>
                 <th>COW NO./NAME</th>
@@ -119,119 +137,257 @@
                 <td></td>
                 <td></td>
             </tr>
+            <!-- Deductions rows will be added here -->
         </tfoot>
     </table>
 
     <script>
         const today = new Date(2025, 7, 14); // August 14, 2025 (month is 0-based)
         let cowCount = 0;
+        let currentMonth = 'July';
 
-        // Excel data with each cow having both AM and PM values
-        const cowDataFromExcel = [
-            { cowNo: "297", displayName: "1. MERCY", calvingDateStr: "2024-03-01", monthsPreg: "4.66666666666667", 
-              amValues: ["4.5", "4.5", "4.5", "4.5", "5", "", "4.5", "4", "4", "4", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+        // Fixed cow data from Excel (without production)
+        const fixedCowsFromExcel = [
+            { cowNo: "297", displayName: "1. MERCY", calvingDateStr: "2024-03-01", monthsPreg: "4.66666666666667" },
+            { cowNo: "413", displayName: "2. MAGRET", calvingDateStr: "2024-03-04", monthsPreg: "3.4" },
+            { cowNo: "427", displayName: "3. CECE", calvingDateStr: "2024-05-15", monthsPreg: "3.2" },
+            { cowNo: "425", displayName: "4. ANGEL", calvingDateStr: "2024-05-19", monthsPreg: "5.36666666666667" },
+            { cowNo: "093", displayName: "5. RITAH", calvingDateStr: "2024-05-28", monthsPreg: "" },
+            { cowNo: "059", displayName: "6. SUSAN", calvingDateStr: "2024-07-24", monthsPreg: "2.1" },
+            { cowNo: "008", displayName: "7. FRIDA", calvingDateStr: "2024-07-26", monthsPreg: "3.46666666666667" },
+            { cowNo: "434", displayName: "8. SHANA", calvingDateStr: "2024-10-06", monthsPreg: "1.56666666666667" },
+            { cowNo: "083", displayName: "9. KATHY", calvingDateStr: "2024-10-27", monthsPreg: "" },
+            { cowNo: "402", displayName: "10. KELLEN", calvingDateStr: "2024-11-13", monthsPreg: "" },
+            { cowNo: "098", displayName: "11. JACKLINE", calvingDateStr: "2024-11-28", monthsPreg: "" },
+            { cowNo: "421", displayName: "12. EVA", calvingDateStr: "2024-11-28", monthsPreg: "" },
+            { cowNo: "099", displayName: "13. SARAH", calvingDateStr: "2024-12-04", monthsPreg: "" },
+            { cowNo: "521", displayName: "14. KEZA", calvingDateStr: "2024-12-09", monthsPreg: "" },
+            { cowNo: "024", displayName: "15. KIRABO", calvingDateStr: "2024-12-11", monthsPreg: "" },
+            { cowNo: "403", displayName: "16. PEACE", calvingDateStr: "2024-12-26", monthsPreg: "" },
+            { cowNo: "418", displayName: "17. IRENE", calvingDateStr: "2025-01-02", monthsPreg: "" },
+            { cowNo: "296", displayName: "18. JOAN", calvingDateStr: "2025-01-13", monthsPreg: "" },
+            { cowNo: "511", displayName: "19. SIIMA", calvingDateStr: "2025-01-02", monthsPreg: "" },
+            { cowNo: "021", displayName: "20. BIRA", calvingDateStr: "2025-01-02", monthsPreg: "" }
+        ];
+
+        // Initial production for July from Excel
+        const initialJulyProductions = [
+            { amValues: ["4.5", "4.5", "4.5", "4.5", "5", "", "4.5", "4", "4", "4", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["2", "2", "2", "2", "2", "2", "2", "2", "2", "2", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "413", displayName: "2. MAGRET", calvingDateStr: "2024-03-04", monthsPreg: "3.4", 
-              amValues: ["5", "5", "5.5", "5", "5.5", "", "6.5", "5.5", "5", "5", "5.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["5", "5", "5.5", "5", "5.5", "", "6.5", "5.5", "5", "5", "5.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["2.5", "2", "3", "2.5", "2", "2", "2", "2.5", "2.5", "2", "2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "427", displayName: "3. CECE", calvingDateStr: "2024-05-15", monthsPreg: "3.2", 
-              amValues: ["3.5", "3", "4", "3", "3.5", "", "3.5", "3.5", "3.5", "3", "2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["3.5", "3", "4", "3", "3.5", "", "3.5", "3.5", "3.5", "3", "2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["1.5", "2", "2", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "425", displayName: "4. ANGEL", calvingDateStr: "2024-05-19", monthsPreg: "5.36666666666667", 
-              amValues: ["3.5", "4", "4", "4", "4", "", "4", "4", "4", "3.5", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["3.5", "4", "4", "4", "4", "", "4", "4", "4", "3.5", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["2", "2", "2", "2.5", "2", "2", "2", "2", "2", "1.5", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "093", displayName: "5. RITAH", calvingDateStr: "2024-05-28", monthsPreg: "", 
-              amValues: ["4.5", "5", "4", "4.5", "4.5", "", "4.5", "5.5", "5", "5.5", "4.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["4.5", "5", "4", "4.5", "4.5", "", "4.5", "5.5", "5", "5.5", "4.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["3", "3", "3", "2.5", "3", "3", "3", "3", "3", "2", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "059", displayName: "6. SUSAN", calvingDateStr: "2024-07-24", monthsPreg: "2.1", 
-              amValues: ["6", "5.5", "4.5", "5", "4.5", "", "4", "4", "3.5", "3.5", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["6", "5.5", "4.5", "5", "4.5", "", "4", "4", "3.5", "3.5", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["2.5", "2.5", "2", "2", "3", "2", "2", "2", "2", "3", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "008", displayName: "7. FRIDA", calvingDateStr: "2024-07-26", monthsPreg: "3.46666666666667", 
-              amValues: ["3.5", "3", "3", "3", "3.5", "", "3", "3.5", "3", "3", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["3.5", "3", "3", "3", "3.5", "", "3", "3.5", "3", "3", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: Array(31).fill("0") },
-            { cowNo: "434", displayName: "8. SHANA", calvingDateStr: "2024-10-06", monthsPreg: "1.56666666666667", 
-              amValues: ["4.5", "4.5", "4", "4", "4", "", "4", "3.5", "4", "3.5", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["4.5", "4.5", "4", "4", "4", "", "4", "3.5", "4", "3.5", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["2.5", "2", "2", "2.5", "2", "2", "2", "2", "2", "2", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "083", displayName: "9. KATHY", calvingDateStr: "2024-10-27", monthsPreg: "", 
-              amValues: ["4.5", "4", "4", "4", "4", "", "2.5", "4", "2.5", "3", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["4.5", "4", "4", "4", "4", "", "2.5", "4", "2.5", "3", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: Array(31).fill("0") },
-            { cowNo: "402", displayName: "10. KELLEN", calvingDateStr: "2024-11-13", monthsPreg: "", 
-              amValues: ["7", "6.5", "7", "5", "5", "", "6", "6", "6", "6", "5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["7", "6.5", "7", "5", "5", "", "6", "6", "6", "6", "5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["4", "4.5", "3", "2", "3.5", "4", "3", "2", "2", "2.5", "2.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "098", displayName: "11. JACKLINE", calvingDateStr: "2024-11-28", monthsPreg: "", 
-              amValues: ["3", "3", "3", "2.5", "3.5", "", "3", "3", "2.5", "3", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["3", "3", "3", "2.5", "3.5", "", "3", "3", "2.5", "3", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1", "1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "421", displayName: "12. EVA", calvingDateStr: "2024-11-28", monthsPreg: "", 
-              amValues: ["7", "7", "7", "7", "7.5", "", "6.5", "7", "7", "7", "6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["7", "7", "7", "7", "7.5", "", "6.5", "7", "7", "7", "6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["3.5", "5", "3.5", "4", "4", "4", "4", "3.5", "3", "3", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "099", displayName: "13. SARAH", calvingDateStr: "2024-12-04", monthsPreg: "", 
-              amValues: ["4", "4", "4", "4", "4", "", "4", "4", "4", "4", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["4", "4", "4", "4", "4", "", "4", "4", "4", "4", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["2", "2", "2", "2.5", "2", "2", "2.5", "2", "2", "2", "2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "521", displayName: "14. KEZA", calvingDateStr: "2024-12-09", monthsPreg: "", 
-              amValues: ["4", "4", "4", "4", "3", "", "3", "4", "3", "3", "2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["4", "4", "4", "4", "3", "", "3", "4", "3", "3", "2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["2", "2", "2", "2.5", "1.5", "1.5", "1.5", "2", "2", "1", "1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "024", displayName: "15. KIRABO", calvingDateStr: "2024-12-11", monthsPreg: "", 
-              amValues: ["5", "4.5", "4.5", "5.5", "4.5", "", "4", "5", "4", "4", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["5", "4.5", "4.5", "5.5", "4.5", "", "4", "5", "4", "4", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["2.5", "2.5", "2.5", "2", "2", "2.5", "2", "2", "2", "2", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "403", displayName: "16. PEACE", calvingDateStr: "2024-12-26", monthsPreg: "", 
-              amValues: ["7.5", "7", "7", "7", "6", "", "7", "8", "7", "7", "7", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["7.5", "7", "7", "7", "6", "", "7", "8", "7", "7", "7", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["3.5", "4.5", "4.5", "4.5", "4", "3.5", "3.5", "3.5", "4", "4", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "418", displayName: "17. IRENE", calvingDateStr: "2025-01-02", monthsPreg: "", 
-              amValues: ["7", "6.5", "7", "6.5", "7", "", "7.5", "7", "7", "6.5", "6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["7", "6.5", "7", "6.5", "7", "", "7.5", "7", "7", "6.5", "6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["4", "3", "3", "3", "3.5", "3", "3.5", "3", "3", "3", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "296", displayName: "18. JOAN", calvingDateStr: "2025-01-13", monthsPreg: "", 
-              amValues: ["8", "7", "7", "6.5", "6.5", "", "8", "6", "6.5", "5.5", "6", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["8", "7", "7", "6.5", "6.5", "", "8", "6", "6.5", "5.5", "6", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["5", "4", "4", "3.5", "4", "4", "4", "3", "3", "3", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "511", displayName: "19. SIIMA", calvingDateStr: "2025-01-02", monthsPreg: "", 
-              amValues: ["5", "5.5", "6", "6", "5", "", "5.5", "5.5", "6", "5.5", "5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["5", "5.5", "6", "6", "5", "", "5.5", "5.5", "6", "5.5", "5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["3.5", "3", "4", "4", "3", "3.5", "3", "3.5", "4", "3.5", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { cowNo: "021", displayName: "20. BIRA", calvingDateStr: "2025-01-02", monthsPreg: "", 
-              amValues: ["2", "2", "2", "1", "1", "", "3", "4", "4", "3", "2.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            { amValues: ["2", "2", "2", "1", "1", "", "3", "4", "4", "3", "2.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
               pmValues: ["2", "1", "1.5", "1.5", "1.5", "1.5", "2", "1.5", "1", "1", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] }
         ];
 
-        // Validate and initialize cows array
-        let cows = [];
-        try {
-            const storedCows = JSON.parse(localStorage.getItem('cows'));
-            if (Array.isArray(storedCows) && storedCows.every(cow => cow.displayName && typeof cow.displayName === 'string' && cow.cowNo && cow.amValues && cow.pmValues)) {
-                cows = storedCows;
-                console.log('Loaded valid cows from localStorage:', cows.length);
-            } else {
-                throw new Error('Invalid localStorage data');
-            }
-        } catch (e) {
-            console.log('Invalid or empty localStorage, using cowDataFromExcel:', e.message);
-            cows = cowDataFromExcel;
-            localStorage.setItem('cows', JSON.stringify(cows));
+        let fixedCows = JSON.parse(localStorage.getItem('fixedCows')) || fixedCowsFromExcel;
+        let productionData = JSON.parse(localStorage.getItem('productionData')) || {};
+
+        if (!productionData['July']) {
+            productionData['July'] = {
+                productions: initialJulyProductions,
+                deductions: {
+                    homeUse: Array(31).fill(''),
+                    workersMilk: Array(31).fill(''),
+                    calvesMilk: Array(31).fill('')
+                }
+            };
         }
 
-        // Load existing cows on page load
+        localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
+        localStorage.setItem('productionData', JSON.stringify(productionData));
+
+        // Load initial month
         window.onload = function() {
-            console.log('Page loaded, cows:', cows);
-            if (cows.length > 0) {
-                cowCount = Math.max(...cows.map(cow => {
-                    if (cow.displayName && typeof cow.displayName === 'string') {
-                        const match = cow.displayName.match(/^(\d+)\./);
-                        return match ? parseInt(match[1]) : 0;
-                    }
-                    console.warn(`Skipping invalid cow: ${JSON.stringify(cow)}`);
-                    return 0;
-                }), 0);
-                console.log('cowCount set to:', cowCount);
-                cows.forEach((cow, index) => {
-                    if (cow.displayName && cow.cowNo) {
-                        console.log(`Adding cow ${index + 1}: ${cow.displayName}`);
-                        addCowToTable(cow);
-                    } else {
-                        console.warn(`Skipping cow with missing data: ${JSON.stringify(cow)}`);
-                    }
-                });
-                recalculate();
-            } else {
-                console.log('No valid cows found in localStorage or cowDataFromExcel');
-            }
+            document.getElementById('monthSelect').value = currentMonth;
+            loadMonth(currentMonth);
         };
+
+        function changeMonth(newMonth) {
+            saveCurrentMonth();
+            currentMonth = newMonth;
+            loadMonth(currentMonth);
+        }
+
+        function saveCurrentMonth() {
+            const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
+            const productions = [];
+            for (let i = 0; i < tbody.rows.length; i += 2) {
+                const amRow = tbody.rows[i];
+                const pmRow = tbody.rows[i + 1];
+                const amValues = [];
+                const pmValues = [];
+                for (let d = 0; d < 31; d++) {
+                    amValues[d] = amRow.cells[d + 2].querySelector('input').value;
+                    pmValues[d] = pmRow.cells[d + 2].querySelector('input').value;
+                }
+                productions.push({amValues, pmValues});
+            }
+            productionData[currentMonth].productions = productions;
+
+            const deductions = productionData[currentMonth].deductions;
+            for (let d = 0; d < 31; d++) {
+                deductions.homeUse[d] = document.getElementById('homeUseRow').cells[d + 2].querySelector('input').value;
+                deductions.workersMilk[d] = document.getElementById('workersMilkRow').cells[d + 2].querySelector('input').value;
+                deductions.calvesMilk[d] = document.getElementById('calvesMilkRow').cells[d + 2].querySelector('input').value;
+            }
+
+            localStorage.setItem('productionData', JSON.stringify(productionData));
+        }
+
+        function loadMonth(month) {
+            if (!productionData[month]) {
+                productionData[month] = {
+                    productions: fixedCows.map(() => ({amValues: Array(31).fill(''), pmValues: Array(31).fill('')})),
+                    deductions: {
+                        homeUse: Array(31).fill(''),
+                        workersMilk: Array(31).fill(''),
+                        calvesMilk: Array(31).fill('')
+                    }
+                };
+            }
+
+            const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+
+            const productions = productionData[month].productions;
+            fixedCows.forEach((cow, index) => {
+                addCowToTable(cow, productions[index].amValues, productions[index].pmValues);
+            });
+
+            removeDeductionsRows();
+            addDeductionsRows(productionData[month].deductions);
+
+            document.getElementById('tableCaption').textContent = `${month} Records`;
+
+            recalculate();
+        }
+
+        function removeDeductionsRows() {
+            ['homeUseRow', 'workersMilkRow', 'calvesMilkRow', 'totalDeductionsRow', 'netLitersRow'].forEach(id => {
+                const row = document.getElementById(id);
+                if (row) row.remove();
+            });
+        }
+
+        function addDeductionsRows(deductions) {
+            const tfoot = document.getElementById('milkTable').getElementsByTagName('tfoot')[0];
+
+            // Home Use Row
+            const homeRow = tfoot.insertRow();
+            homeRow.id = 'homeUseRow';
+            const labelCellHome = homeRow.insertCell();
+            labelCellHome.colSpan = 2;
+            labelCellHome.textContent = 'Home Use';
+            for (let d = 0; d < 31; d++) {
+                const cell = homeRow.insertCell();
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.5';
+                input.min = '0';
+                input.value = deductions.homeUse[d] || '';
+                input.addEventListener('input', recalculate);
+                cell.appendChild(input);
+            }
+            homeRow.insertCell(); // total
+            homeRow.insertCell().colSpan = 4;
+
+            // Workers Milk Row
+            const workersRow = tfoot.insertRow();
+            workersRow.id = 'workersMilkRow';
+            const labelCellWorkers = workersRow.insertCell();
+            labelCellWorkers.colSpan = 2;
+            labelCellWorkers.textContent = 'Workers Milk';
+            for (let d = 0; d < 31; d++) {
+                const cell = workersRow.insertCell();
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.5';
+                input.min = '0';
+                input.value = deductions.workersMilk[d] || '';
+                input.addEventListener('input', recalculate);
+                cell.appendChild(input);
+            }
+            workersRow.insertCell(); // total
+            workersRow.insertCell().colSpan = 4;
+
+            // Calves Milk Row
+            const calvesRow = tfoot.insertRow();
+            calvesRow.id = 'calvesMilkRow';
+            const labelCellCalves = calvesRow.insertCell();
+            labelCellCalves.colSpan = 2;
+            labelCellCalves.textContent = 'Calves Milk';
+            for (let d = 0; d < 31; d++) {
+                const cell = calvesRow.insertCell();
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.5';
+                input.min = '0';
+                input.value = deductions.calvesMilk[d] || '';
+                input.addEventListener('input', recalculate);
+                cell.appendChild(input);
+            }
+            calvesRow.insertCell(); // total
+            calvesRow.insertCell().colSpan = 4;
+
+            // Total Deductions Row (calculated)
+            const totalDeductionsRow = tfoot.insertRow();
+            totalDeductionsRow.id = 'totalDeductionsRow';
+            const labelCellTotalDeductions = totalDeductionsRow.insertCell();
+            labelCellTotalDeductions.colSpan = 2;
+            labelCellTotalDeductions.textContent = 'Total Deductions';
+            for (let d = 0; d < 31; d++) {
+                totalDeductionsRow.insertCell();
+            }
+            totalDeductionsRow.insertCell(); // total
+            totalDeductionsRow.insertCell().colSpan = 4;
+
+            // Net Liters Row (calculated)
+            const netLitersRow = tfoot.insertRow();
+            netLitersRow.id = 'netLitersRow';
+            const labelCellNet = netLitersRow.insertCell();
+            labelCellNet.colSpan = 2;
+            labelCellNet.textContent = 'Net Liters';
+            for (let d = 0; d < 31; d++) {
+                netLitersRow.insertCell();
+            }
+            netLitersRow.insertCell(); // total
+            netLitersRow.insertCell().colSpan = 4;
+        }
 
         function addCowFromForm() {
             const cowNo = document.getElementById('cowNo').value.trim();
@@ -246,20 +402,24 @@
 
             cowCount++;
             const displayName = `${cowCount}. ${cowName}`;
-            const cowData = {
+            const newCow = {
                 cowNo,
                 displayName,
                 calvingDateStr,
-                monthsPreg,
-                amValues: Array(31).fill(''),
-                pmValues: Array(31).fill('')
+                monthsPreg
             };
 
-            cows.push(cowData);
-            localStorage.setItem('cows', JSON.stringify(cows));
+            fixedCows.push(newCow);
+            localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
 
-            console.log(`Adding new cow from form: ${displayName}`);
-            addCowToTable(cowData);
+            // Add new production to all months
+            for (const month in productionData) {
+                productionData[month].productions.push({amValues: Array(31).fill(''), pmValues: Array(31).fill('')});
+            }
+            localStorage.setItem('productionData', JSON.stringify(productionData));
+
+            // Reload current month to add the new cow
+            loadMonth(currentMonth);
 
             // Clear form inputs
             document.getElementById('cowNo').value = '';
@@ -269,12 +429,10 @@
 
             document.getElementById('message').textContent = `Cow ${displayName} added successfully!`;
             setTimeout(() => document.getElementById('message').textContent = '', 3000);
-
-            recalculate();
         }
 
-        function addCowToTable(cowData) {
-            const { cowNo = '', displayName = '', calvingDateStr = '', monthsPreg = '', amValues = Array(31).fill(''), pmValues = Array(31).fill('') } = cowData;
+        function addCowToTable(cow, amValues, pmValues) {
+            const { cowNo = '', displayName = '', calvingDateStr = '', monthsPreg = '' } = cow;
             const calving = calvingDateStr ? new Date(calvingDateStr) : null;
             const daysSince = calving ? Math.floor((today - calving) / (1000 * 60 * 60 * 24)) : '';
 
@@ -291,11 +449,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = amValues[d] || '';
-                input.addEventListener('input', () => {
-                    cowData.amValues[d] = input.value;
-                    localStorage.setItem('cows', JSON.stringify(cows));
-                    recalculate();
-                });
+                input.addEventListener('input', recalculate);
                 cell.appendChild(input);
             }
             const totalDailyAMCell = amRow.insertCell();
@@ -315,11 +469,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = pmValues[d] || '';
-                input.addEventListener('input', () => {
-                    cowData.pmValues[d] = input.value;
-                    localStorage.setItem('cows', JSON.stringify(cows));
-                    recalculate();
-                });
+                input.addEventListener('input', recalculate);
                 cell.appendChild(input);
             }
             const totalDailyPMCell = pmRow.insertCell();
@@ -327,14 +477,17 @@
             pmRow.insertCell().textContent = calvingDateStr;
             pmRow.insertCell().textContent = daysSince;
             pmRow.insertCell().textContent = monthsPreg;
-
-            console.log(`Added rows for ${displayName || 'undefined'}: AM=${amValues.slice(0, 5)}, PM=${pmValues.slice(0, 5)}`);
         }
 
         function recalculate() {
             const tableBody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
             const footerRowAM = document.getElementById('footerRowAM');
             const footerRowPM = document.getElementById('footerRowPM');
+            const homeRow = document.getElementById('homeUseRow');
+            const workersRow = document.getElementById('workersMilkRow');
+            const calvesRow = document.getElementById('calvesMilkRow');
+            const totalDeductionsRow = document.getElementById('totalDeductionsRow');
+            const netLitersRow = document.getElementById('netLitersRow');
             const amSums = Array(31).fill(0);
             const pmSums = Array(31).fill(0);
             let totalAMAll = 0;
@@ -379,7 +532,34 @@
             }
             footerRowPM.cells[34].textContent = totalPMAll.toFixed(1); // Total PM across all cows
 
-            console.log(`Recalculated: AM Total=${totalAMAll.toFixed(1)}, PM Total=${totalPMAll.toFixed(1)}`);
+            // Calculate deductions and net
+            let homeSum = 0;
+            let workersSum = 0;
+            let calvesSum = 0;
+            const deductionsPerDay = Array(31).fill(0);
+            let totalDeductions = 0;
+            for (let d = 0; d < 31; d++) {
+                const home = parseFloat(homeRow.cells[d + 2].querySelector('input').value) || 0;
+                const workers = parseFloat(workersRow.cells[d + 2].querySelector('input').value) || 0;
+                const calves = parseFloat(calvesRow.cells[d + 2].querySelector('input').value) || 0;
+                deductionsPerDay[d] = home + workers + calves;
+                totalDeductionsRow.cells[d + 2].textContent = deductionsPerDay[d].toFixed(1);
+                const net = amSums[d] + pmSums[d] - deductionsPerDay[d];
+                netLitersRow.cells[d + 2].textContent = net.toFixed(1);
+                homeSum += home;
+                workersSum += workers;
+                calvesSum += calves;
+                totalDeductions += deductionsPerDay[d];
+            }
+            homeRow.cells[33].textContent = homeSum.toFixed(1);
+            workersRow.cells[33].textContent = workersSum.toFixed(1);
+            calvesRow.cells[33].textContent = calvesSum.toFixed(1);
+            totalDeductionsRow.cells[33].textContent = totalDeductions.toFixed(1);
+            const totalGross = totalAMAll + totalPMAll;
+            const totalNet = totalGross - totalDeductions;
+            netLitersRow.cells[33].textContent = totalNet.toFixed(1);
+
+            console.log(`Recalculated: AM Total=${totalAMAll.toFixed(1)}, PM Total=${totalPMAll.toFixed(1)}, Total Net=${totalNet.toFixed(1)}`);
         }
     </script>
 </body>
