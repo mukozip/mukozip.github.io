@@ -53,11 +53,21 @@
             color: green;
             margin: 10px 0;
         }
+        .ranking-section {
+            margin-top: 30px;
+        }
+        .ranking-table {
+            width: 50%;
+            margin-bottom: 20px;
+        }
+        .ranking-table th {
+            background-color: #e0e0e0;
+        }
     </style>
 </head>
 <body>
     <h1>Dairy Management App</h1>
-    <p>Enter cow details (number and name) to track daily AM (Morning Milk) and PM (Evening Milk) production. After adding a cow, input milk values for each session. The app calculates totals and lactation periods based on the current date (August 14, 2025). Data is saved locally and persists across page refreshes.</p>
+    <p>Enter cow details (number and name) to track daily AM (Morning Milk) and PM (Evening Milk) production. After adding a cow, input milk values for each session. The app calculates totals, deductions, and lactation periods based on the current date (August 14, 2025). Data is saved locally and persists across page refreshes. Export to CSV for Excel use.</p>
     
     <div class="form-container">
         <label for="cowNo">Cow No:</label>
@@ -141,6 +151,54 @@
             <!-- Deductions rows will be added here -->
         </tfoot>
     </table>
+
+    <div class="ranking-section">
+        <h2>Top 5 Milk Producers</h2>
+        <table class="ranking-table" id="topDailyTable">
+            <caption>Top 5 Daily Milk Producers</caption>
+            <thead>
+                <tr><th>Day</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <table class="ranking-table" id="topWeeklyTable">
+            <caption>Top 5 Weekly Milk Producers</caption>
+            <thead>
+                <tr><th>Week</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <table class="ranking-table" id="topMonthlyTable">
+            <caption>Top 5 Monthly Milk Producers</caption>
+            <thead>
+                <tr><th>Rank</th><th>Cow</th><th>Total Milk (L)</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <h2>Worst 5 Milk Producers</h2>
+        <table class="ranking-table" id="worstDailyTable">
+            <caption>Worst 5 Daily Milk Producers</caption>
+            <thead>
+                <tr><th>Day</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <table class="ranking-table" id="worstWeeklyTable">
+            <caption>Worst 5 Weekly Milk Producers</caption>
+            <thead>
+                <tr><th>Week</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <table class="ranking-table" id="worstMonthlyTable">
+            <caption>Worst 5 Monthly Milk Producers</caption>
+            <thead>
+                <tr><th>Rank</th><th>Cow</th><th>Total Milk (L)</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
     <script>
         const today = new Date(2025, 7, 14); // August 14, 2025 (month is 0-based)
@@ -321,7 +379,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.homeUse[d] || '';
-                input.addEventListener('input', recalculate);
+                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(); });
                 cell.appendChild(input);
             }
             homeRow.insertCell(); // total
@@ -340,7 +398,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.workersMilk[d] || '';
-                input.addEventListener('input', recalculate);
+                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(); });
                 cell.appendChild(input);
             }
             workersRow.insertCell(); // total
@@ -359,7 +417,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.calvesMilk[d] || '';
-                input.addEventListener('input', recalculate);
+                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(); });
                 cell.appendChild(input);
             }
             calvesRow.insertCell(); // total
@@ -450,7 +508,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = amValues[d] || '';
-                input.addEventListener('input', recalculate);
+                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(); });
                 cell.appendChild(input);
             }
             const totalDailyAMCell = amRow.insertCell();
@@ -470,7 +528,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = pmValues[d] || '';
-                input.addEventListener('input', recalculate);
+                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(); });
                 cell.appendChild(input);
             }
             const totalDailyPMCell = pmRow.insertCell();
@@ -494,9 +552,13 @@
             let totalAMAll = 0;
             let totalPMAll = 0;
 
+            // Calculate cow totals and collect data for rankings
+            const cowDailyTotals = Array(31).fill().map(() => []);
+            const cowMonthlyTotals = [];
             for (let i = 0; i < tableBody.rows.length; i += 2) {
                 const amRow = tableBody.rows[i];
                 const pmRow = tableBody.rows[i + 1];
+                const displayName = pmRow.cells[0].textContent;
 
                 // Calculate AM totals
                 let amSum = 0;
@@ -504,6 +566,7 @@
                     const val = parseFloat(amRow.cells[d + 2].querySelector('input').value) || 0;
                     amSum += val;
                     amSums[d] += val;
+                    cowDailyTotals[d].push({ cow: displayName, total: val + (parseFloat(pmRow.cells[d + 2].querySelector('input').value) || 0) });
                 }
                 amRow.cells[33].textContent = amSum.toFixed(1); // TOTAL DAILY PRODUCTION for AM
 
@@ -519,6 +582,7 @@
 
                 totalAMAll += amSum;
                 totalPMAll += pmSum;
+                cowMonthlyTotals.push({ cow: displayName, total: amSum + pmSum });
             }
 
             // Update footer sums for AM
@@ -560,7 +624,92 @@
             const totalNet = totalGross - totalDeductions;
             netLitersRow.cells[33].textContent = totalNet.toFixed(1);
 
+            // Update rankings
+            updateRankings(cowDailyTotals, cowMonthlyTotals);
+
             console.log(`Recalculated: AM Total=${totalAMAll.toFixed(1)}, PM Total=${totalPMAll.toFixed(1)}, Total Net=${totalNet.toFixed(1)}`);
+        }
+
+        function updateRankings(cowDailyTotals, cowMonthlyTotals) {
+            // Daily Rankings
+            const topDailyTbody = document.getElementById('topDailyTable').getElementsByTagName('tbody')[0];
+            const worstDailyTbody = document.getElementById('worstDailyTable').getElementsByTagName('tbody')[0];
+            topDailyTbody.innerHTML = '';
+            worstDailyTbody.innerHTML = '';
+            for (let d = 0; d < 31; d++) {
+                const sorted = cowDailyTotals[d]
+                    .filter(c => c.total > 0 || cowDailyTotals[d].every(c => c.total === 0))
+                    .sort((a, b) => b.total - a.total);
+                const top5 = sorted.slice(0, 5);
+                const worst5 = sorted.slice(-5).reverse();
+                if (sorted.length > 0) {
+                    const topRow = topDailyTbody.insertRow();
+                    topRow.insertCell().textContent = d + 1;
+                    top5.forEach(cow => topRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)} L)`);
+                    while (topRow.cells.length < 6) topRow.insertCell().textContent = '';
+                    const worstRow = worstDailyTbody.insertRow();
+                    worstRow.insertCell().textContent = d + 1;
+                    worst5.forEach(cow => worstRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)} L)`);
+                    while (worstRow.cells.length < 6) worstRow.insertCell().textContent = '';
+                }
+            }
+
+            // Weekly Rankings
+            const weeks = [[0, 7], [7, 14], [14, 21], [21, 31]];
+            const cowWeeklyTotals = weeks.map(() => fixedCows.map(cow => ({ cow: cow.displayName, total: 0 })));
+            fixedCows.forEach((cow, i) => {
+                const prod = productionData[currentMonth].productions[i];
+                weeks.forEach(([start, end], w) => {
+                    let total = 0;
+                    for (let d = start; d < end && d < 31; d++) {
+                        total += (parseFloat(prod.amValues[d]) || 0) + (parseFloat(prod.pmValues[d]) || 0);
+                    }
+                    cowWeeklyTotals[w][i].total = total;
+                });
+            });
+
+            const topWeeklyTbody = document.getElementById('topWeeklyTable').getElementsByTagName('tbody')[0];
+            const worstWeeklyTbody = document.getElementById('worstWeeklyTable').getElementsByTagName('tbody')[0];
+            topWeeklyTbody.innerHTML = '';
+            worstWeeklyTbody.innerHTML = '';
+            weeks.forEach(([start, end], w) => {
+                const sorted = cowWeeklyTotals[w]
+                    .filter(c => c.total > 0 || cowWeeklyTotals[w].every(c => c.total === 0))
+                    .sort((a, b) => b.total - a.total);
+                const top5 = sorted.slice(0, 5);
+                const worst5 = sorted.slice(-5).reverse();
+                if (sorted.length > 0) {
+                    const topRow = topWeeklyTbody.insertRow();
+                    topRow.insertCell().textContent = `Week ${w + 1} (Days ${start + 1}-${Math.min(end, 31)})`;
+                    top5.forEach(cow => topRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)} L)`);
+                    while (topRow.cells.length < 6) topRow.insertCell().textContent = '';
+                    const worstRow = worstWeeklyTbody.insertRow();
+                    worstRow.insertCell().textContent = `Week ${w + 1} (Days ${start + 1}-${Math.min(end, 31)})`;
+                    worst5.forEach(cow => worstRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)} L)`);
+                    while (worstRow.cells.length < 6) worstRow.insertCell().textContent = '';
+                }
+            });
+
+            // Monthly Rankings
+            const sortedMonthly = cowMonthlyTotals.sort((a, b) => b.total - a.total);
+            const topMonthly = sortedMonthly.slice(0, 5);
+            const worstMonthly = sortedMonthly.slice(-5).reverse();
+            const topMonthlyTbody = document.getElementById('topMonthlyTable').getElementsByTagName('tbody')[0];
+            const worstMonthlyTbody = document.getElementById('worstMonthlyTable').getElementsByTagName('tbody')[0];
+            topMonthlyTbody.innerHTML = '';
+            worstMonthlyTbody.innerHTML = '';
+            topMonthly.forEach((cow, i) => {
+                const row = topMonthlyTbody.insertRow();
+                row.insertCell().textContent = i + 1;
+                row.insertCell().textContent = cow.cow;
+                row.insertCell().textContent = cow.total.toFixed(1);
+            });
+            worstMonthly.forEach((cow, i) => {
+                const row = worstMonthlyTbody.insertRow();
+                row.insertCell().textContent = i + 1;
+                row.insertCell().textContent = cow.cow;
+                row.insertCell().textContent = cow.total.toFixed(1);
+            });
         }
 
         function exportToCSV() {
