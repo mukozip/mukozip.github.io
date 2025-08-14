@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dairy Management App</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -320,9 +319,9 @@
 
             const deductions = productionData[currentMonth].deductions;
             for (let d = 0; d < 31; d++) {
-                deductions.homeUse[d] = document.getElementById('homeUseRow').cells[d + 2].querySelector('input').value;
-                deductions.workersMilk[d] = document.getElementById('workersMilkRow').cells[d + 2].querySelector('input').value;
-                deductions.calvesMilk[d] = document.getElementById('calvesMilkRow').cells[d + 2].querySelector('input').value;
+                deductions.homeUse[d] = document.getElementById('homeUseRow')?.cells[d + 2]?.querySelector('input')?.value || '';
+                deductions.workersMilk[d] = document.getElementById('workersMilkRow')?.cells[d + 2]?.querySelector('input')?.value || '';
+                deductions.calvesMilk[d] = document.getElementById('calvesMilkRow')?.cells[d + 2]?.querySelector('input')?.value || '';
             }
 
             localStorage.setItem('productionData', JSON.stringify(productionData));
@@ -350,10 +349,9 @@
 
             removeDeductionsRows();
             addDeductionsRows(productionData[month].deductions);
-
             document.getElementById('tableCaption').textContent = `${month} Records`;
 
-            recalculate();
+            recalculate(); // Moved after addDeductionsRows
         }
 
         function removeDeductionsRows() {
@@ -547,6 +545,12 @@
             const calvesRow = document.getElementById('calvesMilkRow');
             const totalDeductionsRow = document.getElementById('totalDeductionsRow');
             const netLitersRow = document.getElementById('netLitersRow');
+
+            if (!homeRow || !workersRow || !calvesRow || !totalDeductionsRow || !netLitersRow) {
+                console.error('Deductions rows not found, skipping deductions calculation');
+                return;
+            }
+
             const amSums = Array(31).fill(0);
             const pmSums = Array(31).fill(0);
             let totalAMAll = 0;
