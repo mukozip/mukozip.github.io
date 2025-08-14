@@ -1,119 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Dairy Management App</title>
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cow Milk Production</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- Recharts -->
+  <script src="https://cdn.jsdelivr.net/npm/recharts@2.12.7/umd/Recharts.min.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; margin:0; padding:0; }
+  </style>
 </head>
-<body>
-<div id="root"></div>
+<body class="bg-gray-100 p-4">
+  <div id="root"></div>
 
-<script>
-    // ===== Firebase Config (Replace with your own if using Firebase) =====
-    window.__firebase_config = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+    const RechartsLoaded = window.Recharts || {};
+    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = RechartsLoaded;
 
-    // ===== Local Cow Data =====
     const initialCows = [
-        { id: 1, name: "Aminata", lastCalvingDate: "2025-05-01" },
-        { id: 2, name: "Biram", lastCalvingDate: "2025-04-15" },
-        { id: 3, name: "Clara", lastCalvingDate: "2025-06-10" },
-        { id: 4, name: "Daisy", lastCalvingDate: "2025-03-25" },
-        { id: 5, name: "Elsie", lastCalvingDate: "2025-05-20" },
-        { id: 6, name: "Fiona", lastCalvingDate: "2025-02-14" },
-        { id: 7, name: "Grace", lastCalvingDate: "2025-06-01" },
-        { id: 8, name: "Hilda", lastCalvingDate: "2025-04-05" },
-        { id: 9, name: "Isabel", lastCalvingDate: "2025-01-12" },
-        { id: 10, name: "Joy", lastCalvingDate: "2025-07-01" },
-        { id: 11, name: "Kira", lastCalvingDate: "2025-05-30" }
+      { name: 'MERCY', lastCalvingDate: '2024-07-14', totalMonthlyProduction: 64.5 },
+      { name: 'MAGRET', lastCalvingDate: '2024-07-17', totalMonthlyProduction: 78.5 },
+      { name: 'SARAH', lastCalvingDate: '2025-04-18', totalMonthlyProduction: 62.5 }
     ];
 
-    // ===== Destructure Recharts correctly =====
-    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = window.Recharts;
+    const App = () => {
+      const today = new Date().toISOString().split('T')[0];
+      const [selectedCow, setSelectedCow] = useState(initialCows[0].name);
+      const [selectedDate, setSelectedDate] = useState(today);
+      const [amProduction, setAmProduction] = useState('');
+      const [pmProduction, setPmProduction] = useState('');
+      const [cowData, setCowData] = useState(initialCows.map(c => ({...c, milk_data:{}})));
 
-    // ===== Simple App (React) =====
-    function App() {
-        const [cow, setCow] = React.useState(initialCows[0].name);
-        const [date, setDate] = React.useState(new Date().toISOString().split("T")[0]);
-        const [am, setAm] = React.useState("");
-        const [pm, setPm] = React.useState("");
-        const [data, setData] = React.useState([]);
+      const totalDaily = parseFloat(amProduction||0) + parseFloat(pmProduction||0);
 
-        React.useEffect(() => {
-            const saved = JSON.parse(localStorage.getItem("milkData") || "[]");
-            setData(saved);
-        }, []);
+      return (
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center p-4">
+          <div className="w-full max-w-2xl bg-white p-6 rounded-2xl shadow-xl border border-gray-200 mb-8">
+            <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Cow Milk Production</h1>
+            <select value={selectedCow} onChange={(e)=>setSelectedCow(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg mb-4">
+              {initialCows.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+            </select>
+            <input type="date" value={selectedDate} onChange={(e)=>setSelectedDate(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg mb-4" />
+            <input type="number" placeholder="AM Production" value={amProduction} onChange={(e)=>setAmProduction(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg mb-2" />
+            <input type="number" placeholder="PM Production" value={pmProduction} onChange={(e)=>setPmProduction(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg mb-4" />
+            <p className="text-gray-700 font-medium">Total Daily Production: {totalDaily}</p>
+          </div>
 
-        const saveEntry = () => {
-            const entry = { cow, date, am: parseFloat(am) || 0, pm: parseFloat(pm) || 0 };
-            const newData = [...data, entry];
-            setData(newData);
-            localStorage.setItem("milkData", JSON.stringify(newData));
-            setAm("");
-            setPm("");
-        };
+          <div className="w-full max-w-2xl bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Production Charts</h2>
+            {BarChart ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={cowData} layout="vertical" margin={{top:20,right:30,left:20,bottom:5}}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <YAxis dataKey="name" type="category" />
+                  <XAxis type="number" />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="totalMonthlyProduction" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-center text-red-600">Recharts failed to load. Chart not displayed.</p>
+            )}
+          </div>
+        </div>
+      );
+    };
 
-        const aggregateData = () => {
-            const totals = {};
-            data.forEach(e => {
-                if (!totals[e.cow]) totals[e.cow] = 0;
-                totals[e.cow] += e.am + e.pm;
-            });
-            return Object.entries(totals).map(([name, total]) => ({ name, total }));
-        };
-
-        const top5 = aggregateData().sort((a,b) => b.total - a.total).slice(0,5);
-
-        return (
-            <div style={{ padding: "20px", fontFamily: "Arial" }}>
-                <h2>Dairy Management</h2>
-                <div>
-                    <label>Cow: </label>
-                    <select value={cow} onChange={e => setCow(e.target.value)}>
-                        {initialCows.map(c => <option key={c.id}>{c.name}</option>)}
-                    </select>
-                </div>
-                <div>
-                    <label>Date: </label>
-                    <input type="date" value={date} onChange={e => setDate(e.target.value)} />
-                </div>
-                <div>
-                    <label>AM (L): </label>
-                    <input type="number" value={am} onChange={e => setAm(e.target.value)} />
-                </div>
-                <div>
-                    <label>PM (L): </label>
-                    <input type="number" value={pm} onChange={e => setPm(e.target.value)} />
-                </div>
-                <button onClick={saveEntry}>Save</button>
-
-                <h3>Top 5 Cows (Total Milk)</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={top5}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="total" fill="#8884d8" />
-                    </BarChart>
-                </ResponsiveContainer>
-            </div>
-        );
-    }
-
-    ReactDOM.render(<App />, document.getElementById("root"));
-</script>
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
 </body>
 </html>
