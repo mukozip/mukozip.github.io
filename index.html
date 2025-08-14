@@ -274,7 +274,6 @@
 
         let fixedCows = JSON.parse(localStorage.getItem('fixedCows')) || fixedCowsFromExcel;
         let productionData = JSON.parse(localStorage.getItem('productionData')) || {};
-        cowCount = fixedCows.length; // Initialize cowCount based on fixedCows
 
         if (!productionData['July']) {
             productionData['July'] = {
@@ -286,13 +285,6 @@
                 }
             };
         }
-
-        // Ensure productionData for each month has enough production arrays
-        Object.keys(productionData).forEach(month => {
-            while (productionData[month].productions.length < fixedCows.length) {
-                productionData[month].productions.push({ amValues: Array(31).fill(''), pmValues: Array(31).fill('') });
-            }
-        });
 
         localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
         localStorage.setItem('productionData', JSON.stringify(productionData));
@@ -347,29 +339,19 @@
                 };
             }
 
-            // Ensure productions array matches fixedCows length
-            while (productionData[month].productions.length < fixedCows.length) {
-                productionData[month].productions.push({ amValues: Array(31).fill(''), pmValues: Array(31).fill('') });
-            }
-
             const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
             tbody.innerHTML = '';
 
             const productions = productionData[month].productions;
             fixedCows.forEach((cow, index) => {
-                if (productions[index]) {
-                    addCowToTable(cow, productions[index].amValues, productions[index].pmValues);
-                } else {
-                    console.error(`No production data for cow ${cow.displayName} at index ${index}`);
-                    addCowToTable(cow, Array(31).fill(''), Array(31).fill(''));
-                }
+                addCowToTable(cow, productions[index].amValues, productions[index].pmValues);
             });
 
             removeDeductionsRows();
             addDeductionsRows(productionData[month].deductions);
             document.getElementById('tableCaption').textContent = `${month} Records`;
 
-            recalculate();
+            recalculate(); // Moved after addDeductionsRows
         }
 
         function removeDeductionsRows() {
@@ -452,7 +434,7 @@
             totalDeductionsRow.insertCell().colSpan = 4;
 
             // Net Liters Row (calculated)
-            const netLitersRow = tft.insertRow();
+            const netLitersRow = tfoot.insertRow();
             netLitersRow.id = 'netLitersRow';
             const labelCellNet = netLitersRow.insertCell();
             labelCellNet.colSpan = 2;
