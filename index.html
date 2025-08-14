@@ -1,218 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dairy Management App</title>
-    <!-- Fix favicon error with empty data URI -->
-    <link rel="icon" href="data:,">
-    <style>
-        /* Basic styling for table and form */
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        button {
-            margin: 5px;
-        }
-    </style>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <h1>Dairy Management App</h1>
+<div id="root"></div>
 
-    <h2>Manage Cows</h2>
-    <div>
-        <label>Cow Name</label>
-        <input type="text" id="cowNameInput">
-    </div>
-    <div>
-        <label>Last Birth Date</label>
-        <input type="date" id="lastBirthDateInput">
-    </div>
-    <div>
-        <label>Lactation Period (Months)</label>
-        <input type="number" id="lactationPeriodInput">
-    </div>
-    <div>
-        <label>Select Cow to Edit</label>
-        <select id="cowSelect">
-            <option>Select Cow</option>
-        </select>
-    </div>
-    <button id="addCowButton" onclick="addCow()">Add Cow</button>
-    <button>Edit Cow</button>
+<script>
+    // ===== Firebase Config (Replace with your own if using Firebase) =====
+    window.__firebase_config = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
 
-    <table id="cowTable">
-        <thead>
-            <tr>
-                <th>Cow Name</th>
-                <th>Last Birth Date</th>
-                <th>Lactation Period (Months)</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Rows will be added here by JavaScript -->
-        </tbody>
-    </table>
+    // ===== Local Cow Data =====
+    const initialCows = [
+        { id: 1, name: "Aminata", lastCalvingDate: "2025-05-01" },
+        { id: 2, name: "Biram", lastCalvingDate: "2025-04-15" },
+        { id: 3, name: "Clara", lastCalvingDate: "2025-06-10" },
+        { id: 4, name: "Daisy", lastCalvingDate: "2025-03-25" },
+        { id: 5, name: "Elsie", lastCalvingDate: "2025-05-20" },
+        { id: 6, name: "Fiona", lastCalvingDate: "2025-02-14" },
+        { id: 7, name: "Grace", lastCalvingDate: "2025-06-01" },
+        { id: 8, name: "Hilda", lastCalvingDate: "2025-04-05" },
+        { id: 9, name: "Isabel", lastCalvingDate: "2025-01-12" },
+        { id: 10, name: "Joy", lastCalvingDate: "2025-07-01" },
+        { id: 11, name: "Kira", lastCalvingDate: "2025-05-30" }
+    ];
 
-    <div>
-        <h3>1-7 weeks (Green)</h3>
-        <h3>10-30 weeks (Yellow)</h3>
-        <h3>40-52 weeks (Red)</h3>
-    </div>
+    // ===== Destructure Recharts correctly =====
+    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = window.Recharts;
 
-    <h2>Add Daily Milk Production</h2>
-    <div>
-        <label>Cow Name</label>
-        <select id="milkCowSelect">
-            <option>Select Cow</option>
-        </select>
-    </div>
-    <div>
-        <label>Date</label>
-        <input type="date" id="milkDateInput">
-    </div>
-    <div>
-        <label>Morning Liters</label>
-        <input type="number" id="morningLitersInput">
-    </div>
-    <div>
-        <label>Evening Liters</label>
-        <input type="number" id="eveningLitersInput">
-    </div>
-    <div>
-        <h3>Morning Deductions</h3>
-        <label>Calf Milk (Liters)</label>
-        <input type="number" id="morningCalfMilkInput">
-        <label>Home Use (Liters)</label>
-        <input type="number" id="morningHomeUseInput">
-        <label>Workers Milk (Liters)</label>
-        <input type="number" id="morningWorkersMilkInput">
-    </div>
-    <div>
-        <h3>Evening Deductions</h3>
-        <label>Calf Milk (Liters)</label>
-        <input type="number" id="eveningCalfMilkInput">
-        <label>Home Use (Liters)</label>
-        <input type="number" id="eveningHomeUseInput">
-        <label>Workers Milk (Liters)</label>
-        <input type="number" id="eveningWorkersMilkInput">
-    </div>
-    <button>Add Production</button>
+    // ===== Simple App (React) =====
+    function App() {
+        const [cow, setCow] = React.useState(initialCows[0].name);
+        const [date, setDate] = React.useState(new Date().toISOString().split("T")[0]);
+        const [am, setAm] = React.useState("");
+        const [pm, setPm] = React.useState("");
+        const [data, setData] = React.useState([]);
 
-    <h2>Production Analysis</h2>
-    <h3>Daily Production Entries (July 2025)</h3>
-    <button>Export to Excel</button>
-    <table id="productionTable">
-        <thead>
-            <tr>
-                <th>Cow No./Name</th>
-                <th>Time</th>
-                <!-- Columns for days 1-31 -->
-                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
-                <th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th>
-                <th>21</th><th>22</th><th>23</th><th>24</th><th>25</th><th>26</th><th>27</th><th>28</th><th>29</th><th>30</th><th>31</th>
-                <th>Total Daily Production</th>
-                <th>Total Monthly Production</th>
-                <th>Last Calving Date</th>
-                <th>Days of Pdn Since Calving</th>
-                <th>Months of Preg</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Production data will be added here -->
-        </tbody>
-    </table>
+        React.useEffect(() => {
+            const saved = JSON.parse(localStorage.getItem("milkData") || "[]");
+            setData(saved);
+        }, []);
 
-    <h2>Production Charts</h2>
-    <div>
-        <h3>Top 5 Milkers (Daily, July 10)</h3>
-        <!-- Chart placeholder -->
-    </div>
-    <div>
-        <h3>Worst 5 Milkers (Daily, July 10)</h3>
-        <!-- Chart placeholder -->
-    </div>
-    <div>
-        <h3>Top 5 Milkers (Week, July 5-10)</h3>
-        <!-- Chart placeholder -->
-    </div>
-    <div>
-        <h3>Worst 5 Milkers (Week, July 5-10)</h3>
-        <!-- Chart placeholder -->
-    </div>
-    <div>
-        <h3>Top 5 Milkers (Month, July 1-10)</h3>
-        <!-- Chart placeholder -->
-    </div>
-    <div>
-        <h3>Worst 5 Milkers (Month, July 1-10)</h3>
-        <!-- Chart placeholder -->
-    </div>
+        const saveEntry = () => {
+            const entry = { cow, date, am: parseFloat(am) || 0, pm: parseFloat(pm) || 0 };
+            const newData = [...data, entry];
+            setData(newData);
+            localStorage.setItem("milkData", JSON.stringify(newData));
+            setAm("");
+            setPm("");
+        };
 
-    <script>
-        // Fix for addCow is not defined
-        function addCow() {
-            // Get input values
-            const cowName = document.getElementById('cowNameInput').value;
-            const lastBirthDate = document.getElementById('lastBirthDateInput').value;
-            const lactationPeriod = document.getElementById('lactationPeriodInput').value;
+        const aggregateData = () => {
+            const totals = {};
+            data.forEach(e => {
+                if (!totals[e.cow]) totals[e.cow] = 0;
+                totals[e.cow] += e.am + e.pm;
+            });
+            return Object.entries(totals).map(([name, total]) => ({ name, total }));
+        };
 
-            // Basic validation
-            if (!cowName || !lastBirthDate || !lactationPeriod) {
-                alert('Please fill in all fields.');
-                return;
-            }
+        const top5 = aggregateData().sort((a,b) => b.total - a.total).slice(0,5);
 
-            // Add row to table
-            const table = document.getElementById('cowTable').getElementsByTagName('tbody')[0];
-            const newRow = table.insertRow();
-            newRow.innerHTML = `
-                <td>${cowName}</td>
-                <td>${lastBirthDate}</td>
-                <td>${lactationPeriod}</td>
-                <td><button onclick="editCow(this)">Edit</button></td>
-            `;
+        return (
+            <div style={{ padding: "20px", fontFamily: "Arial" }}>
+                <h2>Dairy Management</h2>
+                <div>
+                    <label>Cow: </label>
+                    <select value={cow} onChange={e => setCow(e.target.value)}>
+                        {initialCows.map(c => <option key={c.id}>{c.name}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label>Date: </label>
+                    <input type="date" value={date} onChange={e => setDate(e.target.value)} />
+                </div>
+                <div>
+                    <label>AM (L): </label>
+                    <input type="number" value={am} onChange={e => setAm(e.target.value)} />
+                </div>
+                <div>
+                    <label>PM (L): </label>
+                    <input type="number" value={pm} onChange={e => setPm(e.target.value)} />
+                </div>
+                <button onClick={saveEntry}>Save</button>
 
-            // Add cow to select dropdown
-            const select = document.getElementById('cowSelect');
-            const option = document.createElement('option');
-            option.text = cowName;
-            select.add(option);
+                <h3>Top 5 Cows (Total Milk)</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={top5}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="total" fill="#8884d8" />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        );
+    }
 
-            // Clear form
-            document.getElementById('cowNameInput').value = '';
-            document.getElementById('lastBirthDateInput').value = '';
-            document.getElementById('lactationPeriodInput').value = '';
-        }
-
-        // Optional: Basic editCow function (placeholder)
-        function editCow(button) {
-            const row = button.parentElement.parentElement;
-            const cells = row.getElementsByTagName('td');
-            const cowName = cells[0].textContent;
-            const lastBirthDate = cells[1].textContent;
-            const lactationPeriod = cells[2].textContent;
-
-            // Populate form for editing
-            document.getElementById('cowNameInput').value = cowName;
-            document.getElementById('lastBirthDateInput').value = lastBirthDate;
-            document.getElementById('lactationPeriodInput').value = lactationPeriod;
-
-            // Optionally, remove the row or update it after editing
-            alert('Edit mode: Modify fields and click "Add Cow" to update.');
-        }
-    </script>
+    ReactDOM.render(<App />, document.getElementById("root"));
+</script>
 </body>
 </html>
