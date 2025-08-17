@@ -379,6 +379,21 @@
                         }
                     };
                 } else {
+                    // Ensure productions exists
+                    if (!productionData[month].productions) {
+                        productionData[month].productions = fixedCows.map(() => ({
+                            amValues: Array(days).fill(''),
+                            pmValues: Array(days).fill('')
+                        }));
+                    }
+                    // Ensure deductions exists
+                    if (!productionData[month].deductions) {
+                        productionData[month].deductions = {
+                            homeUse: Array(days).fill(''),
+                            workersMilk: Array(days).fill(''),
+                            calvesMilk: Array(days).fill('')
+                        };
+                    }
                     while (productionData[month].productions.length < fixedCows.length) {
                         productionData[month].productions.push({
                             amValues: Array(days).fill(''),
@@ -851,7 +866,22 @@
             fixedCows.splice(index, 1);
             cowCount--;
             for (const month in productionData) {
-                productionData[month].productions.splice(index, 1);
+                if (productionData[month] && productionData[month].productions) {
+                    productionData[month].productions.splice(index, 1);
+                } else {
+                    // Initialize productions for the month if it doesn't exist
+                    const days = getDaysInMonth(month, 2025);
+                    productionData[month] = productionData[month] || {};
+                    productionData[month].productions = fixedCows.map(() => ({
+                        amValues: Array(days).fill(''),
+                        pmValues: Array(days).fill('')
+                    }));
+                    productionData[month].deductions = productionData[month].deductions || {
+                        homeUse: Array(days).fill(''),
+                        workersMilk: Array(days).fill(''),
+                        calvesMilk: Array(days).fill('')
+                    };
+                }
             }
             renumberCows();
             localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
