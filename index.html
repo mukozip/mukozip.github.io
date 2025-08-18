@@ -34,6 +34,9 @@
             margin: 5px;
             width: 150px;
         }
+        input[type="file"] {
+            margin: 5px;
+        }
         button {
             padding: 8px 16px;
             margin: 5px;
@@ -104,7 +107,7 @@
 </head>
 <body>
     <h1>Dairy Management App</h1>
-    <p>Enter cow details to track daily AM (Morning Milk) and PM (Evening Milk) production. Edit or delete existing cows. Data is saved locally and persists across page refreshes. Export to CSV for Excel use.</p>
+    <p>Enter cow details to track daily AM (Morning Milk) and PM (Evening Milk) production. Edit or delete existing cows. Data is saved locally and persists across page refreshes. Export to CSV for Excel use. Use Export/Import Data to sync across devices.</p>
     
     <div class="form-container">
         <label for="cowNo">Cow No:</label>
@@ -140,6 +143,8 @@
     </select>
     <button onclick="saveCurrentMonth()">Save</button>
     <button onclick="exportToCSV()">Export to CSV</button>
+    <button onclick="exportLocalStorage()">Export Data</button>
+    <input type="file" id="importData" accept=".json" onchange="importLocalStorage(event)">
     <button onclick="localStorage.clear(); location.reload();">Reset Data</button>
     
     <table id="milkTable">
@@ -433,7 +438,6 @@
                 const pmRow = tbody.rows[i + 1];
                 const amValues = Array(daysInMonth).fill('');
                 const pmValues = Array(daysInMonth).fill('');
-                // Map day inputs to correct days
                 amValues[0] = amRow.cells[2].querySelector('input')?.value || '';
                 pmValues[0] = pmRow.cells[2].querySelector('input')?.value || '';
                 amValues[1] = amRow.cells[3].querySelector('input')?.value || '';
@@ -707,10 +711,12 @@
             fixedCows.push(newCow);
             localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
 
+            // Update productionData for all months
             for (const month in productionData) {
                 const days = getDaysInMonth(month, 2025);
                 productionData[month].productions.push({ amValues: Array(days).fill(''), pmValues: Array(days).fill('') });
             }
+            sanitizeProductionData(); // Ensure all months are consistent
             localStorage.setItem('productionData', JSON.stringify(productionData));
 
             loadMonth(currentMonth);
@@ -884,6 +890,7 @@
                 }
             }
             renumberCows();
+            sanitizeProductionData(); // Ensure all months are consistent
             localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
             localStorage.setItem('productionData', JSON.stringify(productionData));
             loadMonth(currentMonth);
@@ -1107,6 +1114,54 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        function exportLocalStorage() {
+            const data = {
+                fixedCows: JSON.parse(localStorage.getItem('fixedCows')) || fixedCows,
+                productionData: JSON.parse(localStorage.getItem('productionData')) || productionData
+            };
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'dairy_data.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            document.getElementById('message').textContent = 'Data exported successfully!';
+            setTimeout(() => document.getElementById('message').textContent = '', 3000);
+        }
+
+        function importLocalStorage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.fixedCows && data.productionData) {
+                        localStorage.setItem('fixedCows', JSON.stringify(data.fixedCows));
+                        localStorage.setItem('productionData', JSON.stringify(data.productionData));
+                        fixedCows = data.fixedCows;
+                        productionData = data.productionData;
+                        cowCount = fixedCows.length;
+                        sanitizeProductionData();
+                        loadMonth(currentMonth);
+                        document.getElementById('message').textContent = 'Data imported successfully!';
+                        setTimeout(() => document.getElementById('message').textContent = '', 3000);
+                    } else {
+                        alert('Invalid data format. Please upload a valid dairy_data.json file.');
+                    }
+                } catch (err) {
+                    alert('Error importing data: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset file input
         }
 
         // Close modal on outside click
