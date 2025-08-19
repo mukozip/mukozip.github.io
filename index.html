@@ -331,11 +331,11 @@
         let fixedCows = JSON.parse(localStorage.getItem('fixedCows')) || fixedCowsFromExcel;
         let productionData = JSON.parse(localStorage.getItem('productionData')) || {};
 
-        // Initialize productionData for all months if not present
+        // Initialize productionData for all months
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         months.forEach(month => {
             const days = getDaysInMonth(month, 2025);
-            if (!productionData[month]) {
+            if (!productionData[month] || !productionData[month].productions || productionData[month].productions.length === 0) {
                 productionData[month] = {
                     productions: fixedCows.map(() => ({
                         amValues: Array(days).fill(''),
@@ -348,11 +348,19 @@
                     },
                     inactiveCows: []
                 };
+                if (month === 'July') {
+                    productionData[month].productions = JSON.parse(JSON.stringify(initialJulyProductions));
+                }
             } else {
                 productionData[month].inactiveCows = productionData[month].inactiveCows || [];
-            }
-            if (month === 'July' && (!productionData['July'].productions || productionData['July'].productions.length === 0)) {
-                productionData['July'].productions = JSON.parse(JSON.stringify(initialJulyProductions));
+                // Ensure July data is preserved
+                if (month === 'July' && productionData[month].productions.length === fixedCows.length) {
+                    productionData[month].productions = productionData[month].productions.map((prod, i) => 
+                        prod.amValues.some(v => v !== '') || prod.pmValues.some(v => v !== '') 
+                            ? prod 
+                            : initialJulyProductions[i] || { amValues: Array(days).fill(''), pmValues: Array(days).fill('') }
+                    );
+                }
             }
         });
 
@@ -393,12 +401,18 @@
                         },
                         inactiveCows: []
                     };
+                    if (month === 'July') {
+                        productionData[month].productions = JSON.parse(JSON.stringify(initialJulyProductions));
+                    }
                 } else {
-                    if (!productionData[month].productions) {
+                    if (!productionData[month].productions || productionData[month].productions.length === 0) {
                         productionData[month].productions = fixedCows.map(() => ({
                             amValues: Array(days).fill(''),
                             pmValues: Array(days).fill('')
                         }));
+                        if (month === 'July') {
+                            productionData[month].productions = JSON.parse(JSON.stringify(initialJulyProductions));
+                        }
                     }
                     if (!productionData[month].deductions) {
                         productionData[month].deductions = {
@@ -448,7 +462,8 @@
             for (let i = 0; i < tbody.rows.length; i += 2) {
                 const amRow = tbody.rows[i];
                 const pmRow = tbody.rows[i + 1];
-                const cowIndex = fixedCows.findIndex(cow => cow.displayName === pmRow.cells[0].textContent);
+                const displayName = pmRow.cells[0].textContent;
+                const cowIndex = fixedCows.findIndex(cow => cow.displayName === displayName);
                 const amValues = Array(daysInMonth).fill('');
                 const pmValues = Array(daysInMonth).fill('');
                 amValues[0] = amRow.cells[2].querySelector('input')?.value || '';
@@ -503,6 +518,9 @@
                     },
                     inactiveCows: []
                 };
+                if (month === 'July') {
+                    productionData[month].productions = JSON.parse(JSON.stringify(initialJulyProductions));
+                }
             }
 
             while (productionData[month].productions.length < fixedCows.length) {
@@ -645,7 +663,7 @@
             const labelCellCalves = calvesRow.insertCell();
             labelCellCalves.colSpan = 2;
             labelCellCalves.textContent = 'Calves Milk';
-            for (ln d = 0; d < daysInMonth; d++) {
+            for (let d = 0; d < daysInMonth; d++) {
                 const cell = calvesRow.insertCell();
                 const input = document.createElement('input');
                 input.type = 'number';
@@ -1093,8 +1111,8 @@
 
         function exportLocalStorage() {
             const data = {
-                fixedCows: JSON.parse(localStorage.getItem('fixedCows')) || fixedCows,
-                productionData: JSON.parse(localStorage.getItem('productionData')) || productionData
+                fixedCows: fixedCows,
+                productionData: productionData
             };
             const dataStr = JSON.stringify(data, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
@@ -1121,8 +1139,16 @@
                     if (data.fixedCows && data.productionData) {
                         fixedCows = data.fixedCows;
                         productionData = data.productionData;
+                        // Ensure July data is preserved
+                        if (productionData['July'] && productionData['July'].productions.length === fixedCows.length) {
+                            productionData['July'].productions = productionData['July'].productions.map((prod, i) => 
+                                prod.amValues.some(v => v !== '') || prod.pmValues.some(v => v !== '') 
+                                    ? prod 
+                                    : initialJulyProductions[i] || { amValues: Array(31).fill(''), pmValues: Array(31).fill('') }
+                            );
+                        }
                         localStorage.setItem('fixedCows', JSON.stringify(data.fixedCows));
-                        localStorage.setItem('productionData', JSON.stringify(data.productionData));
+                        localStorage.setItem('productionData', JSON.stringify(productionData));
                         cowCount = fixedCows.length;
                         sanitizeProductionData();
                         loadMonth(currentMonth);
