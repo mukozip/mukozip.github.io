@@ -10,20 +10,48 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling for date columns */
+            max-width: 100%;
+            position: relative;
+        }
         table {
             border-collapse: collapse;
-            width: 100%;
+            width: auto; /* Allow table to expand based on content */
             margin-top: 20px;
-            overflow-x: auto;
-            display: block;
         }
         th, td {
             border: 1px solid black;
             padding: 8px;
             text-align: center;
+            min-width: 60px; /* Consistent width for scrollable columns */
         }
         th {
             background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 10; /* Ensure headers stay above content */
+        }
+        /* Freeze Cow ID/Name and Time columns */
+        th:nth-child(1), td:nth-child(1) {
+            position: sticky;
+            left: 0;
+            background-color: #e0e0e0; /* Distinct background for frozen column */
+            z-index: 11; /* Higher than scrollable content */
+            min-width: 150px; /* Wider Cow ID/Name column */
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Visual separator */
+        }
+        th:nth-child(2), td:nth-child(2) {
+            position: sticky;
+            left: 150px; /* Position after Cow ID/Name */
+            background-color: #e0e0e0;
+            z-index: 11;
+            min-width: 50px; /* Time column width */
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        /* Ensure scrollable date columns have consistent styling */
+        th:nth-child(n+3), td:nth-child(n+3) {
+            background-color: #ffffff; /* White background for scrollable columns */
         }
         input[type="number"] {
             width: 60px;
@@ -103,6 +131,10 @@
         .close:hover {
             color: black;
         }
+        /* Highlight row when input is focused */
+        .highlight-row {
+            background-color: #fff9c4; /* Light yellow highlight */
+        }
     </style>
 </head>
 <body>
@@ -147,49 +179,51 @@
     <input type="file" id="importData" accept=".json" onchange="importLocalStorage(event)">
     <button onclick="localStorage.clear(); location.reload();">Reset Data</button>
     
-    <table id="milkTable">
-        <caption id="tableCaption">July Records</caption>
-        <thead>
-            <tr>
-                <th>Cow ID/Name</th>
-                <th>Time</th>
-                <th>1</th>
-                <th>2</th>
-                <!-- Day columns 3 to daysInMonth will be added dynamically -->
-                <th>TOTAL DAILY PRODUCTION</th>
-                <th>TOTAL MONTHLY PRODUCTION</th>
-                <th>LAST CALVING DATE</th>
-                <th>DAYS OF PDN SINCE CALVING</th>
-                <th>MONTHS OF PREG</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Cows will be added here -->
-        </tbody>
-        <tfoot>
-            <tr id="footerRowAM">
-                <td></td>
-                <td>AM</td>
-                <!-- Day sum cells will be added dynamically -->
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr id="footerRowPM">
-                <td></td>
-                <td>PM</td>
-                <!-- Day sum cells will be added dynamically -->
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <!-- Deductions rows will be added here -->
-        </tfoot>
-    </table>
+    <div class="table-container">
+        <table id="milkTable">
+            <caption id="tableCaption">July Records</caption>
+            <thead>
+                <tr>
+                    <th>Cow ID/Name</th>
+                    <th>Time</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <!-- Day columns 3 to daysInMonth will be added dynamically -->
+                    <th>TOTAL DAILY PRODUCTION</th>
+                    <th>TOTAL MONTHLY PRODUCTION</th>
+                    <th>LAST CALVING DATE</th>
+                    <th>DAYS OF PDN SINCE CALVING</th>
+                    <th>MONTHS OF PREG</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Cows will be added here -->
+            </tbody>
+            <tfoot>
+                <tr id="footerRowAM">
+                    <td></td>
+                    <td>AM</td>
+                    <!-- Day sum cells will be added dynamically -->
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr id="footerRowPM">
+                    <td></td>
+                    <td>PM</td>
+                    <!-- Day sum cells will be added dynamically -->
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <!-- Deductions rows will be added here -->
+            </tfoot>
+        </table>
+    </div>
 
     <div class="ranking-section">
         <h2>Top 5 Milk Producers</h2>
@@ -584,6 +618,8 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.homeUse[d] || '';
+                input.addEventListener('focus', () => highlightDeductionRow(homeRow));
+                input.addEventListener('blur', () => removeHighlight(homeRow));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(getDaysInMonth(currentMonth, 2025)); });
                 cell.appendChild(input);
             }
@@ -605,6 +641,8 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.workersMilk[d] || '';
+                input.addEventListener('focus', () => highlightDeductionRow(workersRow));
+                input.addEventListener('blur', () => removeHighlight(workersRow));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(getDaysInMonth(currentMonth, 2025)); });
                 cell.appendChild(input);
             }
@@ -626,6 +664,8 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.calvesMilk[d] || '';
+                input.addEventListener('focus', () => highlightDeductionRow(calvesRow));
+                input.addEventListener('blur', () => removeHighlight(calvesRow));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(getDaysInMonth(currentMonth, 2025)); });
                 cell.appendChild(input);
             }
@@ -735,6 +775,8 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = amValues[d] || '';
+                input.addEventListener('focus', () => highlightCowRow(index));
+                input.addEventListener('blur', () => removeHighlightCowRow(index));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
                 cell.appendChild(input);
             }
@@ -754,6 +796,8 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = pmValues[d] || '';
+                input.addEventListener('focus', () => highlightCowRow(index));
+                input.addEventListener('blur', () => removeHighlightCowRow(index));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
                 cell.appendChild(input);
             }
@@ -762,6 +806,34 @@
             pmRow.insertCell().textContent = calvingDateStr;
             pmRow.insertCell().textContent = daysSince;
             pmRow.insertCell().textContent = monthsPreg;
+        }
+
+        // Highlight both AM and PM rows for a cow
+        function highlightCowRow(cowIndex) {
+            const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
+            const amRow = tbody.rows[cowIndex * 2];
+            const pmRow = tbody.rows[cowIndex * 2 + 1];
+            if (amRow) amRow.classList.add('highlight-row');
+            if (pmRow) pmRow.classList.add('highlight-row');
+        }
+
+        // Remove highlight from both AM and PM rows for a cow
+        function removeHighlightCowRow(cowIndex) {
+            const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
+            const amRow = tbody.rows[cowIndex * 2];
+            const pmRow = tbody.rows[cowIndex * 2 + 1];
+            if (amRow) amRow.classList.remove('highlight-row');
+            if (pmRow) pmRow.classList.remove('highlight-row');
+        }
+
+        // Highlight deduction row
+        function highlightDeductionRow(row) {
+            row.classList.add('highlight-row');
+        }
+
+        // Remove highlight from deduction row
+        function removeHighlight(row) {
+            row.classList.remove('highlight-row');
         }
 
         function editCow(index) {
@@ -1078,7 +1150,7 @@
 
                     // Handle productionData based on its type
                     if (Array.isArray(data.productionData)) {
-                        // Array-based format (like dairy_data (7).json)
+                        // Array-based format
                         data.productionData.forEach(record => {
                             const date = new Date(record.date);
                             if (isNaN(date.getTime())) {
@@ -1095,49 +1167,21 @@
                             });
 
                             if (cowIndex !== -1 && day >= 0 && day < getDaysInMonth(month, 2025)) {
-                                // Update AM and PM values
                                 productionData[month].productions[cowIndex].amValues[day] = record.morningLiters?.toString() || "";
                                 productionData[month].productions[cowIndex].pmValues[day] = record.eveningLiters?.toString() || "";
-
-                                // Update deductions
                                 if (record.deductions) {
                                     productionData[month].deductions.homeUse[day] = record.deductions.homeUse?.[day] || "";
                                     productionData[month].deductions.workersMilk[day] = record.deductions.workersMilk?.[day] || "";
                                     productionData[month].deductions.calvesMilk[day] = record.deductions.calvesMilk?.[day] || "";
                                 }
-
-                                // Process nested productions
-                                if (record.productions && Array.isArray(record.productions)) {
-                                    record.productions.forEach(prod => {
-                                        if (prod.amValues && prod.pmValues) {
-                                            prod.amValues.forEach((val, i) => {
-                                                if (i < productionData[month].productions[cowIndex].amValues.length) {
-                                                    productionData[month].productions[cowIndex].amValues[i] = val || productionData[month].productions[cowIndex].amValues[i];
-                                                }
-                                            });
-                                            prod.pmValues.forEach((val, i) => {
-                                                if (i < productionData[month].productions[cowIndex].pmValues.length) {
-                                                    productionData[month].productions[cowIndex].pmValues[i] = val || productionData[month].productions[cowIndex].pmValues[i];
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                            } else {
-                                console.warn(`No matching cow or invalid day for record: cowId=${record.cowId}, date=${record.date}, cowIndex=${cowIndex}, day=${day}`);
                             }
                         });
                     } else if (typeof data.productionData === 'object' && data.productionData !== null) {
-                        // Object-based format (like localStorage)
+                        // Object-based format
                         Object.keys(data.productionData).forEach(month => {
-                            if (!months.includes(month)) {
-                                console.warn(`Invalid month in productionData: ${month}`);
-                                return;
-                            }
+                            if (!months.includes(month)) return;
                             const days = getDaysInMonth(month, 2025);
                             const monthData = data.productionData[month];
-
-                            // Ensure productions array matches fixedCows length
                             productionData[month].productions = monthData.productions?.length === fixedCows.length
                                 ? monthData.productions.map(prod => ({
                                     amValues: prod.amValues?.slice(0, days).concat(Array(Math.max(0, days - prod.amValues?.length || 0)).fill("")) || Array(days).fill(""),
@@ -1147,22 +1191,15 @@
                                     amValues: Array(days).fill(""),
                                     pmValues: Array(days).fill("")
                                 }));
-
-                            // Update deductions
                             productionData[month].deductions = {
                                 homeUse: monthData.deductions?.homeUse?.slice(0, days).concat(Array(Math.max(0, days - monthData.deductions?.homeUse?.length || 0)).fill("")) || Array(days).fill(""),
                                 workersMilk: monthData.deductions?.workersMilk?.slice(0, days).concat(Array(Math.max(0, days - monthData.deductions?.workersMilk?.length || 0)).fill("")) || Array(days).fill(""),
                                 calvesMilk: monthData.deductions?.calvesMilk?.slice(0, days).concat(Array(Math.max(0, days - monthData.deductions?.calvesMilk?.length || 0)).fill("")) || Array(days).fill("")
                             };
-
-                            // Update inactiveCows
                             productionData[month].inactiveCows = monthData.inactiveCows?.filter(index => index >= 0 && index < fixedCows.length) || [];
                         });
-                    } else {
-                        console.warn('productionData is neither an array nor an object:', data.productionData);
                     }
 
-                    // Sanitize and save to localStorage
                     sanitizeProductionData();
                     localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
                     localStorage.setItem('productionData', JSON.stringify(productionData));
@@ -1172,18 +1209,9 @@
                     setTimeout(() => document.getElementById('message').textContent = '', 3000);
                 } catch (err) {
                     alert('Error importing data: ' + err.message);
-                    console.error('Import error:', err);
                 }
             };
             reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('editModal');
-            if (event.target === modal) {
-                closeEditModal();
-            }
         }
     </script>
 </body>
