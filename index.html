@@ -8,7 +8,8 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 8px;
+            font-size: 10px;
         }
         .table-container {
             overflow-x: auto;
@@ -18,13 +19,14 @@
         table {
             border-collapse: collapse;
             width: auto;
-            margin-top: 20px;
+            margin-top: 8px;
         }
         th, td {
             border: 1px solid black;
-            padding: 8px;
+            padding: 3px;
             text-align: center;
-            min-width: 60px;
+            min-width: 30px;
+            font-size: 10px;
         }
         th {
             background-color: #f2f2f2;
@@ -37,39 +39,43 @@
             left: 0;
             background-color: #e0e0e0;
             z-index: 11;
-            min-width: 150px;
+            min-width: 100px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
         th:nth-child(2), td:nth-child(2) {
             position: sticky;
-            left: 150px;
+            left: 100px;
             background-color: #e0e0e0;
             z-index: 11;
-            min-width: 50px;
+            min-width: 30px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
         th:nth-child(n+3), td:nth-child(n+3) {
             background-color: #ffffff;
         }
         input[type="number"] {
-            width: 60px;
-            padding: 4px;
+            width: 30px;
+            padding: 2px;
+            font-size: 10px;
         }
         input[type="text"], input[type="date"] {
-            padding: 4px;
-            margin: 5px;
-            width: 150px;
+            padding: 2px;
+            margin: 2px;
+            width: 100px;
+            font-size: 10px;
         }
         input[type="file"] {
-            margin: 5px;
+            margin: 2px;
+            font-size: 10px;
         }
         button {
-            padding: 8px 16px;
-            margin: 5px;
+            padding: 4px 8px;
+            margin: 2px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
+            font-size: 10px;
         }
         button:hover {
             background-color: #45a049;
@@ -81,21 +87,22 @@
             background-color: #da190b;
         }
         .form-container {
-            margin-bottom: 20px;
+            margin-bottom: 8px;
             background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 6px;
+            border-radius: 3px;
         }
         .message {
             color: green;
-            margin: 10px 0;
+            margin: 4px 0;
+            font-size: 10px;
         }
         .ranking-section {
-            margin-top: 30px;
+            margin-top: 12px;
         }
         .ranking-table {
             width: 50%;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
         }
         .ranking-table th {
             background-color: #e0e0e0;
@@ -113,16 +120,16 @@
         .modal-content {
             background-color: #fefefe;
             margin: 15% auto;
-            padding: 20px;
+            padding: 12px;
             border: 1px solid #888;
             width: 80%;
-            max-width: 500px;
-            border-radius: 5px;
+            max-width: 350px;
+            border-radius: 3px;
         }
         .close {
             color: #aaa;
             float: right;
-            font-size: 28px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
         }
@@ -135,22 +142,18 @@
     </style>
 </head>
 <body>
-    <h1>Dairy Management App</h1>
-    <p>Enter cow details to track daily AM and PM milk production. Track calf milk consumption in AM and PM sessions. Edit or delete cows. Data is saved locally and persists across page refreshes. Export to CSV for Excel use. Use Export/Import Data to sync across devices.</p>
+    <h1 style="font-size: 14px;">Dairy Management App</h1>
+    <p style="font-size: 10px;">Track daily AM/PM milk production and deductions. Edit/delete cows. Data persists via localStorage. Export to CSV/JSON.</p>
     
     <div class="form-container">
         <label for="cowNo">Cow No:</label>
         <input type="text" id="cowNo" required placeholder="e.g., 297">
-        
         <label for="cowName">Cow Name:</label>
         <input type="text" id="cowName" required placeholder="e.g., Mercy">
-        
-        <label for="calvingDate">Last Calving Date:</label>
+        <label for="calvingDate">Last Calving:</label>
         <input type="date" id="calvingDate" required>
-        
-        <label for="monthsPreg">Months of Pregnancy:</label>
+        <label for="monthsPreg">Pregnancy Months:</label>
         <input type="number" id="monthsPreg" step="0.1" min="0" placeholder="e.g., 3.4">
-        
         <button type="button" onclick="addCowFromForm()">Add Cow</button>
     </div>
     <div id="message" class="message"></div>
@@ -183,14 +186,12 @@
                 <tr>
                     <th>Cow ID/Name</th>
                     <th>Time</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <!-- Day columns 3 to daysInMonth will be added dynamically -->
-                    <th>TOTAL DAILY PRODUCTION</th>
-                    <th>TOTAL MONTHLY PRODUCTION</th>
-                    <th>LAST CALVING DATE</th>
-                    <th>DAYS OF PDN SINCE CALVING</th>
-                    <th>MONTHS OF PREG</th>
+                    <!-- Day columns will be added dynamically -->
+                    <th>DAILY TOTAL</th>
+                    <th>MONTHLY TOTAL</th>
+                    <th>CALVING DATE</th>
+                    <th>DAYS SINCE</th>
+                    <th>PREG MONTHS</th>
                 </tr>
             </thead>
             <tbody>
@@ -217,54 +218,53 @@
                     <td></td>
                     <td></td>
                 </tr>
-                <!-- Deductions rows will be added here -->
             </tfoot>
         </table>
     </div>
 
     <div class="ranking-section">
-        <h2>Top 5 Milk Producers</h2>
+        <h2 style="font-size: 12px;">Top 5 Milk Producers</h2>
         <table class="ranking-table" id="topDailyTable">
-            <caption>Top 5 Daily Milk Producers</caption>
+            <caption>Top 5 Daily</caption>
             <thead>
                 <tr><th>Day</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
             </thead>
             <tbody></tbody>
         </table>
         <table class="ranking-table" id="topWeeklyTable">
-            <caption>Top 5 Weekly Milk Producers</caption>
+            <caption>Top 5 Weekly</caption>
             <thead>
                 <tr><th>Week</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
             </thead>
             <tbody></tbody>
         </table>
         <table class="ranking-table" id="topMonthlyTable">
-            <caption>Top 5 Monthly Milk Producers</caption>
+            <caption>Top 5 Monthly</caption>
             <thead>
-                <tr><th>Rank</th><th>Cow</th><th>Total Milk (L)</th></tr>
+                <tr><th>Rank</th><th>Cow</th><th>Total (L)</th></tr>
             </thead>
             <tbody></tbody>
         </table>
 
-        <h2>Worst 5 Milk Producers</h2>
+        <h2 style="font-size: 12px;">Worst 5 Milk Producers</h2>
         <table class="ranking-table" id="worstDailyTable">
-            <caption>Worst 5 Daily Milk Producers</caption>
+            <caption>Worst 5 Daily</caption>
             <thead>
                 <tr><th>Day</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
             </thead>
             <tbody></tbody>
         </table>
         <table class="ranking-table" id="worstWeeklyTable">
-            <caption>Worst 5 Weekly Milk Producers</caption>
+            <caption>Worst 5 Weekly</caption>
             <thead>
                 <tr><th>Week</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
             </thead>
             <tbody></tbody>
         </table>
         <table class="ranking-table" id="worstMonthlyTable">
-            <caption>Worst 5 Monthly Milk Producers</caption>
+            <caption>Worst 5 Monthly</caption>
             <thead>
-                <tr><th>Rank</th><th>Cow</th><th>Total Milk (L)</th></tr>
+                <tr><th>Rank</th><th>Cow</th><th>Total (L)</th></tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -273,16 +273,16 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeEditModal()">&times;</span>
-            <h2>Edit Cow</h2>
+            <h2 style="font-size: 12px;">Edit Cow</h2>
             <form id="editCowForm">
                 <input type="hidden" id="editCowIndex">
                 <label for="editCowNo">Cow No:</label>
                 <input type="text" id="editCowNo" required>
                 <label for="editCowName">Cow Name:</label>
                 <input type="text" id="editCowName" required>
-                <label for="editCalvingDate">Last Calving Date:</label>
+                <label for="editCalvingDate">Last Calving:</label>
                 <input type="date" id="editCalvingDate" required>
-                <label for="editMonthsPreg">Months of Pregnancy:</label>
+                <label for="editMonthsPreg">Pregnancy Months:</label>
                 <input type="number" id="editMonthsPreg" step="0.1" min="0">
                 <button type="button" onclick="saveEditCow()">Save Changes</button>
             </form>
@@ -304,64 +304,20 @@
             { cowNo: "008", displayName: "7. FRIDA", cowName: "FRIDA", calvingDateStr: "2024-07-26", monthsPreg: "3.46666666666667" },
             { cowNo: "434", displayName: "8. SHANA", cowName: "SHANA", calvingDateStr: "2024-10-06", monthsPreg: "1.56666666666667" },
             { cowNo: "083", displayName: "9. KATHY", cowName: "KATHY", calvingDateStr: "2024-10-27", monthsPreg: "" },
-            { cowNo: "402", displayName: "10. KELLEN", cowName: "KELLEN", calvingDateStr: "2024-11-13", monthsPreg: "" },
-            { cowNo: "098", displayName: "11. JACKLINE", cowName: "JACKLINE", calvingDateStr: "2024-11-28", monthsPreg: "" },
-            { cowNo: "421", displayName: "12. EVA", cowName: "EVA", calvingDateStr: "2024-11-28", monthsPreg: "" },
-            { cowNo: "099", displayName: "13. SARAH", cowName: "SARAH", calvingDateStr: "2024-12-04", monthsPreg: "" },
-            { cowNo: "521", displayName: "14. KEZA", cowName: "KEZA", calvingDateStr: "2024-12-09", monthsPreg: "" },
-            { cowNo: "024", displayName: "15. KIRABO", cowName: "KIRABO", calvingDateStr: "2024-12-11", monthsPreg: "" },
-            { cowNo: "403", displayName: "16. PEACE", cowName: "PEACE", calvingDateStr: "2024-12-26", monthsPreg: "" },
-            { cowNo: "418", displayName: "17. IRENE", cowName: "IRENE", calvingDateStr: "2025-01-02", monthsPreg: "" },
-            { cowNo: "296", displayName: "18. JOAN", cowName: "JOAN", calvingDateStr: "2025-01-13", monthsPreg: "" },
-            { cowNo: "511", displayName: "19. SIIMA", cowName: "SIIMA", calvingDateStr: "2025-01-02", monthsPreg: "" },
-            { cowNo: "021", displayName: "20. BIRA", cowName: "BIRA", calvingDateStr: "2025-01-02", monthsPreg: "" },
-            { cowNo: "404", displayName: "21. Kyoozi", cowName: "Kyoozi", calvingDateStr: "2023-12-27", monthsPreg: "10.3" },
-            { cowNo: "441", displayName: "22. Nakato", cowName: "Nakato", calvingDateStr: "2024-07-10", monthsPreg: "0" }
+            { cowNo: "402", displayName: "10. KELLEN", cowName: "KELLEN", calvingDateStr: "2024-11-13", monthsPreg: "" }
         ];
 
         const initialJulyProductions = [
-            { amValues: ["4.5", "4.5", "4.5", "4.5", "5", "", "4.5", "4", "4", "4", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["2", "2", "2", "2", "2", "2", "2", "2", "2", "2", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["5", "5", "5.5", "5", "5.5", "", "6.5", "5.5", "5", "5", "5.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["2.5", "2", "3", "2.5", "2", "2", "2", "2.5", "2.5", "2", "2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["3.5", "3", "4", "3", "3.5", "", "3.5", "3.5", "3.5", "3", "2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["1.5", "2", "2", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["3.5", "4", "4", "4", "4", "", "4", "4", "4", "3.5", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["2", "2", "2", "2.5", "2", "2", "2", "2", "2", "1.5", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["4.5", "5", "4", "4.5", "4.5", "", "4.5", "5.5", "5", "5.5", "4.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["3", "3", "3", "2.5", "3", "3", "3", "3", "3", "2", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["6", "5.5", "4.5", "5", "4.5", "", "4", "4", "3.5", "3.5", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["2.5", "2.5", "2", "2", "3", "2", "2", "2", "2", "3", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["3.5", "3", "3", "3", "3.5", "", "3", "3.5", "3", "3", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: Array(31).fill("0") },
-            { amValues: ["4.5", "4.5", "4", "4", "4", "", "4", "3.5", "4", "3.5", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["2.5", "2", "2", "2.5", "2", "2", "2", "2", "2", "2", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["4.5", "4", "4", "4", "4", "", "2.5", "4", "2.5", "3", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: Array(31).fill("0") },
-            { amValues: ["7", "6.5", "7", "5", "5", "", "6", "6", "6", "6", "5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["4", "4.5", "3", "2", "3.5", "4", "3", "2", "2", "2.5", "2.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["3", "3", "3", "2.5", "3.5", "", "3", "3", "2.5", "3", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1", "1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["7", "7", "7", "7", "7.5", "", "6.5", "7", "7", "7", "6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["3.5", "5", "3.5", "4", "4", "4", "4", "3.5", "3", "3", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["4", "4", "4", "4", "4", "", "4", "4", "4", "4", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["2", "2", "2", "2.5", "2", "2", "2.5", "2", "2", "2", "2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["4", "4", "4", "4", "3", "", "3", "4", "3", "3", "2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["2", "2", "2", "2.5", "1.5", "1.5", "1.5", "2", "2", "1", "1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["5", "4.5", "4.5", "5.5", "4.5", "", "4", "5", "4", "4", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["2.5", "2.5", "2.5", "2", "2", "2.5", "2", "2", "2", "2", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["7.5", "7", "7", "7", "6", "", "7", "8", "7", "7", "7", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["3.5", "4.5", "4.5", "4.5", "4", "3.5", "3.5", "3.5", "4", "4", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["7", "6.5", "7", "6.5", "7", "", "7.5", "7", "7", "6.5", "6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["4", "3", "3", "3", "3.5", "3", "3.5", "3", "3", "3", "3.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["8", "7", "7", "6.5", "6.5", "", "8", "6", "6.5", "5.5", "6", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["5", "4", "4", "3.5", "4", "4", "4", "3", "3", "3", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["5", "5.5", "6", "6", "5", "", "5.5", "5.5", "6", "5.5", "5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["3.5", "3", "4", "4", "3", "3.5", "3", "3.5", "4", "3.5", "3", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: ["2", "2", "2", "1", "1", "", "3", "4", "4", "3", "2.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-              pmValues: ["2", "1", "1.5", "1.5", "1.5", "1.5", "2", "1.5", "1", "1", "1.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""] },
-            { amValues: Array(31).fill(""), pmValues: Array(31).fill("") },
-            { amValues: Array(31).fill(""), pmValues: Array(31).fill("") }
+            { amValues: ["4.5", "4.5", "4.5", "4.5", "5", "", "4.5", "4", "4", "4"], pmValues: ["2", "2", "2", "2", "2", "2", "2", "2", "2", "2"] },
+            { amValues: ["5", "5", "5.5", "5", "5.5", "", "6.5", "5.5", "5", "5"], pmValues: ["2.5", "2", "3", "2.5", "2", "2", "2", "2.5", "2.5", "2"] },
+            { amValues: ["3.5", "3", "4", "3", "3.5", "", "3.5", "3.5", "3.5", "3"], pmValues: ["1.5", "2", "2", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5"] },
+            { amValues: ["3.5", "4", "4", "4", "4", "", "4", "4", "4", "3.5"], pmValues: ["2", "2", "2", "2.5", "2", "2", "2", "2", "2", "1.5"] },
+            { amValues: ["4.5", "5", "4", "4.5", "4.5", "", "4.5", "5.5", "5", "5.5"], pmValues: ["3", "3", "3", "2.5", "3", "3", "3", "3", "3", "2"] },
+            { amValues: ["6", "5.5", "4.5", "5", "4.5", "", "4", "4", "3.5", "3.5"], pmValues: ["2.5", "2.5", "2", "2", "3", "2", "2", "2", "2", "3"] },
+            { amValues: ["3.5", "3", "3", "3", "3.5", "", "3", "3.5", "3", "3"], pmValues: Array(10).fill("0") },
+            { amValues: ["4.5", "4.5", "4", "4", "4", "", "4", "3.5", "4", "3.5"], pmValues: ["2.5", "2", "2", "2.5", "2", "2", "2", "2", "2", "2"] },
+            { amValues: ["4.5", "4", "4", "4", "4", "", "2.5", "4", "2.5", "3"], pmValues: Array(10).fill("0") },
+            { amValues: ["7", "6.5", "7", "5", "5", "", "6", "6", "6", "6"], pmValues: ["4", "4.5", "3", "2", "3.5", "4", "3", "2", "2", "2.5"] }
         ];
 
         let fixedCows = JSON.parse(localStorage.getItem('fixedCows')) || fixedCowsFromExcel;
@@ -385,7 +341,10 @@
                 };
             }
             if (month === 'July' && (!productionData['July'].productions || productionData['July'].productions.length === 0)) {
-                productionData['July'].productions = JSON.parse(JSON.stringify(initialJulyProductions));
+                productionData['July'].productions = JSON.parse(JSON.stringify(initialJulyProductions)).map(prod => ({
+                    amValues: prod.amValues.concat(Array(days - prod.amValues.length).fill('')),
+                    pmValues: prod.pmValues.concat(Array(days - prod.pmValues.length).fill(''))
+                }));
             }
         });
 
@@ -501,7 +460,7 @@
 
             localStorage.setItem('productionData', JSON.stringify(productionData));
             sanitizeProductionData();
-            document.getElementById('message').textContent = 'Data saved successfully!';
+            document.getElementById('message').textContent = 'Data saved!';
             setTimeout(() => document.getElementById('message').textContent = '', 3000);
         }
 
@@ -551,11 +510,11 @@
             for (let d = 1; d <= daysInMonth; d++) {
                 headerRow.insertCell().textContent = d;
             }
-            headerRow.insertCell().textContent = 'TOTAL DAILY PRODUCTION';
-            headerRow.insertCell().textContent = 'TOTAL MONTHLY PRODUCTION';
-            headerRow.insertCell().textContent = 'LAST CALVING DATE';
-            headerRow.insertCell().textContent = 'DAYS OF PDN SINCE CALVING';
-            headerRow.insertCell().textContent = 'MONTHS OF PREG';
+            headerRow.insertCell().textContent = 'DAILY TOTAL';
+            headerRow.insertCell().textContent = 'MONTHLY TOTAL';
+            headerRow.insertCell().textContent = 'CALVING DATE';
+            headerRow.insertCell().textContent = 'DAYS SINCE';
+            headerRow.insertCell().textContent = 'PREG MONTHS';
 
             const footerRowAM = document.getElementById('footerRowAM');
             footerRowAM.innerHTML = '';
@@ -587,7 +546,7 @@
             tbody.innerHTML = '';
 
             const productions = productionData[month].productions;
-            fixedCows.forEach((cow, index) => {
+            fixedCows.slice(0, 10).forEach((cow, index) => {
                 const cowProduction = productions[index] || { amValues: Array(daysInMonth).fill(''), pmValues: Array(daysInMonth).fill('') };
                 addCowToTable(cow, cowProduction.amValues, cowProduction.pmValues, daysInMonth, index);
             });
@@ -623,9 +582,10 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.homeUse[d] || '';
+                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightDeductionRow(homeRow));
                 input.addEventListener('blur', () => removeHighlight(homeRow));
-                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(getDaysInMonth(currentMonth, 2025)); });
+                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
                 cell.appendChild(input);
             }
             homeRow.insertCell();
@@ -646,9 +606,10 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.workersMilk[d] || '';
+                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightDeductionRow(workersRow));
                 input.addEventListener('blur', () => removeHighlight(workersRow));
-                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(getDaysInMonth(currentMonth, 2025)); });
+                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
                 cell.appendChild(input);
             }
             workersRow.insertCell();
@@ -669,9 +630,10 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.calvesMilkAM[d] || '';
+                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightDeductionRow(calvesAMRow));
                 input.addEventListener('blur', () => removeHighlight(calvesAMRow));
-                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(getDaysInMonth(currentMonth, 2025)); });
+                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
                 cell.appendChild(input);
             }
             calvesAMRow.insertCell();
@@ -692,9 +654,10 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.calvesMilkPM[d] || '';
+                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightDeductionRow(calvesPMRow));
                 input.addEventListener('blur', () => removeHighlight(calvesPMRow));
-                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(getDaysInMonth(currentMonth, 2025)); });
+                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
                 cell.appendChild(input);
             }
             calvesPMRow.insertCell();
@@ -790,7 +753,7 @@
             document.getElementById('calvingDate').value = '';
             document.getElementById('monthsPreg').value = '';
 
-            document.getElementById('message').textContent = `Cow ${displayName} added successfully!`;
+            document.getElementById('message').textContent = `Cow ${displayName} added!`;
             setTimeout(() => document.getElementById('message').textContent = '', 3000);
         }
 
@@ -816,6 +779,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = amValues[d] || '';
+                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightCowRow(index));
                 input.addEventListener('blur', () => removeHighlightCowRow(index));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
@@ -837,6 +801,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = pmValues[d] || '';
+                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightCowRow(index));
                 input.addEventListener('blur', () => removeHighlightCowRow(index));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
@@ -907,7 +872,7 @@
             localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
             closeEditModal();
             loadMonth(currentMonth);
-            document.getElementById('message').textContent = `Cow ${fixedCows[index].displayName} updated successfully!`;
+            document.getElementById('message').textContent = `Cow ${fixedCows[index].displayName} updated!`;
             setTimeout(() => document.getElementById('message').textContent = '', 3000);
         }
 
@@ -925,7 +890,7 @@
             }
             localStorage.setItem('productionData', JSON.stringify(productionData));
             loadMonth(currentMonth);
-            document.getElementById('message').textContent = `${fixedCows[index].displayName} deleted from ${currentMonth} records!`;
+            document.getElementById('message').textContent = `${fixedCows[index].displayName} deleted from ${currentMonth}!`;
             setTimeout(() => document.getElementById('message').textContent = '', 3000);
         }
 
@@ -1032,11 +997,11 @@
                 if (sorted.length > 0) {
                     const topRow = topDailyTbody.insertRow();
                     topRow.insertCell().textContent = d + 1;
-                    top5.forEach(cow => topRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)} L)`);
+                    top5.forEach(cow => topRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)})`);
                     while (topRow.cells.length < 6) topRow.insertCell().textContent = '';
                     const worstRow = worstDailyTbody.insertRow();
                     worstRow.insertCell().textContent = d + 1;
-                    worst5.forEach(cow => worstRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)} L)`);
+                    worst5.forEach(cow => worstRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)})`);
                     while (worstRow.cells.length < 6) worstRow.insertCell().textContent = '';
                 }
             }
@@ -1069,12 +1034,12 @@
                 const worst5 = sorted.slice(-5).reverse();
                 if (sorted.length > 0) {
                     const topRow = topWeeklyTbody.insertRow();
-                    topRow.insertCell().textContent = `Week ${w + 1} (Days ${start + 1}-${end})`;
-                    top5.forEach(cow => topRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)} L)`);
+                    topRow.insertCell().textContent = `Week ${w + 1} (${start + 1}-${end})`;
+                    top5.forEach(cow => topRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)})`);
                     while (topRow.cells.length < 6) topRow.insertCell().textContent = '';
                     const worstRow = worstWeeklyTbody.insertRow();
-                    worstRow.insertCell().textContent = `Week ${w + 1} (Days ${start + 1}-${end})`;
-                    worst5.forEach(cow => worstRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)} L)`);
+                    worstRow.insertCell().textContent = `Week ${w + 1} (${start + 1}-${end})`;
+                    worst5.forEach(cow => worstRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)})`);
                     while (worstRow.cells.length < 6) worstRow.insertCell().textContent = '';
                 }
             });
@@ -1153,7 +1118,7 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-            document.getElementById('message').textContent = 'Data exported successfully!';
+            document.getElementById('message').textContent = 'Data exported!';
             setTimeout(() => document.getElementById('message').textContent = '', 3000);
         }
 
@@ -1221,7 +1186,7 @@
                     localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
                     localStorage.setItem('productionData', JSON.stringify(productionData));
                     loadMonth(currentMonth);
-                    document.getElementById('message').textContent = 'Data imported successfully!';
+                    document.getElementById('message').textContent = 'Data imported!';
                     setTimeout(() => document.getElementById('message').textContent = '', 3000);
                 } catch (error) {
                     alert('Error importing data: ' + error.message);
