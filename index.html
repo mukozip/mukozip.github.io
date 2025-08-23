@@ -152,7 +152,7 @@
         <input type="text" id="cowName" required placeholder="e.g., Mercy">
         <label for="calvingDate">Last Calving:</label>
         <input type="date" id="calvingDate" required>
-        <label for="monthsPreg">Pregnancy Months:</label>
+        <label for="monthsPreg">Preg Months:</label>
         <input type="number" id="monthsPreg" step="0.1" min="0" placeholder="e.g., 3.4">
         <button type="button" onclick="addCowFromForm()">Add Cow</button>
     </div>
@@ -174,7 +174,7 @@
         <option value="December">December</option>
     </select>
     <button onclick="saveCurrentMonth()">Save</button>
-    <button onclick="exportToCSV()">Export to CSV</button>
+    <button onclick="exportToCSV()">Export CSV</button>
     <button onclick="exportLocalStorage()">Export Data</button>
     <input type="file" id="importData" accept=".json" onchange="importLocalStorage(event)">
     <button onclick="localStorage.clear(); location.reload();">Reset Data</button>
@@ -282,7 +282,7 @@
                 <input type="text" id="editCowName" required>
                 <label for="editCalvingDate">Last Calving:</label>
                 <input type="date" id="editCalvingDate" required>
-                <label for="editMonthsPreg">Pregnancy Months:</label>
+                <label for="editMonthsPreg">Preg Months:</label>
                 <input type="number" id="editMonthsPreg" step="0.1" min="0">
                 <button type="button" onclick="saveEditCow()">Save Changes</button>
             </form>
@@ -546,7 +546,7 @@
             tbody.innerHTML = '';
 
             const productions = productionData[month].productions;
-            fixedCows.slice(0, 10).forEach((cow, index) => {
+            fixedCows.forEach((cow, index) => {
                 const cowProduction = productions[index] || { amValues: Array(daysInMonth).fill(''), pmValues: Array(daysInMonth).fill('') };
                 addCowToTable(cow, cowProduction.amValues, cowProduction.pmValues, daysInMonth, index);
             });
@@ -582,7 +582,6 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.homeUse[d] || '';
-                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightDeductionRow(homeRow));
                 input.addEventListener('blur', () => removeHighlight(homeRow));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
@@ -606,7 +605,6 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.workersMilk[d] || '';
-                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightDeductionRow(workersRow));
                 input.addEventListener('blur', () => removeHighlight(workersRow));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
@@ -630,7 +628,6 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.calvesMilkAM[d] || '';
-                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightDeductionRow(calvesAMRow));
                 input.addEventListener('blur', () => removeHighlight(calvesAMRow));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
@@ -654,7 +651,6 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = deductions.calvesMilkPM[d] || '';
-                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightDeductionRow(calvesPMRow));
                 input.addEventListener('blur', () => removeHighlight(calvesPMRow));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
@@ -779,7 +775,6 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = amValues[d] || '';
-                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightCowRow(index));
                 input.addEventListener('blur', () => removeHighlightCowRow(index));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
@@ -801,7 +796,6 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = pmValues[d] || '';
-                input.dataset.day = d + 1;
                 input.addEventListener('focus', () => highlightCowRow(index));
                 input.addEventListener('blur', () => removeHighlightCowRow(index));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
@@ -1188,8 +1182,8 @@
                     loadMonth(currentMonth);
                     document.getElementById('message').textContent = 'Data imported!';
                     setTimeout(() => document.getElementById('message').textContent = '', 3000);
-                } catch (error) {
-                    alert('Error importing data: ' + error.message);
+                } catch (err) {
+                    alert('Error importing data: ' + err.message);
                 }
             };
             reader.readAsText(file);
