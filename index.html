@@ -13,6 +13,8 @@
         }
         .table-container {
             overflow-x: auto;
+            overflow-y: auto; /* Enable vertical scrolling */
+            max-height: 400px; /* Fixed height for scrolling */
             max-width: 100%;
             position: relative;
         }
@@ -20,6 +22,7 @@
             border-collapse: collapse;
             width: auto;
             margin-top: 8px;
+            table-layout: fixed; /* Ensure consistent column widths */
         }
         th, td {
             border: 1px solid black;
@@ -28,11 +31,11 @@
             min-width: 30px;
             font-size: 10px;
         }
-        th {
+        thead th {
             background-color: #f2f2f2;
-            position: sticky;
+            position: sticky; /* Make header row static */
             top: 0;
-            z-index: 10;
+            z-index: 20; /* Ensure header stays above other sticky elements */
         }
         th:nth-child(1), td:nth-child(1) {
             position: sticky;
