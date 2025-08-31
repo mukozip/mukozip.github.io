@@ -806,8 +806,9 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = amValues[d] || '';
-                input.addEventListener('focus', () => highlightCowRow(index));
-                input.addEventListener('blur', () => removeHighlightCowRow(index));
+                input.dataset.cowIndex = index; // Add cow index to input for highlighting
+                input.addEventListener('focus', (e) => highlightCowRow(parseInt(e.target.dataset.cowIndex)));
+                input.addEventListener('blur', (e) => removeHighlightCowRow(parseInt(e.target.dataset.cowIndex)));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
                 cell.appendChild(input);
             }
@@ -827,8 +828,9 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = pmValues[d] || '';
-                input.addEventListener('focus', () => highlightCowRow(index));
-                input.addEventListener('blur', () => removeHighlightCowRow(index));
+                input.dataset.cowIndex = index; // Add cow index to input for highlighting
+                input.addEventListener('focus', (e) => highlightCowRow(parseInt(e.target.dataset.cowIndex)));
+                input.addEventListener('blur', (e) => removeHighlightCowRow(parseInt(e.target.dataset.cowIndex)));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
                 cell.appendChild(input);
             }
@@ -845,22 +847,44 @@
             const pmRow = tbody.rows[cowIndex * 2 + 1];
             if (amRow) amRow.classList.add('highlight-row');
             if (pmRow) pmRow.classList.add('highlight-row');
+            // Ensure sticky cells maintain their background color
+            if (amRow) {
+                amRow.cells[0].style.backgroundColor = '#e0e0e0';
+                amRow.cells[1].style.backgroundColor = '#e0e0e0';
+            }
+            if (pmRow) {
+                pmRow.cells[0].style.backgroundColor = '#e0e0e0';
+                pmRow.cells[1].style.backgroundColor = '#e0e0e0';
+            }
         }
 
         function removeHighlightCowRow(cowIndex) {
             const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
             const amRow = tbody.rows[cowIndex * 2];
             const pmRow = tbody.rows[cowIndex * 2 + 1];
-            if (amRow) amRow.classList.remove('highlight-row');
-            if (pmRow) pmRow.classList.remove('highlight-row');
+            if (amRow) {
+                amRow.classList.remove('highlight-row');
+                // Restore sticky cell backgrounds
+                amRow.cells[0].style.backgroundColor = '#e0e0e0';
+                amRow.cells[1].style.backgroundColor = '#e0e0e0';
+            }
+            if (pmRow) {
+                pmRow.classList.remove('highlight-row');
+                pmRow.cells[0].style.backgroundColor = '#e0e0e0';
+                pmRow.cells[1].style.backgroundColor = '#e0e0e0';
+            }
         }
 
         function highlightDeductionRow(row) {
             row.classList.add('highlight-row');
+            // Ensure sticky cells maintain their background color
+            row.cells[0].style.backgroundColor = '#e0e0e0';
         }
 
         function removeHighlight(row) {
             row.classList.remove('highlight-row');
+            // Restore sticky cell backgrounds
+            row.cells[0].style.backgroundColor = '#e0e0e0';
         }
 
         function editCow(index) {
