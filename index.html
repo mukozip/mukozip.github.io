@@ -694,7 +694,8 @@
             labelCellCalvesTotal.colSpan = 2;
             labelCellCalvesTotal.textContent = 'Calves Milk Total';
             for (let d = 0; d < daysInMonth; d++) {
-                calvesTotalRow.insertCell();
+                const cell = calvesTotalRow.insertCell();
+                cell.textContent = ((parseFloat(deductions.calvesMilkAM[d]) || 0) + (parseFloat(deductions.calvesMilkPM[d]) || 0)).toFixed(1);
             }
             calvesTotalRow.insertCell();
             calvesTotalRow.insertCell();
@@ -708,7 +709,13 @@
             labelCellTotalDeductions.colSpan = 2;
             labelCellTotalDeductions.textContent = 'Total Deductions';
             for (let d = 0; d < daysInMonth; d++) {
-                totalDeductionsRow.insertCell();
+                const cell = totalDeductionsRow.insertCell();
+                cell.textContent = (
+                    (parseFloat(deductions.homeUse[d]) || 0) +
+                    (parseFloat(deductions.workersMilk[d]) || 0) +
+                    (parseFloat(deductions.calvesMilkAM[d]) || 0) +
+                    (parseFloat(deductions.calvesMilkPM[d]) || 0)
+                ).toFixed(1);
             }
             totalDeductionsRow.insertCell();
             totalDeductionsRow.insertCell();
@@ -722,7 +729,16 @@
             labelCellNet.colSpan = 2;
             labelCellNet.textContent = 'Net Liters';
             for (let d = 0; d < daysInMonth; d++) {
-                netLitersRow.insertCell();
+                const cell = netLitersRow.insertCell();
+                const amSum = Array.from(document.querySelectorAll(`#milkTable tbody tr:nth-child(odd) td:nth-child(${d + 3}) input`))
+                    .reduce((sum, input) => sum + (parseFloat(input.value) || 0), 0);
+                const pmSum = Array.from(document.querySelectorAll(`#milkTable tbody tr:nth-child(even) td:nth-child(${d + 3}) input`))
+                    .reduce((sum, input) => sum + (parseFloat(input.value) || 0), 0);
+                const totalDeductions = (parseFloat(deductions.homeUse[d]) || 0) +
+                                        (parseFloat(deductions.workersMilk[d]) || 0) +
+                                        (parseFloat(deductions.calvesMilkAM[d]) || 0) +
+                                        (parseFloat(deductions.calvesMilkPM[d]) || 0);
+                cell.textContent = (amSum + pmSum - totalDeductions).toFixed(1);
             }
             netLitersRow.insertCell();
             netLitersRow.insertCell();
@@ -806,7 +822,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = amValues[d] || '';
-                input.dataset.cowIndex = index; // Add cow index to input for highlighting
+                input.dataset.cowIndex = index;
                 input.addEventListener('focus', (e) => highlightCowRow(parseInt(e.target.dataset.cowIndex)));
                 input.addEventListener('blur', (e) => removeHighlightCowRow(parseInt(e.target.dataset.cowIndex)));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
@@ -828,7 +844,7 @@
                 input.step = '0.5';
                 input.min = '0';
                 input.value = pmValues[d] || '';
-                input.dataset.cowIndex = index; // Add cow index to input for highlighting
+                input.dataset.cowIndex = index;
                 input.addEventListener('focus', (e) => highlightCowRow(parseInt(e.target.dataset.cowIndex)));
                 input.addEventListener('blur', (e) => removeHighlightCowRow(parseInt(e.target.dataset.cowIndex)));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
@@ -847,7 +863,6 @@
             const pmRow = tbody.rows[cowIndex * 2 + 1];
             if (amRow) amRow.classList.add('highlight-row');
             if (pmRow) pmRow.classList.add('highlight-row');
-            // Ensure sticky cells maintain their background color
             if (amRow) {
                 amRow.cells[0].style.backgroundColor = '#e0e0e0';
                 amRow.cells[1].style.backgroundColor = '#e0e0e0';
@@ -864,7 +879,6 @@
             const pmRow = tbody.rows[cowIndex * 2 + 1];
             if (amRow) {
                 amRow.classList.remove('highlight-row');
-                // Restore sticky cell backgrounds
                 amRow.cells[0].style.backgroundColor = '#e0e0e0';
                 amRow.cells[1].style.backgroundColor = '#e0e0e0';
             }
@@ -877,13 +891,11 @@
 
         function highlightDeductionRow(row) {
             row.classList.add('highlight-row');
-            // Ensure sticky cells maintain their background color
             row.cells[0].style.backgroundColor = '#e0e0e0';
         }
 
         function removeHighlight(row) {
             row.classList.remove('highlight-row');
-            // Restore sticky cell backgrounds
             row.cells[0].style.backgroundColor = '#e0e0e0';
         }
 
@@ -1003,7 +1015,6 @@
             let calvesAMSum = 0;
             let calvesPMSum = 0;
             let calvesTotalSum = 0;
-            const deductionsPerDay = Array(daysInMonth).fill(0);
             let totalDeductions = 0;
             for (let d = 0; d < daysInMonth; d++) {
                 const cellIndex = d + 2;
@@ -1013,16 +1024,16 @@
                 const calvesPM = parseFloat(calvesPMRow.cells[cellIndex]?.querySelector('input')?.value) || 0;
                 const calvesTotal = calvesAM + calvesPM;
                 calvesTotalRow.cells[cellIndex].textContent = calvesTotal.toFixed(1);
-                deductionsPerDay[d] = home + workers + calvesAM + calvesPM;
-                totalDeductionsRow.cells[cellIndex].textContent = deductionsPerDay[d].toFixed(1);
-                const net = amSums[d] + pmSums[d] - deductionsPerDay[d];
+                const totalDeduction = home + workers + calvesAM + calvesPM;
+                totalDeductionsRow.cells[cellIndex].textContent = totalDeduction.toFixed(1);
+                const net = amSums[d] + pmSums[d] - totalDeduction;
                 netLitersRow.cells[cellIndex].textContent = net.toFixed(1);
                 homeSum += home;
                 workersSum += workers;
                 calvesAMSum += calvesAM;
                 calvesPMSum += calvesPM;
                 calvesTotalSum += calvesTotal;
-                totalDeductions += deductionsPerDay[d];
+                totalDeductions += totalDeduction;
             }
             homeRow.cells[daysInMonth + 2].textContent = homeSum.toFixed(1);
             workersRow.cells[daysInMonth + 2].textContent = workersSum.toFixed(1);
