@@ -295,30 +295,57 @@
         let currentMonth = 'July';
 
         const fixedCowsFromExcel = [
-            { cowNo: "297", displayName: "1. MERCY", cowName: "MERCY", calvingDateStr: "2024-03-01", monthsPreg: "4.66666666666667" },
+            { cowNo: "297", displayName: "1. MERCY", cowName: "MERCY", calvingDateStr: "2024-03-01", monthsPreg: "4.7" },
             { cowNo: "413", displayName: "2. MAGRET", cowName: "MAGRET", calvingDateStr: "2024-03-04", monthsPreg: "3.4" },
             { cowNo: "427", displayName: "3. CECE", cowName: "CECE", calvingDateStr: "2024-05-15", monthsPreg: "3.2" },
-            { cowNo: "425", displayName: "4. ANGEL", cowName: "ANGEL", calvingDateStr: "2024-05-19", monthsPreg: "5.36666666666667" },
+            { cowNo: "425", displayName: "4. ANGEL", cowName: "ANGEL", calvingDateStr: "2024-05-19", monthsPreg: "5.4" },
             { cowNo: "093", displayName: "5. RITAH", cowName: "RITAH", calvingDateStr: "2024-05-28", monthsPreg: "" },
             { cowNo: "059", displayName: "6. SUSAN", cowName: "SUSAN", calvingDateStr: "2024-07-24", monthsPreg: "2.1" },
-            { cowNo: "008", displayName: "7. FRIDA", cowName: "FRIDA", calvingDateStr: "2024-07-26", monthsPreg: "3.46666666666667" },
-            { cowNo: "434", displayName: "8. SHANA", cowName: "SHANA", calvingDateStr: "2024-10-06", monthsPreg: "1.56666666666667" },
+            { cowNo: "008", displayName: "7. FRIDA", cowName: "FRIDA", calvingDateStr: "2024-07-26", monthsPreg: "3.5" },
+            { cowNo: "434", displayName: "8. SHANA", cowName: "SHANA", calvingDateStr: "2024-10-06", monthsPreg: "1.6" },
             { cowNo: "083", displayName: "9. KATHY", cowName: "KATHY", calvingDateStr: "2024-10-27", monthsPreg: "" },
-            { cowNo: "402", displayName: "10. KELLEN", cowName: "KELLEN", calvingDateStr: "2024-11-13", monthsPreg: "" }
+            { cowNo: "402", displayName: "10. KELLEN", cowName: "KELLEN", calvingDateStr: "2024-11-13", monthsPreg: "" },
+            { cowNo: "501", displayName: "11. BETSY", cowName: "BETSY", calvingDateStr: "2024-11-20", monthsPreg: "6.0" },
+            { cowNo: "512", displayName: "12. DAISY", cowName: "DAISY", calvingDateStr: "2025-03-05", monthsPreg: "1.0" },
+            { cowNo: "623", displayName: "13. LUNA", cowName: "LUNA", calvingDateStr: "2024-10-15", monthsPreg: "7.0" },
+            { cowNo: "634", displayName: "14. STAR", cowName: "STAR", calvingDateStr: "2025-01-30", monthsPreg: "4.0" },
+            { cowNo: "701", displayName: "15. ROSE", cowName: "ROSE", calvingDateStr: "2024-09-10", monthsPreg: "8.0" },
+            { cowNo: "815", displayName: "16. LILY", cowName: "LILY", calvingDateStr: "2025-04-01", monthsPreg: "0.0" },
+            { cowNo: "901", displayName: "17. COCO", cowName: "COCO", calvingDateStr: "2024-08-25", monthsPreg: "9.0" },
+            { cowNo: "1001", displayName: "18. MOO", cowName: "MOO", calvingDateStr: "2025-02-20", monthsPreg: "2.0" },
+            { cowNo: "1002", displayName: "19. BELLA", cowName: "BELLA", calvingDateStr: "2024-12-15", monthsPreg: "4.0" },
+            { cowNo: "1003", displayName: "20. HOLLY", cowName: "HOLLY", calvingDateStr: "2025-03-10", monthsPreg: "3.0" }
         ];
 
         const initialJulyProductions = [
-            { amValues: ["4.5", "4.5", "4.5", "4.5", "5", "", "4.5", "4", "4", "4"], pmValues: ["2", "2", "2", "2", "2", "2", "2", "2", "2", "2"] },
-            { amValues: ["5", "5", "5.5", "5", "5.5", "", "6.5", "5.5", "5", "5"], pmValues: ["2.5", "2", "3", "2.5", "2", "2", "2", "2.5", "2.5", "2"] },
-            { amValues: ["3.5", "3", "4", "3", "3.5", "", "3.5", "3.5", "3.5", "3"], pmValues: ["1.5", "2", "2", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5"] },
-            { amValues: ["3.5", "4", "4", "4", "4", "", "4", "4", "4", "3.5"], pmValues: ["2", "2", "2", "2.5", "2", "2", "2", "2", "2", "1.5"] },
-            { amValues: ["4.5", "5", "4", "4.5", "4.5", "", "4.5", "5.5", "5", "5.5"], pmValues: ["3", "3", "3", "2.5", "3", "3", "3", "3", "3", "2"] },
-            { amValues: ["6", "5.5", "4.5", "5", "4.5", "", "4", "4", "3.5", "3.5"], pmValues: ["2.5", "2.5", "2", "2", "3", "2", "2", "2", "2", "3"] },
-            { amValues: ["3.5", "3", "3", "3", "3.5", "", "3", "3.5", "3", "3"], pmValues: Array(10).fill("0") },
-            { amValues: ["4.5", "4.5", "4", "4", "4", "", "4", "3.5", "4", "3.5"], pmValues: ["2.5", "2", "2", "2.5", "2", "2", "2", "2", "2", "2"] },
-            { amValues: ["4.5", "4", "4", "4", "4", "", "2.5", "4", "2.5", "3"], pmValues: Array(10).fill("0") },
-            { amValues: ["7", "6.5", "7", "5", "5", "", "6", "6", "6", "6"], pmValues: ["4", "4.5", "3", "2", "3.5", "4", "3", "2", "2", "2.5"] }
+            { amValues: ["4.5", "4.5", "4.5", "4.5", "5", "", "4.5", "4", "4", "4", ""], pmValues: ["2", "2", "2", "2", "2", "2", "2", "2", "2", "2", ""] },
+            { amValues: ["5", "5", "5.5", "5", "5.5", "", "6.5", "5.5", "5", "5", ""], pmValues: ["2.5", "2", "3", "2.5", "2", "2", "2", "2.5", "2.5", "2", ""] },
+            { amValues: ["3.5", "3", "4", "3", "3.5", "", "3.5", "3.5", "3.5", "3", ""], pmValues: ["1.5", "2", "2", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", ""] },
+            { amValues: ["3.5", "4", "4", "4", "4", "", "4", "4", "4", "3.5", ""], pmValues: ["2", "2", "2", "2.5", "2", "2", "2", "2", "2", "1.5", ""] },
+            { amValues: ["4.5", "5", "4", "4.5", "4.5", "", "4.5", "5.5", "5", "5.5", ""], pmValues: ["3", "3", "3", "2.5", "3", "3", "3", "3", "3", "2", ""] },
+            { amValues: ["6", "5.5", "4.5", "5", "4.5", "", "4", "4", "3.5", "3.5", ""], pmValues: ["2.5", "2.5", "2", "2", "3", "2", "2", "2", "2", "3", ""] },
+            { amValues: ["3.5", "3", "3", "3", "3.5", "", "3", "3.5", "3", "3", ""], pmValues: Array(11).fill("") },
+            { amValues: ["4.5", "4.5", "4", "4", "4", "", "4", "3.5", "4", "3.5", ""], pmValues: ["2.5", "2", "2", "2.5", "2", "2", "2", "2", "2", "2", ""] },
+            { amValues: ["4.5", "4", "4", "4", "4", "", "2.5", "4", "2.5", "3", ""], pmValues: Array(11).fill("") },
+            { amValues: ["7", "6.5", "7", "5", "5", "", "6", "6", "6", "6", ""], pmValues: ["4", "4.5", "3", "2", "3.5", "4", "3", "2", "2", "2.5", ""] },
+            { amValues: ["5.0", "5.2", "5.1", "5.3", "5.2", "", "5.1", "5.2", "5.0", "5.3", "5.1"], pmValues: ["4.5", "4.6", "4.5", "4.7", "4.6", "", "4.6", "4.7", "4.5", "4.6", "4.7"] },
+            { amValues: ["6.0", "6.1", "5.9", "6.2", "6.0", "", "5.9", "6.0", "6.1", "5.9", "6.2"], pmValues: ["5.3", "5.4", "5.3", "5.5", "5.4", "", "5.3", "5.4", "5.5", "5.3", "5.4"] },
+            { amValues: ["4.5", "4.7", "4.6", "4.8", "4.7", "", "4.5", "4.6", "4.7", "4.5", "4.8"], pmValues: ["4.0", "4.1", "4.0", "4.2", "4.1", "", "4.0", "4.1", "4.2", "4.0", "4.1"] },
+            { amValues: ["5.8", "5.9", "5.8", "6.0", "5.9", "", "5.8", "5.9", "6.0", "5.8", "5.9"], pmValues: ["5.2", "5.3", "5.2", "5.4", "5.3", "", "5.2", "5.3", "5.4", "5.2", "5.3"] },
+            { amValues: ["6.5", "6.6", "6.4", "6.7", "6.5", "", "6.4", "6.5", "6.6", "6.4", "6.7"], pmValues: ["5.8", "5.9", "5.8", "6.0", "5.9", "", "5.8", "5.9", "6.0", "5.8", "5.9"] },
+            { amValues: ["5.2", "5.3", "5.2", "5.4", "5.3", "", "5.2", "5.3", "5.4", "5.2", "5.3"], pmValues: ["4.7", "4.8", "4.7", "4.9", "4.8", "", "4.7", "4.8", "4.9", "4.7", "4.8"] },
+            { amValues: Array(11).fill(""), pmValues: Array(11).fill("") },
+            { amValues: Array(11).fill(""), pmValues: Array(11).fill("") },
+            { amValues: Array(11).fill(""), pmValues: Array(11).fill("") },
+            { amValues: Array(11).fill(""), pmValues: Array(11).fill("") }
         ];
+
+        const initialJulyDeductions = {
+            homeUse: ["1.0", "1.1", "1.0", "1.2", "1.1", "", "1.1", "1.2", "1.0", "1.1", "1.2"],
+            workersMilk: ["0.5", "0.6", "0.5", "0.7", "0.6", "", "0.6", "0.7", "0.5", "0.6", "0.7"],
+            calvesMilkAM: ["0.4", "0.5", "0.4", "0.5", "0.5", "", "0.4", "0.5", "0.4", "0.5", "0.5"],
+            calvesMilkPM: ["0.4", "0.4", "0.4", "0.5", "0.4", "", "0.4", "0.5", "0.4", "0.4", "0.5"]
+        };
 
         let fixedCows = JSON.parse(localStorage.getItem('fixedCows')) || fixedCowsFromExcel;
         let productionData = JSON.parse(localStorage.getItem('productionData')) || {};
@@ -337,14 +364,19 @@
                         workersMilk: Array(days).fill(''),
                         calvesMilkAM: Array(days).fill(''),
                         calvesMilkPM: Array(days).fill('')
-                    }
+                    },
+                    inactiveCows: []
                 };
             }
             if (month === 'July' && (!productionData['July'].productions || productionData['July'].productions.length === 0)) {
-                productionData['July'].productions = JSON.parse(JSON.stringify(initialJulyProductions)).map(prod => ({
-                    amValues: prod.amValues.concat(Array(days - prod.amValues.length).fill('')),
-                    pmValues: prod.pmValues.concat(Array(days - prod.pmValues.length).fill(''))
-                }));
+                productionData['July'] = {
+                    productions: JSON.parse(JSON.stringify(initialJulyProductions)).map(prod => ({
+                        amValues: prod.amValues.concat(Array(days - prod.amValues.length).fill('')),
+                        pmValues: prod.pmValues.concat(Array(days - prod.pmValues.length).fill(''))
+                    })),
+                    deductions: JSON.parse(JSON.stringify(initialJulyDeductions)),
+                    inactiveCows: []
+                };
             }
         });
 
@@ -381,7 +413,8 @@
                             workersMilk: Array(days).fill(''),
                             calvesMilkAM: Array(days).fill(''),
                             calvesMilkPM: Array(days).fill('')
-                        }
+                        },
+                        inactiveCows: []
                     };
                 } else {
                     while (productionData[month].productions.length < fixedCows.length) {
@@ -401,16 +434,7 @@
                     productionData[month].deductions.workersMilk = productionData[month].deductions.workersMilk?.slice(0, days).concat(Array(Math.max(0, days - (productionData[month].deductions.workersMilk?.length || 0))).fill('')) || Array(days).fill('');
                     productionData[month].deductions.calvesMilkAM = productionData[month].deductions.calvesMilkAM?.slice(0, days).concat(Array(Math.max(0, days - (productionData[month].deductions.calvesMilkAM?.length || 0))).fill('')) || Array(days).fill('');
                     productionData[month].deductions.calvesMilkPM = productionData[month].deductions.calvesMilkPM?.slice(0, days).concat(Array(Math.max(0, days - (productionData[month].deductions.calvesMilkPM?.length || 0))).fill('')) || Array(days).fill('');
-                    if (productionData[month].deductions.calvesMilk) {
-                        const totalCalves = Array(days).fill('');
-                        for (let d = 0; d < days; d++) {
-                            const oldCalves = parseFloat(productionData[month].deductions.calvesMilk[d]) || 0;
-                            totalCalves[d] = (oldCalves / 2).toFixed(1);
-                        }
-                        productionData[month].deductions.calvesMilkAM = totalCalves;
-                        productionData[month].deductions.calvesMilkPM = totalCalves;
-                        delete productionData[month].deductions.calvesMilk;
-                    }
+                    productionData[month].inactiveCows = productionData[month].inactiveCows || [];
                 }
             });
             localStorage.setItem('productionData', JSON.stringify(productionData));
@@ -440,7 +464,6 @@
                 }
                 productions.push({ amValues, pmValues });
             }
-            productionData[currentMonth] = productionData[currentMonth] || { deductions: {} };
             productionData[currentMonth].productions = productions;
 
             const deductions = productionData[currentMonth].deductions || {
@@ -479,7 +502,8 @@
                         workersMilk: Array(daysInMonth).fill(''),
                         calvesMilkAM: Array(daysInMonth).fill(''),
                         calvesMilkPM: Array(daysInMonth).fill('')
-                    }
+                    },
+                    inactiveCows: []
                 };
             }
 
@@ -547,8 +571,10 @@
 
             const productions = productionData[month].productions;
             fixedCows.forEach((cow, index) => {
-                const cowProduction = productions[index] || { amValues: Array(daysInMonth).fill(''), pmValues: Array(daysInMonth).fill('') };
-                addCowToTable(cow, cowProduction.amValues, cowProduction.pmValues, daysInMonth, index);
+                if (!productionData[month].inactiveCows.includes(index)) {
+                    const cowProduction = productions[index] || { amValues: Array(daysInMonth).fill(''), pmValues: Array(daysInMonth).fill('') };
+                    addCowToTable(cow, cowProduction.amValues, cowProduction.pmValues, daysInMonth, index);
+                }
             });
 
             removeDeductionsRows();
@@ -724,6 +750,11 @@
                 return;
             }
 
+            if (fixedCows.some(cow => cow.cowNo === cowNo)) {
+                alert('Cow No must be unique.');
+                return;
+            }
+
             cowCount++;
             const displayName = `${cowCount}. ${cowName}`;
             const newCow = {
@@ -851,6 +882,11 @@
 
             if (!cowNo || !cowName || !calvingDateStr) {
                 alert('Please fill in all required fields (Cow No, Cow Name, Last Calving Date).');
+                return;
+            }
+
+            if (fixedCows.some((cow, i) => i !== index && cow.cowNo === cowNo)) {
+                alert('Cow No must be unique.');
                 return;
             }
 
