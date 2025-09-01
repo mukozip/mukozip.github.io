@@ -13,8 +13,8 @@
         }
         .table-container {
             overflow-x: auto;
-            overflow-y: auto; /* Enable vertical scrolling */
-            max-height: 400px; /* Fixed height for scrolling */
+            overflow-y: auto;
+            max-height: 400px;
             max-width: 100%;
             position: relative;
         }
@@ -22,44 +22,40 @@
             border-collapse: collapse;
             width: auto;
             margin-top: 8px;
-            table-layout: fixed; /* Ensure consistent column widths */
+            table-layout: fixed;
         }
         th, td {
             border: 1px solid black;
             padding: 3px;
             text-align: center;
-            min-width: 30px;
+            min-width: 60px;
             font-size: 10px;
         }
         thead th {
             background-color: #f2f2f2;
-            position: sticky; /* Make header row static */
+            position: sticky;
             top: 0;
-            z-index: 20; /* Ensure header stays above other sticky elements */
+            z-index: 20;
         }
         th:nth-child(1), td:nth-child(1) {
             position: sticky;
             left: 0;
             background-color: #e0e0e0;
             z-index: 11;
-            min-width: 100px;
+            min-width: 120px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
-        th:nth-child(2), td:nth-child(2) {
-            position: sticky;
-            left: 100px;
-            background-color: #e0e0e0;
-            z-index: 11;
-            min-width: 30px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        thead th:nth-child(1) {
+            z-index: 25;
         }
-        th:nth-child(n+3), td:nth-child(n+3) {
+        th:nth-child(n+2), td:nth-child(n+2) {
             background-color: #ffffff;
         }
         input[type="number"] {
-            width: 30px;
+            width: 40px;
             padding: 2px;
             font-size: 10px;
+            margin: 1px;
         }
         input[type="text"], input[type="date"] {
             padding: 2px;
@@ -113,7 +109,7 @@
         .modal {
             display: none;
             position: fixed;
-            z-index: 1;
+            z-index: 30;
             left: 0;
             top: 0;
             width: 100%;
@@ -188,7 +184,6 @@
             <thead>
                 <tr>
                     <th>Cow ID/Name</th>
-                    <th>Time</th>
                     <!-- Day columns will be added dynamically -->
                     <th>DAILY TOTAL</th>
                     <th>MONTHLY TOTAL</th>
@@ -202,8 +197,7 @@
             </tbody>
             <tfoot>
                 <tr id="footerRowAM">
-                    <td></td>
-                    <td>AM</td>
+                    <td>AM TOTAL</td>
                     <!-- Day sum cells will be added dynamically -->
                     <td></td>
                     <td></td>
@@ -212,8 +206,7 @@
                     <td></td>
                 </tr>
                 <tr id="footerRowPM">
-                    <td></td>
-                    <td>PM</td>
+                    <td>PM TOTAL</td>
                     <!-- Day sum cells will be added dynamically -->
                     <td></td>
                     <td></td>
@@ -456,14 +449,16 @@
             const daysInMonth = getDaysInMonth(currentMonth, 2025);
             const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
             const productions = [];
-            for (let i = 0; i < tbody.rows.length; i += 2) {
-                const amRow = tbody.rows[i];
-                const pmRow = tbody.rows[i + 1];
+            for (let i = 0; i < fixedCows.length; i++) {
                 const amValues = Array(daysInMonth).fill('');
                 const pmValues = Array(daysInMonth).fill('');
-                for (let d = 0; d < daysInMonth; d++) {
-                    amValues[d] = amRow.cells[d + 2].querySelector('input')?.value || '';
-                    pmValues[d] = pmRow.cells[d + 2].querySelector('input')?.value || '';
+                const amRow = tbody.rows[i * 2];
+                const pmRow = tbody.rows[i * 2 + 1];
+                if (amRow && pmRow) {
+                    for (let d = 0; d < daysInMonth; d++) {
+                        amValues[d] = amRow.cells[d + 1].querySelector('input')?.value || '';
+                        pmValues[d] = pmRow.cells[d + 1].querySelector('input')?.value || '';
+                    }
                 }
                 productions.push({ amValues, pmValues });
             }
@@ -476,7 +471,7 @@
                 calvesMilkPM: Array(daysInMonth).fill('')
             };
             for (let d = 0; d < daysInMonth; d++) {
-                const cellIndex = d + 2;
+                const cellIndex = d + 1;
                 deductions.homeUse[d] = document.getElementById('homeUseRow')?.cells[cellIndex]?.querySelector('input')?.value || '';
                 deductions.workersMilk[d] = document.getElementById('workersMilkRow')?.cells[cellIndex]?.querySelector('input')?.value || '';
                 deductions.calvesMilkAM[d] = document.getElementById('calvesMilkAMRow')?.cells[cellIndex]?.querySelector('input')?.value || '';
@@ -533,7 +528,6 @@
             const headerRow = thead.rows[0];
             headerRow.innerHTML = '';
             headerRow.insertCell().textContent = 'Cow ID/Name';
-            headerRow.insertCell().textContent = 'Time';
             for (let d = 1; d <= daysInMonth; d++) {
                 headerRow.insertCell().textContent = d;
             }
@@ -545,8 +539,7 @@
 
             const footerRowAM = document.getElementById('footerRowAM');
             footerRowAM.innerHTML = '';
-            footerRowAM.insertCell();
-            footerRowAM.insertCell().textContent = 'AM';
+            footerRowAM.insertCell().textContent = 'AM TOTAL';
             for (let d = 0; d < daysInMonth; d++) {
                 footerRowAM.insertCell();
             }
@@ -558,8 +551,7 @@
 
             const footerRowPM = document.getElementById('footerRowPM');
             footerRowPM.innerHTML = '';
-            footerRowPM.insertCell();
-            footerRowPM.insertCell().textContent = 'PM';
+            footerRowPM.insertCell().textContent = 'PM TOTAL';
             for (let d = 0; d < daysInMonth; d++) {
                 footerRowPM.insertCell();
             }
@@ -602,7 +594,6 @@
             const homeRow = tfoot.insertRow();
             homeRow.id = 'homeUseRow';
             const labelCellHome = homeRow.insertCell();
-            labelCellHome.colSpan = 2;
             labelCellHome.textContent = 'Home Use';
             for (let d = 0; d < daysInMonth; d++) {
                 const cell = homeRow.insertCell();
@@ -625,7 +616,6 @@
             const workersRow = tfoot.insertRow();
             workersRow.id = 'workersMilkRow';
             const labelCellWorkers = workersRow.insertCell();
-            labelCellWorkers.colSpan = 2;
             labelCellWorkers.textContent = 'Workers Milk';
             for (let d = 0; d < daysInMonth; d++) {
                 const cell = workersRow.insertCell();
@@ -648,7 +638,6 @@
             const calvesAMRow = tfoot.insertRow();
             calvesAMRow.id = 'calvesMilkAMRow';
             const labelCellCalvesAM = calvesAMRow.insertCell();
-            labelCellCalvesAM.colSpan = 2;
             labelCellCalvesAM.textContent = 'Calves Milk AM';
             for (let d = 0; d < daysInMonth; d++) {
                 const cell = calvesAMRow.insertCell();
@@ -671,7 +660,6 @@
             const calvesPMRow = tfoot.insertRow();
             calvesPMRow.id = 'calvesMilkPMRow';
             const labelCellCalvesPM = calvesPMRow.insertCell();
-            labelCellCalvesPM.colSpan = 2;
             labelCellCalvesPM.textContent = 'Calves Milk PM';
             for (let d = 0; d < daysInMonth; d++) {
                 const cell = calvesPMRow.insertCell();
@@ -694,7 +682,6 @@
             const calvesTotalRow = tfoot.insertRow();
             calvesTotalRow.id = 'calvesMilkTotalRow';
             const labelCellCalvesTotal = calvesTotalRow.insertCell();
-            labelCellCalvesTotal.colSpan = 2;
             labelCellCalvesTotal.textContent = 'Calves Milk Total';
             for (let d = 0; d < daysInMonth; d++) {
                 const cell = calvesTotalRow.insertCell();
@@ -709,7 +696,6 @@
             const totalDeductionsRow = tfoot.insertRow();
             totalDeductionsRow.id = 'totalDeductionsRow';
             const labelCellTotalDeductions = totalDeductionsRow.insertCell();
-            labelCellTotalDeductions.colSpan = 2;
             labelCellTotalDeductions.textContent = 'Total Deductions';
             for (let d = 0; d < daysInMonth; d++) {
                 const cell = totalDeductionsRow.insertCell();
@@ -729,13 +715,12 @@
             const netLitersRow = tfoot.insertRow();
             netLitersRow.id = 'netLitersRow';
             const labelCellNet = netLitersRow.insertCell();
-            labelCellNet.colSpan = 2;
             labelCellNet.textContent = 'Net Liters';
             for (let d = 0; d < daysInMonth; d++) {
                 const cell = netLitersRow.insertCell();
-                const amSum = Array.from(document.querySelectorAll(`#milkTable tbody tr:nth-child(odd) td:nth-child(${d + 3}) input`))
+                const amSum = Array.from(document.querySelectorAll(`#milkTable tbody tr:nth-child(even) td:nth-child(${d + 2}) input`))
                     .reduce((sum, input) => sum + (parseFloat(input.value) || 0), 0);
-                const pmSum = Array.from(document.querySelectorAll(`#milkTable tbody tr:nth-child(even) td:nth-child(${d + 3}) input`))
+                const pmSum = Array.from(document.querySelectorAll(`#milkTable tbody tr:nth-child(odd) td:nth-child(${d + 2}) input`))
                     .reduce((sum, input) => sum + (parseFloat(input.value) || 0), 0);
                 const totalDeductions = (parseFloat(deductions.homeUse[d]) || 0) +
                                         (parseFloat(deductions.workersMilk[d]) || 0) +
@@ -809,87 +794,79 @@
             const daysSince = calving ? Math.floor((today - calving) / (1000 * 60 * 60 * 24)) : '';
 
             const tableBody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
-
-            const amRow = tableBody.insertRow();
-            let cell = amRow.insertCell();
+            const rowAM = tableBody.insertRow();
+            let cell = rowAM.insertCell();
             cell.innerHTML = `
                 <button onclick="editCow(${index})">Edit</button>
                 <button class="delete" onclick="deleteCow(${index})">Delete</button>
-                ${displayName}
+                ${displayName} AM
             `;
-            amRow.insertCell().textContent = 'AM';
             for (let d = 0; d < daysInMonth; d++) {
-                cell = amRow.insertCell();
+                cell = rowAM.insertCell();
                 let input = document.createElement('input');
                 input.type = 'number';
                 input.step = '0.5';
                 input.min = '0';
                 input.value = amValues[d] || '';
                 input.dataset.cowIndex = index;
+                input.dataset.time = 'AM';
                 input.addEventListener('focus', (e) => highlightCowRow(parseInt(e.target.dataset.cowIndex)));
                 input.addEventListener('blur', (e) => removeHighlightCowRow(parseInt(e.target.dataset.cowIndex)));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
                 cell.appendChild(input);
             }
-            amRow.insertCell();
-            amRow.insertCell();
-            amRow.insertCell();
-            amRow.insertCell();
-            amRow.insertCell();
+            cell = rowAM.insertCell();
+            cell.textContent = amValues.reduce((sum, val) => sum + (parseFloat(val) || 0), 0).toFixed(1);
+            rowAM.insertCell();
+            rowAM.insertCell();
+            rowAM.insertCell();
+            rowAM.insertCell();
 
-            const pmRow = tableBody.insertRow();
-            pmRow.insertCell().textContent = displayName;
-            pmRow.insertCell().textContent = 'PM';
+            const rowPM = tableBody.insertRow();
+            cell = rowPM.insertCell();
+            cell.textContent = `${displayName} PM`;
             for (let d = 0; d < daysInMonth; d++) {
-                cell = pmRow.insertCell();
+                cell = rowPM.insertCell();
                 let input = document.createElement('input');
                 input.type = 'number';
                 input.step = '0.5';
                 input.min = '0';
                 input.value = pmValues[d] || '';
                 input.dataset.cowIndex = index;
+                input.dataset.time = 'PM';
                 input.addEventListener('focus', (e) => highlightCowRow(parseInt(e.target.dataset.cowIndex)));
                 input.addEventListener('blur', (e) => removeHighlightCowRow(parseInt(e.target.dataset.cowIndex)));
                 input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
                 cell.appendChild(input);
             }
-            pmRow.insertCell();
-            pmRow.insertCell();
-            pmRow.insertCell().textContent = calvingDateStr;
-            pmRow.insertCell().textContent = daysSince;
-            pmRow.insertCell().textContent = monthsPreg;
+            cell = rowPM.insertCell();
+            cell.textContent = pmValues.reduce((sum, val) => sum + (parseFloat(val) || 0), 0).toFixed(1);
+            cell = rowPM.insertCell();
+            cell.textContent = (amValues.reduce((sum, val) => sum + (parseFloat(val) || 0), 0) +
+                              pmValues.reduce((sum, val) => sum + (parseFloat(val) || 0), 0)).toFixed(1);
+            rowPM.insertCell().textContent = calvingDateStr;
+            rowPM.insertCell().textContent = daysSince;
+            rowPM.insertCell().textContent = monthsPreg;
         }
 
         function highlightCowRow(cowIndex) {
             const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
-            const amRow = tbody.rows[cowIndex * 2];
-            const pmRow = tbody.rows[cowIndex * 2 + 1];
-            if (amRow) amRow.classList.add('highlight-row');
-            if (pmRow) pmRow.classList.add('highlight-row');
-            if (amRow) {
-                amRow.cells[0].style.backgroundColor = '#e0e0e0';
-                amRow.cells[1].style.backgroundColor = '#e0e0e0';
-            }
-            if (pmRow) {
-                pmRow.cells[0].style.backgroundColor = '#e0e0e0';
-                pmRow.cells[1].style.backgroundColor = '#e0e0e0';
-            }
+            const rowAM = tbody.rows[cowIndex * 2];
+            const rowPM = tbody.rows[cowIndex * 2 + 1];
+            if (rowAM) rowAM.classList.add('highlight-row');
+            if (rowPM) rowPM.classList.add('highlight-row');
+            if (rowAM) rowAM.cells[0].style.backgroundColor = '#e0e0e0';
+            if (rowPM) rowPM.cells[0].style.backgroundColor = '#e0e0e0';
         }
 
         function removeHighlightCowRow(cowIndex) {
             const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
-            const amRow = tbody.rows[cowIndex * 2];
-            const pmRow = tbody.rows[cowIndex * 2 + 1];
-            if (amRow) {
-                amRow.classList.remove('highlight-row');
-                amRow.cells[0].style.backgroundColor = '#e0e0e0';
-                amRow.cells[1].style.backgroundColor = '#e0e0e0';
-            }
-            if (pmRow) {
-                pmRow.classList.remove('highlight-row');
-                pmRow.cells[0].style.backgroundColor = '#e0e0e0';
-                pmRow.cells[1].style.backgroundColor = '#e0e0e0';
-            }
+            const rowAM = tbody.rows[cowIndex * 2];
+            const rowPM = tbody.rows[cowIndex * 2 + 1];
+            if (rowAM) rowAM.classList.remove('highlight-row');
+            if (rowPM) rowPM.classList.remove('highlight-row');
+            if (rowAM) rowAM.cells[0].style.backgroundColor = '#e0e0e0';
+            if (rowPM) rowPM.cells[0].style.backgroundColor = '#e0e0e0';
         }
 
         function highlightDeductionRow(row) {
@@ -981,37 +958,38 @@
 
             const cowDailyTotals = Array(daysInMonth).fill().map(() => []);
             const cowMonthlyTotals = [];
-            for (let i = 0; i < tableBody.rows.length; i += 2) {
-                const amRow = tableBody.rows[i];
-                const pmRow = tableBody.rows[i + 1];
-                const displayName = pmRow.cells[0].textContent;
-
+            for (let i = 0; i < fixedCows.length; i++) {
+                if (productionData[currentMonth].inactiveCows.includes(i)) continue;
+                const rowAM = tableBody.rows[i * 2];
+                const rowPM = tableBody.rows[i * 2 + 1];
+                const displayName = fixedCows[i].displayName;
                 let amSum = 0;
                 let pmSum = 0;
-                for (let d = 0; d < daysInMonth; d++) {
-                    const val = parseFloat(amRow.cells[d + 2].querySelector('input')?.value) || 0;
-                    amSum += val;
-                    amSums[d] += val;
-                    const pmVal = parseFloat(pmRow.cells[d + 2].querySelector('input')?.value) || 0;
-                    pmSum += pmVal;
-                    pmSums[d] += pmVal;
-                    cowDailyTotals[d].push({ cow: displayName, total: val + pmVal });
+                if (rowAM && rowPM) {
+                    for (let d = 0; d < daysInMonth; d++) {
+                        const amVal = parseFloat(rowAM.cells[d + 1].querySelector('input')?.value) || 0;
+                        const pmVal = parseFloat(rowPM.cells[d + 1].querySelector('input')?.value) || 0;
+                        amSum += amVal;
+                        pmSum += pmVal;
+                        amSums[d] += amVal;
+                        pmSums[d] += pmVal;
+                        cowDailyTotals[d].push({ cow: displayName, total: amVal + pmVal });
+                    }
+                    rowAM.cells[daysInMonth + 1].textContent = amSum.toFixed(1);
+                    rowPM.cells[daysInMonth + 1].textContent = pmSum.toFixed(1);
+                    rowPM.cells[daysInMonth + 2].textContent = (amSum + pmSum).toFixed(1);
+                    totalAMAll += amSum;
+                    totalPMAll += pmSum;
+                    cowMonthlyTotals.push({ cow: displayName, total: amSum + pmSum });
                 }
-                amRow.cells[daysInMonth + 2].textContent = amSum.toFixed(1);
-                pmRow.cells[daysInMonth + 2].textContent = pmSum.toFixed(1);
-                pmRow.cells[daysInMonth + 3].textContent = (amSum + pmSum).toFixed(1);
-
-                totalAMAll += amSum;
-                totalPMAll += pmSum;
-                cowMonthlyTotals.push({ cow: displayName, total: amSum + pmSum });
             }
 
             for (let d = 0; d < daysInMonth; d++) {
-                footerRowAM.cells[d + 2].textContent = amSums[d].toFixed(1);
-                footerRowPM.cells[d + 2].textContent = pmSums[d].toFixed(1);
+                footerRowAM.cells[d + 1].textContent = amSums[d].toFixed(1);
+                footerRowPM.cells[d + 1].textContent = pmSums[d].toFixed(1);
             }
-            footerRowAM.cells[daysInMonth + 2].textContent = totalAMAll.toFixed(1);
-            footerRowPM.cells[daysInMonth + 2].textContent = totalPMAll.toFixed(1);
+            footerRowAM.cells[daysInMonth + 1].textContent = totalAMAll.toFixed(1);
+            footerRowPM.cells[daysInMonth + 1].textContent = totalPMAll.toFixed(1);
 
             let homeSum = 0;
             let workersSum = 0;
@@ -1020,7 +998,7 @@
             let calvesTotalSum = 0;
             let totalDeductions = 0;
             for (let d = 0; d < daysInMonth; d++) {
-                const cellIndex = d + 2;
+                const cellIndex = d + 1;
                 const home = parseFloat(homeRow.cells[cellIndex]?.querySelector('input')?.value) || 0;
                 const workers = parseFloat(workersRow.cells[cellIndex]?.querySelector('input')?.value) || 0;
                 const calvesAM = parseFloat(calvesAMRow.cells[cellIndex]?.querySelector('input')?.value) || 0;
@@ -1038,15 +1016,15 @@
                 calvesTotalSum += calvesTotal;
                 totalDeductions += totalDeduction;
             }
-            homeRow.cells[daysInMonth + 2].textContent = homeSum.toFixed(1);
-            workersRow.cells[daysInMonth + 2].textContent = workersSum.toFixed(1);
-            calvesAMRow.cells[daysInMonth + 2].textContent = calvesAMSum.toFixed(1);
-            calvesPMRow.cells[daysInMonth + 2].textContent = calvesPMSum.toFixed(1);
-            calvesTotalRow.cells[daysInMonth + 2].textContent = calvesTotalSum.toFixed(1);
-            totalDeductionsRow.cells[daysInMonth + 2].textContent = totalDeductions.toFixed(1);
+            homeRow.cells[daysInMonth + 1].textContent = homeSum.toFixed(1);
+            workersRow.cells[daysInMonth + 1].textContent = workersSum.toFixed(1);
+            calvesAMRow.cells[daysInMonth + 1].textContent = calvesAMSum.toFixed(1);
+            calvesPMRow.cells[daysInMonth + 1].textContent = calvesPMSum.toFixed(1);
+            calvesTotalRow.cells[daysInMonth + 1].textContent = calvesTotalSum.toFixed(1);
+            totalDeductionsRow.cells[daysInMonth + 1].textContent = totalDeductions.toFixed(1);
             const totalGross = totalAMAll + totalPMAll;
             const totalNet = totalGross - totalDeductions;
-            netLitersRow.cells[daysInMonth + 2].textContent = totalNet.toFixed(1);
+            netLitersRow.cells[daysInMonth + 1].textContent = totalNet.toFixed(1);
 
             updateRankings(cowDailyTotals, cowMonthlyTotals, daysInMonth);
         }
