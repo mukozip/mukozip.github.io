@@ -799,7 +799,7 @@
             cell.innerHTML = `
                 <button onclick="editCow(${index})">Edit</button>
                 <button class="delete" onclick="deleteCow(${index})">Delete</button>
-                ${displayName} AM
+                [${cow.cowNo}] ${displayName} AM
             `;
             for (let d = 0; d < daysInMonth; d++) {
                 cell = rowAM.insertCell();
@@ -824,7 +824,7 @@
 
             const rowPM = tableBody.insertRow();
             cell = rowPM.insertCell();
-            cell.textContent = `${displayName} PM`;
+            cell.textContent = `[${cow.cowNo}] ${displayName} PM`;
             for (let d = 0; d < daysInMonth; d++) {
                 cell = rowPM.insertCell();
                 let input = document.createElement('input');
@@ -928,17 +928,32 @@
         }
 
         function deleteCow(index) {
-            if (!confirm(`Are you sure you want to delete ${fixedCows[index].displayName} from ${currentMonth} records?`)) return;
-            
-            productionData[currentMonth].inactiveCows = productionData[currentMonth].inactiveCows || [];
-            if (!productionData[currentMonth].inactiveCows.includes(index)) {
-                productionData[currentMonth].inactiveCows.push(index);
-            }
-            localStorage.setItem('productionData', JSON.stringify(productionData));
-            loadMonth(currentMonth);
-            document.getElementById('message').textContent = `${fixedCows[index].displayName} deleted from ${currentMonth}!`;
-            setTimeout(() => document.getElementById('message').textContent = '', 3000);
+    if (!confirm(`Are you sure you want to delete ${fixedCows[index].displayName} from ${currentMonth} records?`)) return;
+    
+    // Remove cow fully from fixedCows
+    fixedCows.splice(index, 1);
+
+    // Also adjust productionData to keep consistency
+    Object.keys(productionData).forEach(month => {
+        if (productionData[month].productions && productionData[month].productions.length > index) {
+            productionData[month].productions.splice(index, 1);
         }
+        if (productionData[month].inactiveCows) {
+            productionData[month].inactiveCows = productionData[month].inactiveCows.filter(i => i !== index).map(i => i > index ? i - 1 : i);
+        }
+    });
+
+    // Renumber remaining cows
+    renumberCows();
+
+    // Save updated data
+    localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
+    localStorage.setItem('productionData', JSON.stringify(productionData));
+
+    loadMonth(currentMonth);
+    document.getElementById('message').textContent = `Cow deleted and numbering updated!`;
+    setTimeout(() => document.getElementById('message').textContent = '', 3000);
+}
 
         function recalculate(daysInMonth) {
             const tableBody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
@@ -1043,11 +1058,11 @@
                 if (sorted.length > 0) {
                     const topRow = topDailyTbody.insertRow();
                     topRow.insertCell().textContent = d + 1;
-                    top5.forEach(cow => topRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)})`);
+                    top5.forEach(cow => topRow.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow} (${cow.total.toFixed(1)})`);
                     while (topRow.cells.length < 6) topRow.insertCell().textContent = '';
                     const worstRow = worstDailyTbody.insertRow();
                     worstRow.insertCell().textContent = d + 1;
-                    worst5.forEach(cow => worstRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)})`);
+                    worst5.forEach(cow => worstRow.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow} (${cow.total.toFixed(1)})`);
                     while (worstRow.cells.length < 6) worstRow.insertCell().textContent = '';
                 }
             }
@@ -1081,11 +1096,11 @@
                 if (sorted.length > 0) {
                     const topRow = topWeeklyTbody.insertRow();
                     topRow.insertCell().textContent = `Week ${w + 1} (${start + 1}-${end})`;
-                    top5.forEach(cow => topRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)})`);
+                    top5.forEach(cow => topRow.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow} (${cow.total.toFixed(1)})`);
                     while (topRow.cells.length < 6) topRow.insertCell().textContent = '';
                     const worstRow = worstWeeklyTbody.insertRow();
                     worstRow.insertCell().textContent = `Week ${w + 1} (${start + 1}-${end})`;
-                    worst5.forEach(cow => worstRow.insertCell().textContent = `${cow.cow} (${cow.total.toFixed(1)})`);
+                    worst5.forEach(cow => worstRow.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow} (${cow.total.toFixed(1)})`);
                     while (worstRow.cells.length < 6) worstRow.insertCell().textContent = '';
                 }
             });
@@ -1100,13 +1115,13 @@
             topMonthly.forEach((cow, i) => {
                 const row = topMonthlyTbody.insertRow();
                 row.insertCell().textContent = i + 1;
-                row.insertCell().textContent = cow.cow;
+                row.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow}`;
                 row.insertCell().textContent = cow.total.toFixed(1);
             });
             worstMonthly.forEach((cow, i) => {
                 const row = worstMonthlyTbody.insertRow();
                 row.insertCell().textContent = i + 1;
-                row.insertCell().textContent = cow.cow;
+                row.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow}`;
                 row.insertCell().textContent = cow.total.toFixed(1);
             });
         }
