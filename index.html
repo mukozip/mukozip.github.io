@@ -400,7 +400,7 @@
                 const days = getDaysInMonth(month, year);
                 if (!productionData[month]) {
                     productionData[month] = {
-                        productions: fixedCows.map(() => ({
+                        productions: Array(fixedCows.length).fill().map(() => ({
                             amValues: Array(days).fill(''),
                             pmValues: Array(days).fill('')
                         })),
@@ -413,6 +413,7 @@
                         inactiveCows: []
                     };
                 } else {
+                    // Ensure productions array matches fixedCows length
                     while (productionData[month].productions.length < fixedCows.length) {
                         productionData[month].productions.push({
                             amValues: Array(days).fill(''),
@@ -423,13 +424,13 @@
                         productionData[month].productions.pop();
                     }
                     productionData[month].productions.forEach(prod => {
-                        prod.amValues = prod.amValues.slice(0, days).concat(Array(Math.max(0, days - prod.amValues.length)).fill(''));
-                        prod.pmValues = prod.pmValues.slice(0, days).concat(Array(Math.max(0, days - prod.pmValues.length)).fill(''));
+                        prod.amValues = Array(days).fill('').map((_, i) => prod.amValues[i] || '');
+                        prod.pmValues = Array(days).fill('').map((_, i) => prod.pmValues[i] || '');
                     });
-                    productionData[month].deductions.homeUse = productionData[month].deductions.homeUse?.slice(0, days).concat(Array(Math.max(0, days - (productionData[month].deductions.homeUse?.length || 0))).fill('')) || Array(days).fill('');
-                    productionData[month].deductions.workersMilk = productionData[month].deductions.workersMilk?.slice(0, days).concat(Array(Math.max(0, days - (productionData[month].deductions.workersMilk?.length || 0))).fill('')) || Array(days).fill('');
-                    productionData[month].deductions.calvesMilkAM = productionData[month].deductions.calvesMilkAM?.slice(0, days).concat(Array(Math.max(0, days - (productionData[month].deductions.calvesMilkAM?.length || 0))).fill('')) || Array(days).fill('');
-                    productionData[month].deductions.calvesMilkPM = productionData[month].deductions.calvesMilkPM?.slice(0, days).concat(Array(Math.max(0, days - (productionData[month].deductions.calvesMilkPM?.length || 0))).fill('')) || Array(days).fill('');
+                    productionData[month].deductions.homeUse = Array(days).fill('').map((_, i) => productionData[month].deductions.homeUse[i] || '');
+                    productionData[month].deductions.workersMilk = Array(days).fill('').map((_, i) => productionData[month].deductions.workersMilk[i] || '');
+                    productionData[month].deductions.calvesMilkAM = Array(days).fill('').map((_, i) => productionData[month].deductions.calvesMilkAM[i] || '');
+                    productionData[month].deductions.calvesMilkPM = Array(days).fill('').map((_, i) => productionData[month].deductions.calvesMilkPM[i] || '');
                     productionData[month].inactiveCows = productionData[month].inactiveCows || [];
                 }
             });
@@ -448,23 +449,23 @@
         function saveCurrentMonth() {
             const daysInMonth = getDaysInMonth(currentMonth, 2025);
             const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
-            const productions = [];
+            const productions = Array(fixedCows.length).fill().map(() => ({
+                amValues: Array(daysInMonth).fill(''),
+                pmValues: Array(daysInMonth).fill('')
+            }));
             for (let i = 0; i < fixedCows.length; i++) {
-                const amValues = Array(daysInMonth).fill('');
-                const pmValues = Array(daysInMonth).fill('');
                 const amRow = tbody.rows[i * 2];
                 const pmRow = tbody.rows[i * 2 + 1];
                 if (amRow && pmRow) {
                     for (let d = 0; d < daysInMonth; d++) {
-                        amValues[d] = amRow.cells[d + 1].querySelector('input')?.value || '';
-                        pmValues[d] = pmRow.cells[d + 1].querySelector('input')?.value || '';
+                        productions[i].amValues[d] = amRow.cells[d + 1].querySelector('input')?.value || '';
+                        productions[i].pmValues[d] = pmRow.cells[d + 1].querySelector('input')?.value || '';
                     }
                 }
-                productions.push({ amValues, pmValues });
             }
             productionData[currentMonth].productions = productions;
 
-            const deductions = productionData[currentMonth].deductions || {
+            const deductions = {
                 homeUse: Array(daysInMonth).fill(''),
                 workersMilk: Array(daysInMonth).fill(''),
                 calvesMilkAM: Array(daysInMonth).fill(''),
@@ -491,7 +492,7 @@
 
             if (!productionData[month]) {
                 productionData[month] = {
-                    productions: fixedCows.map(() => ({
+                    productions: Array(fixedCows.length).fill().map(() => ({
                         amValues: Array(daysInMonth).fill(''),
                         pmValues: Array(daysInMonth).fill('')
                     })),
@@ -516,13 +517,13 @@
             }
 
             productionData[month].productions.forEach(prod => {
-                prod.amValues = prod.amValues.slice(0, daysInMonth).concat(Array(Math.max(0, daysInMonth - prod.amValues.length)).fill(''));
-                prod.pmValues = prod.pmValues.slice(0, daysInMonth).concat(Array(Math.max(0, daysInMonth - prod.pmValues.length)).fill(''));
+                prod.amValues = Array(daysInMonth).fill('').map((_, i) => prod.amValues[i] || '');
+                prod.pmValues = Array(daysInMonth).fill('').map((_, i) => prod.pmValues[i] || '');
             });
-            productionData[month].deductions.homeUse = productionData[month].deductions.homeUse?.slice(0, daysInMonth).concat(Array(Math.max(0, daysInMonth - (productionData[month].deductions.homeUse?.length || 0))).fill('')) || Array(daysInMonth).fill('');
-            productionData[month].deductions.workersMilk = productionData[month].deductions.workersMilk?.slice(0, daysInMonth).concat(Array(Math.max(0, daysInMonth - (productionData[month].deductions.workersMilk?.length || 0))).fill('')) || Array(daysInMonth).fill('');
-            productionData[month].deductions.calvesMilkAM = productionData[month].deductions.calvesMilkAM?.slice(0, daysInMonth).concat(Array(Math.max(0, daysInMonth - (productionData[month].deductions.calvesMilkAM?.length || 0))).fill('')) || Array(daysInMonth).fill('');
-            productionData[month].deductions.calvesMilkPM = productionData[month].deductions.calvesMilkPM?.slice(0, daysInMonth).concat(Array(Math.max(0, daysInMonth - (productionData[month].deductions.calvesMilkPM?.length || 0))).fill('')) || Array(daysInMonth).fill('');
+            productionData[month].deductions.homeUse = Array(daysInMonth).fill('').map((_, i) => productionData[month].deductions.homeUse[i] || '');
+            productionData[month].deductions.workersMilk = Array(daysInMonth).fill('').map((_, i) => productionData[month].deductions.workersMilk[i] || '');
+            productionData[month].deductions.calvesMilkAM = Array(daysInMonth).fill('').map((_, i) => productionData[month].deductions.calvesMilkAM[i] || '');
+            productionData[month].deductions.calvesMilkPM = Array(daysInMonth).fill('').map((_, i) => productionData[month].deductions.calvesMilkPM[i] || '');
 
             const thead = document.getElementById('milkTable').getElementsByTagName('thead')[0];
             const headerRow = thead.rows[0];
@@ -772,10 +773,30 @@
             fixedCows.push(newCow);
             localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
 
-            for (const month in productionData) {
+            months.forEach(month => {
                 const days = getDaysInMonth(month, 2025);
-                productionData[month].productions.push({ amValues: Array(days).fill(''), pmValues: Array(days).fill('') });
-            }
+                if (!productionData[month]) {
+                    productionData[month] = {
+                        productions: Array(fixedCows.length).fill().map(() => ({
+                            amValues: Array(days).fill(''),
+                            pmValues: Array(days).fill('')
+                        })),
+                        deductions: {
+                            homeUse: Array(days).fill(''),
+                            workersMilk: Array(days).fill(''),
+                            calvesMilkAM: Array(days).fill(''),
+                            calvesMilkPM: Array(days).fill('')
+                        },
+                        inactiveCows: []
+                    };
+                } else {
+                    productionData[month].productions.push({
+                        amValues: Array(days).fill(''),
+                        pmValues: Array(days).fill('')
+                    });
+                }
+            });
+
             sanitizeProductionData();
             loadMonth(currentMonth);
 
@@ -928,32 +949,25 @@
         }
 
         function deleteCow(index) {
-    if (!confirm(`Are you sure you want to delete ${fixedCows[index].displayName} from ${currentMonth} records?`)) return;
-    
-    // Remove cow fully from fixedCows
-    fixedCows.splice(index, 1);
+            if (!confirm(`Are you sure you want to delete ${fixedCows[index].displayName} from ${currentMonth} records?`)) return;
+            
+            fixedCows.splice(index, 1);
+            Object.keys(productionData).forEach(month => {
+                if (productionData[month].productions && productionData[month].productions.length > index) {
+                    productionData[month].productions.splice(index, 1);
+                }
+                if (productionData[month].inactiveCows) {
+                    productionData[month].inactiveCows = productionData[month].inactiveCows.filter(i => i !== index).map(i => i > index ? i - 1 : i);
+                }
+            });
 
-    // Also adjust productionData to keep consistency
-    Object.keys(productionData).forEach(month => {
-        if (productionData[month].productions && productionData[month].productions.length > index) {
-            productionData[month].productions.splice(index, 1);
+            renumberCows();
+            localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
+            localStorage.setItem('productionData', JSON.stringify(productionData));
+            loadMonth(currentMonth);
+            document.getElementById('message').textContent = `Cow deleted and numbering updated!`;
+            setTimeout(() => document.getElementById('message').textContent = '', 3000);
         }
-        if (productionData[month].inactiveCows) {
-            productionData[month].inactiveCows = productionData[month].inactiveCows.filter(i => i !== index).map(i => i > index ? i - 1 : i);
-        }
-    });
-
-    // Renumber remaining cows
-    renumberCows();
-
-    // Save updated data
-    localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
-    localStorage.setItem('productionData', JSON.stringify(productionData));
-
-    loadMonth(currentMonth);
-    document.getElementById('message').textContent = `Cow deleted and numbering updated!`;
-    setTimeout(() => document.getElementById('message').textContent = '', 3000);
-}
 
         function recalculate(daysInMonth) {
             const tableBody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
@@ -1207,7 +1221,7 @@
                     months.forEach(month => {
                         const days = getDaysInMonth(month, 2025);
                         productionData[month] = {
-                            productions: fixedCows.map(() => ({
+                            productions: Array(fixedCows.length).fill().map(() => ({
                                 amValues: Array(days).fill(""),
                                 pmValues: Array(days).fill("")
                             })),
@@ -1225,20 +1239,15 @@
                         if (!months.includes(month)) return;
                         const days = getDaysInMonth(month, 2025);
                         const monthData = data.productionData[month];
-                        productionData[month].productions = monthData.productions?.length === fixedCows.length
-                            ? monthData.productions.map(prod => ({
-                                amValues: prod.amValues?.slice(0, days).concat(Array(Math.max(0, days - prod.amValues?.length || 0)).fill("")) || Array(days).fill(""),
-                                pmValues: prod.pmValues?.slice(0, days).concat(Array(Math.max(0, days - prod.pmValues?.length || 0)).fill("")) || Array(days).fill("")
-                            }))
-                            : fixedCows.map(() => ({
-                                amValues: Array(days).fill(""),
-                                pmValues: Array(days).fill("")
-                            }));
+                        productionData[month].productions = Array(fixedCows.length).fill().map((_, i) => ({
+                            amValues: Array(days).fill("").map((_, j) => monthData.productions[i]?.amValues[j] || ""),
+                            pmValues: Array(days).fill("").map((_, j) => monthData.productions[i]?.pmValues[j] || "")
+                        }));
                         productionData[month].deductions = {
-                            homeUse: monthData.deductions?.homeUse?.slice(0, days).concat(Array(Math.max(0, days - (monthData.deductions?.homeUse?.length || 0))).fill("")) || Array(days).fill(""),
-                            workersMilk: monthData.deductions?.workersMilk?.slice(0, days).concat(Array(Math.max(0, days - (monthData.deductions?.workersMilk?.length || 0))).fill("")) || Array(days).fill(""),
-                            calvesMilkAM: monthData.deductions?.calvesMilkAM?.slice(0, days).concat(Array(Math.max(0, days - (monthData.deductions?.calvesMilkAM?.length || 0))).fill("")) || Array(days).fill(""),
-                            calvesMilkPM: monthData.deductions?.calvesMilkPM?.slice(0, days).concat(Array(Math.max(0, days - (monthData.deductions?.calvesMilkPM?.length || 0))).fill("")) || Array(days).fill("")
+                            homeUse: Array(days).fill("").map((_, i) => monthData.deductions?.homeUse[i] || ""),
+                            workersMilk: Array(days).fill("").map((_, i) => monthData.deductions?.workersMilk[i] || ""),
+                            calvesMilkAM: Array(days).fill("").map((_, i) => monthData.deductions?.calvesMilkAM[i] || ""),
+                            calvesMilkPM: Array(days).fill("").map((_, i) => monthData.deductions?.calvesMilkPM[i] || "")
                         };
                         productionData[month].inactiveCows = monthData.inactiveCows || [];
                     });
