@@ -180,7 +180,7 @@
     
     <div class="table-container">
         <table id="milkTable">
-            <caption id="tableCaption">July Records</caption>
+            <caption id="tableCaption">September Records</caption>
             <thead>
                 <tr>
                     <th>Cow ID/Name</th>
@@ -286,9 +286,9 @@
     </div>
 
     <script>
-        const today = new Date(2025, 7, 14);
+        const today = new Date(2025, 8, 25);
         let cowCount = 0;
-        let currentMonth = 'July';
+        let currentMonth = 'September';
 
         const fixedCowsFromExcel = [
             { cowNo: "297", displayName: "1. MERCY", cowName: "MERCY", calvingDateStr: "2024-03-01", monthsPreg: "4.7" },
@@ -347,8 +347,9 @@
         let productionData = JSON.parse(localStorage.getItem('productionData')) || {};
 
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const year = 2025;
         months.forEach(month => {
-            const days = getDaysInMonth(month, 2025);
+            const days = getDaysInMonth(month, year);
             if (!productionData[month]) {
                 productionData[month] = {
                     productions: fixedCows.map(() => ({
@@ -395,7 +396,6 @@
         }
 
         function sanitizeProductionData() {
-            const year = 2025;
             months.forEach(month => {
                 const days = getDaysInMonth(month, year);
                 if (!productionData[month]) {
@@ -413,7 +413,6 @@
                         inactiveCows: []
                     };
                 } else {
-                    // Ensure productions array matches fixedCows length
                     while (productionData[month].productions.length < fixedCows.length) {
                         productionData[month].productions.push({
                             amValues: Array(days).fill(''),
@@ -447,7 +446,7 @@
         }
 
         function saveCurrentMonth() {
-            const daysInMonth = getDaysInMonth(currentMonth, 2025);
+            const daysInMonth = getDaysInMonth(currentMonth, year);
             const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
             const productions = Array(fixedCows.length).fill().map(() => ({
                 amValues: Array(daysInMonth).fill(''),
@@ -487,7 +486,6 @@
         }
 
         function loadMonth(month) {
-            const year = 2025;
             const daysInMonth = getDaysInMonth(month, year);
 
             if (!productionData[month]) {
@@ -774,7 +772,7 @@
             localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
 
             months.forEach(month => {
-                const days = getDaysInMonth(month, 2025);
+                const days = getDaysInMonth(month, year);
                 if (!productionData[month]) {
                     productionData[month] = {
                         productions: Array(fixedCows.length).fill().map(() => ({
@@ -1219,7 +1217,7 @@
 
                     productionData = {};
                     months.forEach(month => {
-                        const days = getDaysInMonth(month, 2025);
+                        const days = getDaysInMonth(month, year);
                         productionData[month] = {
                             productions: Array(fixedCows.length).fill().map(() => ({
                                 amValues: Array(days).fill(""),
@@ -1237,7 +1235,7 @@
 
                     Object.keys(data.productionData).forEach(month => {
                         if (!months.includes(month)) return;
-                        const days = getDaysInMonth(month, 2025);
+                        const days = getDaysInMonth(month, year);
                         const monthData = data.productionData[month];
                         productionData[month].productions = Array(fixedCows.length).fill().map((_, i) => ({
                             amValues: Array(days).fill("").map((_, j) => monthData.productions[i]?.amValues[j] || ""),
