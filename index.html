@@ -1,1268 +1,409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dairy Management App</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 8px;
-            font-size: 10px;
-        }
-        .table-container {
-            overflow-x: auto;
-            overflow-y: auto;
-            max-height: 400px;
-            max-width: 100%;
-            position: relative;
-        }
-        table {
-            border-collapse: collapse;
-            width: auto;
-            margin-top: 8px;
-            table-layout: fixed;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 3px;
-            text-align: center;
-            min-width: 60px;
-            font-size: 10px;
-        }
-        thead th {
-            background-color: #f2f2f2;
-            position: sticky;
-            top: 0;
-            z-index: 20;
-        }
-        th:nth-child(1), td:nth-child(1) {
-            position: sticky;
-            left: 0;
-            background-color: #e0e0e0;
-            z-index: 11;
-            min-width: 120px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        }
-        thead th:nth-child(1) {
-            z-index: 25;
-        }
-        th:nth-child(n+2), td:nth-child(n+2) {
-            background-color: #ffffff;
-        }
-        input[type="number"] {
-            width: 40px;
-            padding: 2px;
-            font-size: 10px;
-            margin: 1px;
-        }
-        input[type="text"], input[type="date"] {
-            padding: 2px;
-            margin: 2px;
-            width: 100px;
-            font-size: 10px;
-        }
-        input[type="file"] {
-            margin: 2px;
-            font-size: 10px;
-        }
-        button {
-            padding: 4px 8px;
-            margin: 2px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 10px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        button.delete {
-            background-color: #f44336;
-        }
-        button.delete:hover {
-            background-color: #da190b;
-        }
-        .form-container {
-            margin-bottom: 8px;
-            background-color: #f9f9f9;
-            padding: 6px;
-            border-radius: 3px;
-        }
-        .message {
-            color: green;
-            margin: 4px 0;
-            font-size: 10px;
-        }
-        .ranking-section {
-            margin-top: 12px;
-        }
-        .ranking-table {
-            width: 50%;
-            margin-bottom: 8px;
-        }
-        .ranking-table th {
-            background-color: #e0e0e0;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 30;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 12px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 350px;
-            border-radius: 3px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover {
-            color: black;
-        }
-        .highlight-row {
-            background-color: #fff9c4;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dairy Records • One row per cow</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 1rem;
+      line-height: 1.5;
+    }
+    h1 { margin-bottom: 0.6rem; }
+    .controls, .add-cow { margin: 1rem 0; display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; }
+    button, input[type="button"] {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    .add    { background: #28a745; color: white; border: none; }
+    .save   { background: #007bff; color: white; border: none; }
+    .load   { background: #6c757d; color: white; border: none; }
+    .export { background: #6f42c1; color: white; border: none; }
+    .hide   { background: #fd7e14; font-size: 0.9em; padding: 0.3rem 0.6rem; }
+    table {
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 5px 6px;
+      text-align: center;
+      min-width: 38px;
+    }
+    th:first-child, td:first-child {
+      position: sticky;
+      left: 0;
+      background: #f8f9fa;
+      z-index: 2;
+      min-width: 160px;
+      text-align: left;
+    }
+    thead th {
+      background: #e9ecef;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+    tfoot td {
+      background: #f1f3f5;
+      font-weight: bold;
+    }
+    tfoot tr:nth-child(1) { background: #d4edda; } /* Daily Total    - light green */
+    tfoot tr:nth-child(6) { background: #fff3cd; } /* Final Total    - light yellow */
+    input[type=number] {
+      width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+      border: 1px solid #aaa;
+      padding: 2px;
+    }
+    .cow-name { font-weight: 600; }
+    .msg { color: #155724; background: #d4edda; padding: 8px; border-radius: 4px; margin: 0.8rem 0; }
+  </style>
 </head>
 <body>
-    <h1 style="font-size: 14px;">Dairy Management App</h1>
-    <p style="font-size: 10px;">Track daily AM/PM milk production and deductions. Edit/delete cows. Data persists via localStorage. Export to CSV/JSON.</p>
-    
-    <div class="form-container">
-        <label for="cowNo">Cow No:</label>
-        <input type="text" id="cowNo" required placeholder="e.g., 297">
-        <label for="cowName">Cow Name:</label>
-        <input type="text" id="cowName" required placeholder="e.g., Mercy">
-        <label for="calvingDate">Last Calving:</label>
-        <input type="date" id="calvingDate" required>
-        <label for="monthsPreg">Preg Months:</label>
-        <input type="number" id="monthsPreg" step="0.1" min="0" placeholder="e.g., 3.4">
-        <button type="button" onclick="addCowFromForm()">Add Cow</button>
-    </div>
-    <div id="message" class="message"></div>
-    
-    <label for="monthSelect">Month:</label>
-    <select id="monthSelect" onchange="changeMonth(this.value)">
-        <option value="January">January</option>
-        <option value="February">February</option>
-        <option value="March">March</option>
-        <option value="April">April</option>
-        <option value="May">May</option>
-        <option value="June">June</option>
-        <option value="July">July</option>
-        <option value="August">August</option>
-        <option value="September">September</option>
-        <option value="October">October</option>
-        <option value="November">November</option>
-        <option value="December">December</option>
+
+<h1>Dairy Records • One row per cow</h1>
+
+<!-- Add new cow form -->
+<div class="add-cow">
+  <input type="text" id="newNo" placeholder="Cow No" size="8">
+  <input type="text" id="newName" placeholder="Name / Display" size="18">
+  <input type="date" id="newCalving" title="Last calving date">
+  <input type="number" step="0.1" id="newPreg" placeholder="Preg months" size="6">
+  <button class="add" onclick="addNewCow()">Add Cow</button>
+</div>
+
+<div class="controls">
+  <label>Month:
+    <select id="selMonth">
+      <option>January</option><option>February</option><option>March</option>
+      <option>April</option><option>May</option><option>June</option>
+      <option selected>July</option>
+      <option>August</option><option>September</option><option>October</option>
+      <option>November</option><option>December</option>
     </select>
-    <button onclick="saveCurrentMonth()">Save</button>
-    <button onclick="exportToCSV()">Export CSV</button>
-    <button onclick="exportLocalStorage()">Export Data</button>
-    <input type="file" id="importData" accept=".json" onchange="importLocalStorage(event)">
-    <button onclick="localStorage.clear(); location.reload();">Reset Data</button>
-    
-    <div class="table-container">
-        <table id="milkTable">
-            <caption id="tableCaption">September Records</caption>
-            <thead>
-                <tr>
-                    <th>Cow ID/Name</th>
-                    <!-- Day columns will be added dynamically -->
-                    <th>DAILY TOTAL</th>
-                    <th>MONTHLY TOTAL</th>
-                    <th>CALVING DATE</th>
-                    <th>DAYS SINCE</th>
-                    <th>PREG MONTHS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Cows will be added here -->
-            </tbody>
-            <tfoot>
-                <tr id="footerRowAM">
-                    <td>AM TOTAL</td>
-                    <!-- Day sum cells will be added dynamically -->
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr id="footerRowPM">
-                    <td>PM TOTAL</td>
-                    <!-- Day sum cells will be added dynamically -->
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-
-    <div class="ranking-section">
-        <h2 style="font-size: 12px;">Top 5 Milk Producers</h2>
-        <table class="ranking-table" id="topDailyTable">
-            <caption>Top 5 Daily</caption>
-            <thead>
-                <tr><th>Day</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <table class="ranking-table" id="topWeeklyTable">
-            <caption>Top 5 Weekly</caption>
-            <thead>
-                <tr><th>Week</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <table class="ranking-table" id="topMonthlyTable">
-            <caption>Top 5 Monthly</caption>
-            <thead>
-                <tr><th>Rank</th><th>Cow</th><th>Total (L)</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        <h2 style="font-size: 12px;">Worst 5 Milk Producers</h2>
-        <table class="ranking-table" id="worstDailyTable">
-            <caption>Worst 5 Daily</caption>
-            <thead>
-                <tr><th>Day</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <table class="ranking-table" id="worstWeeklyTable">
-            <caption>Worst 5 Weekly</caption>
-            <thead>
-                <tr><th>Week</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <table class="ranking-table" id="worstMonthlyTable">
-            <caption>Worst 5 Monthly</caption>
-            <thead>
-                <tr><th>Rank</th><th>Cow</th><th>Total (L)</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeEditModal()">&times;</span>
-            <h2 style="font-size: 12px;">Edit Cow</h2>
-            <form id="editCowForm">
-                <input type="hidden" id="editCowIndex">
-                <label for="editCowNo">Cow No:</label>
-                <input type="text" id="editCowNo" required>
-                <label for="editCowName">Cow Name:</label>
-                <input type="text" id="editCowName" required>
-                <label for="editCalvingDate">Last Calving:</label>
-                <input type="date" id="editCalvingDate" required>
-                <label for="editMonthsPreg">Preg Months:</label>
-                <input type="number" id="editMonthsPreg" step="0.1" min="0">
-                <button type="button" onclick="saveEditCow()">Save Changes</button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        const today = new Date(2025, 8, 25);
-        let cowCount = 0;
-        let currentMonth = 'September';
-
-        const fixedCowsFromExcel = [
-            { cowNo: "297", displayName: "1. MERCY", cowName: "MERCY", calvingDateStr: "2024-03-01", monthsPreg: "4.7" },
-            { cowNo: "413", displayName: "2. MAGRET", cowName: "MAGRET", calvingDateStr: "2024-03-04", monthsPreg: "3.4" },
-            { cowNo: "427", displayName: "3. CECE", cowName: "CECE", calvingDateStr: "2024-05-15", monthsPreg: "3.2" },
-            { cowNo: "425", displayName: "4. ANGEL", cowName: "ANGEL", calvingDateStr: "2024-05-19", monthsPreg: "5.4" },
-            { cowNo: "093", displayName: "5. RITAH", cowName: "RITAH", calvingDateStr: "2024-05-28", monthsPreg: "" },
-            { cowNo: "059", displayName: "6. SUSAN", cowName: "SUSAN", calvingDateStr: "2024-07-24", monthsPreg: "2.1" },
-            { cowNo: "008", displayName: "7. FRIDA", cowName: "FRIDA", calvingDateStr: "2024-07-26", monthsPreg: "3.5" },
-            { cowNo: "434", displayName: "8. SHANA", cowName: "SHANA", calvingDateStr: "2024-10-06", monthsPreg: "1.6" },
-            { cowNo: "083", displayName: "9. KATHY", cowName: "KATHY", calvingDateStr: "2024-10-27", monthsPreg: "" },
-            { cowNo: "402", displayName: "10. KELLEN", cowName: "KELLEN", calvingDateStr: "2024-11-13", monthsPreg: "" },
-            { cowNo: "501", displayName: "11. BETSY", cowName: "BETSY", calvingDateStr: "2024-11-20", monthsPreg: "6.0" },
-            { cowNo: "512", displayName: "12. DAISY", cowName: "DAISY", calvingDateStr: "2025-03-05", monthsPreg: "1.0" },
-            { cowNo: "623", displayName: "13. LUNA", cowName: "LUNA", calvingDateStr: "2024-10-15", monthsPreg: "7.0" },
-            { cowNo: "634", displayName: "14. STAR", cowName: "STAR", calvingDateStr: "2025-01-30", monthsPreg: "4.0" },
-            { cowNo: "701", displayName: "15. ROSE", cowName: "ROSE", calvingDateStr: "2024-09-10", monthsPreg: "8.0" },
-            { cowNo: "815", displayName: "16. LILY", cowName: "LILY", calvingDateStr: "2025-04-01", monthsPreg: "0.0" },
-            { cowNo: "901", displayName: "17. COCO", cowName: "COCO", calvingDateStr: "2024-08-25", monthsPreg: "9.0" },
-            { cowNo: "1001", displayName: "18. MOO", cowName: "MOO", calvingDateStr: "2025-02-20", monthsPreg: "2.0" },
-            { cowNo: "1002", displayName: "19. BELLA", cowName: "BELLA", calvingDateStr: "2024-12-15", monthsPreg: "4.0" },
-            { cowNo: "1003", displayName: "20. HOLLY", cowName: "HOLLY", calvingDateStr: "2025-03-10", monthsPreg: "3.0" }
-        ];
-
-        const initialJulyProductions = [
-            { amValues: ["4.5", "4.5", "4.5", "4.5", "5", "", "4.5", "4", "4", "4", ""], pmValues: ["2", "2", "2", "2", "2", "2", "2", "2", "2", "2", ""] },
-            { amValues: ["5", "5", "5.5", "5", "5.5", "", "6.5", "5.5", "5", "5", ""], pmValues: ["2.5", "2", "3", "2.5", "2", "2", "2", "2.5", "2.5", "2", ""] },
-            { amValues: ["3.5", "3", "4", "3", "3.5", "", "3.5", "3.5", "3.5", "3", ""], pmValues: ["1.5", "2", "2", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", "1.5", ""] },
-            { amValues: ["3.5", "4", "4", "4", "4", "", "4", "4", "4", "3.5", ""], pmValues: ["2", "2", "2", "2.5", "2", "2", "2", "2", "2", "1.5", ""] },
-            { amValues: ["4.5", "5", "4", "4.5", "4.5", "", "4.5", "5.5", "5", "5.5", ""], pmValues: ["3", "3", "3", "2.5", "3", "3", "3", "3", "3", "2", ""] },
-            { amValues: ["6", "5.5", "4.5", "5", "4.5", "", "4", "4", "3.5", "3.5", ""], pmValues: ["2.5", "2.5", "2", "2", "3", "2", "2", "2", "2", "3", ""] },
-            { amValues: ["3.5", "3", "3", "3", "3.5", "", "3", "3.5", "3", "3", ""], pmValues: Array(11).fill("") },
-            { amValues: ["4.5", "4.5", "4", "4", "4", "", "4", "3.5", "4", "3.5", ""], pmValues: ["2.5", "2", "2", "2.5", "2", "2", "2", "2", "2", "2", ""] },
-            { amValues: ["4.5", "4", "4", "4", "4", "", "2.5", "4", "2.5", "3", ""], pmValues: Array(11).fill("") },
-            { amValues: ["7", "6.5", "7", "5", "5", "", "6", "6", "6", "6", ""], pmValues: ["4", "4.5", "3", "2", "3.5", "4", "3", "2", "2", "2.5", ""] },
-            { amValues: ["5.0", "5.2", "5.1", "5.3", "5.2", "", "5.1", "5.2", "5.0", "5.3", "5.1"], pmValues: ["4.5", "4.6", "4.5", "4.7", "4.6", "", "4.6", "4.7", "4.5", "4.6", "4.7"] },
-            { amValues: ["6.0", "6.1", "5.9", "6.2", "6.0", "", "5.9", "6.0", "6.1", "5.9", "6.2"], pmValues: ["5.3", "5.4", "5.3", "5.5", "5.4", "", "5.3", "5.4", "5.5", "5.3", "5.4"] },
-            { amValues: ["4.5", "4.7", "4.6", "4.8", "4.7", "", "4.5", "4.6", "4.7", "4.5", "4.8"], pmValues: ["4.0", "4.1", "4.0", "4.2", "4.1", "", "4.0", "4.1", "4.2", "4.0", "4.1"] },
-            { amValues: ["5.8", "5.9", "5.8", "6.0", "5.9", "", "5.8", "5.9", "6.0", "5.8", "5.9"], pmValues: ["5.2", "5.3", "5.2", "5.4", "5.3", "", "5.2", "5.3", "5.4", "5.2", "5.3"] },
-            { amValues: ["6.5", "6.6", "6.4", "6.7", "6.5", "", "6.4", "6.5", "6.6", "6.4", "6.7"], pmValues: ["5.8", "5.9", "5.8", "6.0", "5.9", "", "5.8", "5.9", "6.0", "5.8", "5.9"] },
-            { amValues: ["5.2", "5.3", "5.2", "5.4", "5.3", "", "5.2", "5.3", "5.4", "5.2", "5.3"], pmValues: ["4.7", "4.8", "4.7", "4.9", "4.8", "", "4.7", "4.8", "4.9", "4.7", "4.8"] },
-            { amValues: Array(11).fill(""), pmValues: Array(11).fill("") },
-            { amValues: Array(11).fill(""), pmValues: Array(11).fill("") },
-            { amValues: Array(11).fill(""), pmValues: Array(11).fill("") },
-            { amValues: Array(11).fill(""), pmValues: Array(11).fill("") }
-        ];
-
-        const initialJulyDeductions = {
-            homeUse: ["1.0", "1.1", "1.0", "1.2", "1.1", "", "1.1", "1.2", "1.0", "1.1", "1.2"],
-            workersMilk: ["0.5", "0.6", "0.5", "0.7", "0.6", "", "0.6", "0.7", "0.5", "0.6", "0.7"],
-            calvesMilkAM: ["0.4", "0.5", "0.4", "0.5", "0.5", "", "0.4", "0.5", "0.4", "0.5", "0.5"],
-            calvesMilkPM: ["0.4", "0.4", "0.4", "0.5", "0.4", "", "0.4", "0.5", "0.4", "0.4", "0.5"]
-        };
-
-        let fixedCows = JSON.parse(localStorage.getItem('fixedCows')) || fixedCowsFromExcel;
-        let productionData = JSON.parse(localStorage.getItem('productionData')) || {};
-
-        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const year = 2025;
-        months.forEach(month => {
-            const days = getDaysInMonth(month, year);
-            if (!productionData[month]) {
-                productionData[month] = {
-                    productions: fixedCows.map(() => ({
-                        amValues: Array(days).fill(''),
-                        pmValues: Array(days).fill('')
-                    })),
-                    deductions: {
-                        homeUse: Array(days).fill(''),
-                        workersMilk: Array(days).fill(''),
-                        calvesMilkAM: Array(days).fill(''),
-                        calvesMilkPM: Array(days).fill('')
-                    },
-                    inactiveCows: []
-                };
-            }
-            if (month === 'July' && (!productionData['July'].productions || productionData['July'].productions.length === 0)) {
-                productionData['July'] = {
-                    productions: JSON.parse(JSON.stringify(initialJulyProductions)).map(prod => ({
-                        amValues: prod.amValues.concat(Array(days - prod.amValues.length).fill('')),
-                        pmValues: prod.pmValues.concat(Array(days - prod.pmValues.length).fill(''))
-                    })),
-                    deductions: JSON.parse(JSON.stringify(initialJulyDeductions)),
-                    inactiveCows: []
-                };
-            }
-        });
-
-        window.onload = function() {
-            sanitizeProductionData();
-            cowCount = fixedCows.length;
-            document.getElementById('monthSelect').value = currentMonth;
-            loadMonth(currentMonth);
-        };
-
-        window.onbeforeunload = function() {
-            saveCurrentMonth();
-            sanitizeProductionData();
-            localStorage.setItem('productionData', JSON.stringify(productionData));
-        };
-
-        function getDaysInMonth(month, year) {
-            const monthIndex = months.indexOf(month);
-            return new Date(year, monthIndex + 1, 0).getDate();
-        }
-
-        function sanitizeProductionData() {
-            months.forEach(month => {
-                const days = getDaysInMonth(month, year);
-                if (!productionData[month]) {
-                    productionData[month] = {
-                        productions: Array(fixedCows.length).fill().map(() => ({
-                            amValues: Array(days).fill(''),
-                            pmValues: Array(days).fill('')
-                        })),
-                        deductions: {
-                            homeUse: Array(days).fill(''),
-                            workersMilk: Array(days).fill(''),
-                            calvesMilkAM: Array(days).fill(''),
-                            calvesMilkPM: Array(days).fill('')
-                        },
-                        inactiveCows: []
-                    };
-                } else {
-                    while (productionData[month].productions.length < fixedCows.length) {
-                        productionData[month].productions.push({
-                            amValues: Array(days).fill(''),
-                            pmValues: Array(days).fill('')
-                        });
-                    }
-                    while (productionData[month].productions.length > fixedCows.length) {
-                        productionData[month].productions.pop();
-                    }
-                    productionData[month].productions.forEach(prod => {
-                        prod.amValues = Array(days).fill('').map((_, i) => prod.amValues[i] || '');
-                        prod.pmValues = Array(days).fill('').map((_, i) => prod.pmValues[i] || '');
-                    });
-                    productionData[month].deductions.homeUse = Array(days).fill('').map((_, i) => productionData[month].deductions.homeUse[i] || '');
-                    productionData[month].deductions.workersMilk = Array(days).fill('').map((_, i) => productionData[month].deductions.workersMilk[i] || '');
-                    productionData[month].deductions.calvesMilkAM = Array(days).fill('').map((_, i) => productionData[month].deductions.calvesMilkAM[i] || '');
-                    productionData[month].deductions.calvesMilkPM = Array(days).fill('').map((_, i) => productionData[month].deductions.calvesMilkPM[i] || '');
-                    productionData[month].inactiveCows = productionData[month].inactiveCows || [];
-                }
-            });
-            localStorage.setItem('productionData', JSON.stringify(productionData));
-        }
-
-        function changeMonth(newMonth) {
-            if (currentMonth !== newMonth) {
-                saveCurrentMonth();
-                currentMonth = newMonth;
-                loadMonth(currentMonth);
-                document.getElementById('monthSelect').value = currentMonth;
-            }
-        }
-
-        function saveCurrentMonth() {
-            const daysInMonth = getDaysInMonth(currentMonth, year);
-            const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
-            const productions = Array(fixedCows.length).fill().map(() => ({
-                amValues: Array(daysInMonth).fill(''),
-                pmValues: Array(daysInMonth).fill('')
-            }));
-            for (let i = 0; i < fixedCows.length; i++) {
-                const amRow = tbody.rows[i * 2];
-                const pmRow = tbody.rows[i * 2 + 1];
-                if (amRow && pmRow) {
-                    for (let d = 0; d < daysInMonth; d++) {
-                        productions[i].amValues[d] = amRow.cells[d + 1].querySelector('input')?.value || '';
-                        productions[i].pmValues[d] = pmRow.cells[d + 1].querySelector('input')?.value || '';
-                    }
-                }
-            }
-            productionData[currentMonth].productions = productions;
-
-            const deductions = {
-                homeUse: Array(daysInMonth).fill(''),
-                workersMilk: Array(daysInMonth).fill(''),
-                calvesMilkAM: Array(daysInMonth).fill(''),
-                calvesMilkPM: Array(daysInMonth).fill('')
-            };
-            for (let d = 0; d < daysInMonth; d++) {
-                const cellIndex = d + 1;
-                deductions.homeUse[d] = document.getElementById('homeUseRow')?.cells[cellIndex]?.querySelector('input')?.value || '';
-                deductions.workersMilk[d] = document.getElementById('workersMilkRow')?.cells[cellIndex]?.querySelector('input')?.value || '';
-                deductions.calvesMilkAM[d] = document.getElementById('calvesMilkAMRow')?.cells[cellIndex]?.querySelector('input')?.value || '';
-                deductions.calvesMilkPM[d] = document.getElementById('calvesMilkPMRow')?.cells[cellIndex]?.querySelector('input')?.value || '';
-            }
-            productionData[currentMonth].deductions = deductions;
-
-            localStorage.setItem('productionData', JSON.stringify(productionData));
-            sanitizeProductionData();
-            document.getElementById('message').textContent = 'Data saved!';
-            setTimeout(() => document.getElementById('message').textContent = '', 3000);
-        }
-
-        function loadMonth(month) {
-            const daysInMonth = getDaysInMonth(month, year);
-
-            if (!productionData[month]) {
-                productionData[month] = {
-                    productions: Array(fixedCows.length).fill().map(() => ({
-                        amValues: Array(daysInMonth).fill(''),
-                        pmValues: Array(daysInMonth).fill('')
-                    })),
-                    deductions: {
-                        homeUse: Array(daysInMonth).fill(''),
-                        workersMilk: Array(daysInMonth).fill(''),
-                        calvesMilkAM: Array(daysInMonth).fill(''),
-                        calvesMilkPM: Array(daysInMonth).fill('')
-                    },
-                    inactiveCows: []
-                };
-            }
-
-            while (productionData[month].productions.length < fixedCows.length) {
-                productionData[month].productions.push({
-                    amValues: Array(daysInMonth).fill(''),
-                    pmValues: Array(daysInMonth).fill('')
-                });
-            }
-            while (productionData[month].productions.length > fixedCows.length) {
-                productionData[month].productions.pop();
-            }
-
-            productionData[month].productions.forEach(prod => {
-                prod.amValues = Array(daysInMonth).fill('').map((_, i) => prod.amValues[i] || '');
-                prod.pmValues = Array(daysInMonth).fill('').map((_, i) => prod.pmValues[i] || '');
-            });
-            productionData[month].deductions.homeUse = Array(daysInMonth).fill('').map((_, i) => productionData[month].deductions.homeUse[i] || '');
-            productionData[month].deductions.workersMilk = Array(daysInMonth).fill('').map((_, i) => productionData[month].deductions.workersMilk[i] || '');
-            productionData[month].deductions.calvesMilkAM = Array(daysInMonth).fill('').map((_, i) => productionData[month].deductions.calvesMilkAM[i] || '');
-            productionData[month].deductions.calvesMilkPM = Array(daysInMonth).fill('').map((_, i) => productionData[month].deductions.calvesMilkPM[i] || '');
-
-            const thead = document.getElementById('milkTable').getElementsByTagName('thead')[0];
-            const headerRow = thead.rows[0];
-            headerRow.innerHTML = '';
-            headerRow.insertCell().textContent = 'Cow ID/Name';
-            for (let d = 1; d <= daysInMonth; d++) {
-                headerRow.insertCell().textContent = d;
-            }
-            headerRow.insertCell().textContent = 'DAILY TOTAL';
-            headerRow.insertCell().textContent = 'MONTHLY TOTAL';
-            headerRow.insertCell().textContent = 'CALVING DATE';
-            headerRow.insertCell().textContent = 'DAYS SINCE';
-            headerRow.insertCell().textContent = 'PREG MONTHS';
-
-            const footerRowAM = document.getElementById('footerRowAM');
-            footerRowAM.innerHTML = '';
-            footerRowAM.insertCell().textContent = 'AM TOTAL';
-            for (let d = 0; d < daysInMonth; d++) {
-                footerRowAM.insertCell();
-            }
-            footerRowAM.insertCell();
-            footerRowAM.insertCell();
-            footerRowAM.insertCell();
-            footerRowAM.insertCell();
-            footerRowAM.insertCell();
-
-            const footerRowPM = document.getElementById('footerRowPM');
-            footerRowPM.innerHTML = '';
-            footerRowPM.insertCell().textContent = 'PM TOTAL';
-            for (let d = 0; d < daysInMonth; d++) {
-                footerRowPM.insertCell();
-            }
-            footerRowPM.insertCell();
-            footerRowPM.insertCell();
-            footerRowPM.insertCell();
-            footerRowPM.insertCell();
-            footerRowPM.insertCell();
-
-            const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
-            tbody.innerHTML = '';
-
-            const productions = productionData[month].productions;
-            fixedCows.forEach((cow, index) => {
-                if (!productionData[month].inactiveCows.includes(index)) {
-                    const cowProduction = productions[index] || { amValues: Array(daysInMonth).fill(''), pmValues: Array(daysInMonth).fill('') };
-                    addCowToTable(cow, cowProduction.amValues, cowProduction.pmValues, daysInMonth, index);
-                }
-            });
-
-            removeDeductionsRows();
-            addDeductionsRows(productionData[month].deductions, daysInMonth);
-
-            document.getElementById('tableCaption').textContent = `${month} Records`;
-
-            recalculate(daysInMonth);
-            localStorage.setItem('productionData', JSON.stringify(productionData));
-        }
-
-        function removeDeductionsRows() {
-            ['homeUseRow', 'workersMilkRow', 'calvesMilkAMRow', 'calvesMilkPMRow', 'calvesMilkTotalRow', 'totalDeductionsRow', 'netLitersRow'].forEach(id => {
-                const row = document.getElementById(id);
-                if (row) row.remove();
-            });
-        }
-
-        function addDeductionsRows(deductions, daysInMonth) {
-            const tfoot = document.getElementById('milkTable').getElementsByTagName('tfoot')[0];
-
-            const homeRow = tfoot.insertRow();
-            homeRow.id = 'homeUseRow';
-            const labelCellHome = homeRow.insertCell();
-            labelCellHome.textContent = 'Home Use';
-            for (let d = 0; d < daysInMonth; d++) {
-                const cell = homeRow.insertCell();
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.step = '0.5';
-                input.min = '0';
-                input.value = deductions.homeUse[d] || '';
-                input.addEventListener('focus', () => highlightDeductionRow(homeRow));
-                input.addEventListener('blur', () => removeHighlight(homeRow));
-                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
-                cell.appendChild(input);
-            }
-            homeRow.insertCell();
-            homeRow.insertCell();
-            homeRow.insertCell();
-            homeRow.insertCell();
-            homeRow.insertCell();
-
-            const workersRow = tfoot.insertRow();
-            workersRow.id = 'workersMilkRow';
-            const labelCellWorkers = workersRow.insertCell();
-            labelCellWorkers.textContent = 'Workers Milk';
-            for (let d = 0; d < daysInMonth; d++) {
-                const cell = workersRow.insertCell();
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.step = '0.5';
-                input.min = '0';
-                input.value = deductions.workersMilk[d] || '';
-                input.addEventListener('focus', () => highlightDeductionRow(workersRow));
-                input.addEventListener('blur', () => removeHighlight(workersRow));
-                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
-                cell.appendChild(input);
-            }
-            workersRow.insertCell();
-            workersRow.insertCell();
-            workersRow.insertCell();
-            workersRow.insertCell();
-            workersRow.insertCell();
-
-            const calvesAMRow = tfoot.insertRow();
-            calvesAMRow.id = 'calvesMilkAMRow';
-            const labelCellCalvesAM = calvesAMRow.insertCell();
-            labelCellCalvesAM.textContent = 'Calves Milk AM';
-            for (let d = 0; d < daysInMonth; d++) {
-                const cell = calvesAMRow.insertCell();
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.step = '0.5';
-                input.min = '0';
-                input.value = deductions.calvesMilkAM[d] || '';
-                input.addEventListener('focus', () => highlightDeductionRow(calvesAMRow));
-                input.addEventListener('blur', () => removeHighlight(calvesAMRow));
-                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
-                cell.appendChild(input);
-            }
-            calvesAMRow.insertCell();
-            calvesAMRow.insertCell();
-            calvesAMRow.insertCell();
-            calvesAMRow.insertCell();
-            calvesAMRow.insertCell();
-
-            const calvesPMRow = tfoot.insertRow();
-            calvesPMRow.id = 'calvesMilkPMRow';
-            const labelCellCalvesPM = calvesPMRow.insertCell();
-            labelCellCalvesPM.textContent = 'Calves Milk PM';
-            for (let d = 0; d < daysInMonth; d++) {
-                const cell = calvesPMRow.insertCell();
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.step = '0.5';
-                input.min = '0';
-                input.value = deductions.calvesMilkPM[d] || '';
-                input.addEventListener('focus', () => highlightDeductionRow(calvesPMRow));
-                input.addEventListener('blur', () => removeHighlight(calvesPMRow));
-                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
-                cell.appendChild(input);
-            }
-            calvesPMRow.insertCell();
-            calvesPMRow.insertCell();
-            calvesPMRow.insertCell();
-            calvesPMRow.insertCell();
-            calvesPMRow.insertCell();
-
-            const calvesTotalRow = tfoot.insertRow();
-            calvesTotalRow.id = 'calvesMilkTotalRow';
-            const labelCellCalvesTotal = calvesTotalRow.insertCell();
-            labelCellCalvesTotal.textContent = 'Calves Milk Total';
-            for (let d = 0; d < daysInMonth; d++) {
-                const cell = calvesTotalRow.insertCell();
-                cell.textContent = ((parseFloat(deductions.calvesMilkAM[d]) || 0) + (parseFloat(deductions.calvesMilkPM[d]) || 0)).toFixed(1);
-            }
-            calvesTotalRow.insertCell();
-            calvesTotalRow.insertCell();
-            calvesTotalRow.insertCell();
-            calvesTotalRow.insertCell();
-            calvesTotalRow.insertCell();
-
-            const totalDeductionsRow = tfoot.insertRow();
-            totalDeductionsRow.id = 'totalDeductionsRow';
-            const labelCellTotalDeductions = totalDeductionsRow.insertCell();
-            labelCellTotalDeductions.textContent = 'Total Deductions';
-            for (let d = 0; d < daysInMonth; d++) {
-                const cell = totalDeductionsRow.insertCell();
-                cell.textContent = (
-                    (parseFloat(deductions.homeUse[d]) || 0) +
-                    (parseFloat(deductions.workersMilk[d]) || 0) +
-                    (parseFloat(deductions.calvesMilkAM[d]) || 0) +
-                    (parseFloat(deductions.calvesMilkPM[d]) || 0)
-                ).toFixed(1);
-            }
-            totalDeductionsRow.insertCell();
-            totalDeductionsRow.insertCell();
-            totalDeductionsRow.insertCell();
-            totalDeductionsRow.insertCell();
-            totalDeductionsRow.insertCell();
-
-            const netLitersRow = tfoot.insertRow();
-            netLitersRow.id = 'netLitersRow';
-            const labelCellNet = netLitersRow.insertCell();
-            labelCellNet.textContent = 'Net Liters';
-            for (let d = 0; d < daysInMonth; d++) {
-                const cell = netLitersRow.insertCell();
-                const amSum = Array.from(document.querySelectorAll(`#milkTable tbody tr:nth-child(even) td:nth-child(${d + 2}) input`))
-                    .reduce((sum, input) => sum + (parseFloat(input.value) || 0), 0);
-                const pmSum = Array.from(document.querySelectorAll(`#milkTable tbody tr:nth-child(odd) td:nth-child(${d + 2}) input`))
-                    .reduce((sum, input) => sum + (parseFloat(input.value) || 0), 0);
-                const totalDeductions = (parseFloat(deductions.homeUse[d]) || 0) +
-                                        (parseFloat(deductions.workersMilk[d]) || 0) +
-                                        (parseFloat(deductions.calvesMilkAM[d]) || 0) +
-                                        (parseFloat(deductions.calvesMilkPM[d]) || 0);
-                cell.textContent = (amSum + pmSum - totalDeductions).toFixed(1);
-            }
-            netLitersRow.insertCell();
-            netLitersRow.insertCell();
-            netLitersRow.insertCell();
-            netLitersRow.insertCell();
-            netLitersRow.insertCell();
-        }
-
-        function renumberCows() {
-            fixedCows.forEach((cow, index) => {
-                const namePart = cow.displayName.split('. ')[1] || cow.cowName || '';
-                cow.displayName = `${index + 1}. ${namePart}`;
-            });
-            localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
-        }
-
-        function addCowFromForm() {
-            const cowNo = document.getElementById('cowNo').value.trim();
-            const cowName = document.getElementById('cowName').value.trim();
-            const calvingDateStr = document.getElementById('calvingDate').value;
-            const monthsPreg = document.getElementById('monthsPreg').value || '';
-
-            if (!cowNo || !cowName || !calvingDateStr) {
-                alert('Please fill in all required fields (Cow No, Cow Name, Last Calving Date).');
-                return;
-            }
-
-            if (fixedCows.some(cow => cow.cowNo === cowNo)) {
-                alert('Cow No must be unique.');
-                return;
-            }
-
-            cowCount++;
-            const displayName = `${cowCount}. ${cowName}`;
-            const newCow = {
-                cowNo,
-                displayName,
-                calvingDateStr,
-                monthsPreg,
-                cowName
-            };
-
-            fixedCows.push(newCow);
-            localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
-
-            months.forEach(month => {
-                const days = getDaysInMonth(month, year);
-                if (!productionData[month]) {
-                    productionData[month] = {
-                        productions: Array(fixedCows.length).fill().map(() => ({
-                            amValues: Array(days).fill(''),
-                            pmValues: Array(days).fill('')
-                        })),
-                        deductions: {
-                            homeUse: Array(days).fill(''),
-                            workersMilk: Array(days).fill(''),
-                            calvesMilkAM: Array(days).fill(''),
-                            calvesMilkPM: Array(days).fill('')
-                        },
-                        inactiveCows: []
-                    };
-                } else {
-                    productionData[month].productions.push({
-                        amValues: Array(days).fill(''),
-                        pmValues: Array(days).fill('')
-                    });
-                }
-            });
-
-            sanitizeProductionData();
-            loadMonth(currentMonth);
-
-            document.getElementById('cowNo').value = '';
-            document.getElementById('cowName').value = '';
-            document.getElementById('calvingDate').value = '';
-            document.getElementById('monthsPreg').value = '';
-
-            document.getElementById('message').textContent = `Cow ${displayName} added!`;
-            setTimeout(() => document.getElementById('message').textContent = '', 3000);
-        }
-
-        function addCowToTable(cow, amValues, pmValues, daysInMonth, index) {
-            const { displayName = '', calvingDateStr = '', monthsPreg = '' } = cow;
-            const calving = calvingDateStr ? new Date(calvingDateStr) : null;
-            const daysSince = calving ? Math.floor((today - calving) / (1000 * 60 * 60 * 24)) : '';
-
-            const tableBody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
-            const rowAM = tableBody.insertRow();
-            let cell = rowAM.insertCell();
-            cell.innerHTML = `
-                <button onclick="editCow(${index})">Edit</button>
-                <button class="delete" onclick="deleteCow(${index})">Delete</button>
-                [${cow.cowNo}] ${displayName} AM
-            `;
-            for (let d = 0; d < daysInMonth; d++) {
-                cell = rowAM.insertCell();
-                let input = document.createElement('input');
-                input.type = 'number';
-                input.step = '0.5';
-                input.min = '0';
-                input.value = amValues[d] || '';
-                input.dataset.cowIndex = index;
-                input.dataset.time = 'AM';
-                input.addEventListener('focus', (e) => highlightCowRow(parseInt(e.target.dataset.cowIndex)));
-                input.addEventListener('blur', (e) => removeHighlightCowRow(parseInt(e.target.dataset.cowIndex)));
-                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
-                cell.appendChild(input);
-            }
-            cell = rowAM.insertCell();
-            cell.textContent = amValues.reduce((sum, val) => sum + (parseFloat(val) || 0), 0).toFixed(1);
-            rowAM.insertCell();
-            rowAM.insertCell();
-            rowAM.insertCell();
-            rowAM.insertCell();
-
-            const rowPM = tableBody.insertRow();
-            cell = rowPM.insertCell();
-            cell.textContent = `[${cow.cowNo}] ${displayName} PM`;
-            for (let d = 0; d < daysInMonth; d++) {
-                cell = rowPM.insertCell();
-                let input = document.createElement('input');
-                input.type = 'number';
-                input.step = '0.5';
-                input.min = '0';
-                input.value = pmValues[d] || '';
-                input.dataset.cowIndex = index;
-                input.dataset.time = 'PM';
-                input.addEventListener('focus', (e) => highlightCowRow(parseInt(e.target.dataset.cowIndex)));
-                input.addEventListener('blur', (e) => removeHighlightCowRow(parseInt(e.target.dataset.cowIndex)));
-                input.addEventListener('input', () => { saveCurrentMonth(); recalculate(daysInMonth); });
-                cell.appendChild(input);
-            }
-            cell = rowPM.insertCell();
-            cell.textContent = pmValues.reduce((sum, val) => sum + (parseFloat(val) || 0), 0).toFixed(1);
-            cell = rowPM.insertCell();
-            cell.textContent = (amValues.reduce((sum, val) => sum + (parseFloat(val) || 0), 0) +
-                              pmValues.reduce((sum, val) => sum + (parseFloat(val) || 0), 0)).toFixed(1);
-            rowPM.insertCell().textContent = calvingDateStr;
-            rowPM.insertCell().textContent = daysSince;
-            rowPM.insertCell().textContent = monthsPreg;
-        }
-
-        function highlightCowRow(cowIndex) {
-            const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
-            const rowAM = tbody.rows[cowIndex * 2];
-            const rowPM = tbody.rows[cowIndex * 2 + 1];
-            if (rowAM) rowAM.classList.add('highlight-row');
-            if (rowPM) rowPM.classList.add('highlight-row');
-            if (rowAM) rowAM.cells[0].style.backgroundColor = '#e0e0e0';
-            if (rowPM) rowPM.cells[0].style.backgroundColor = '#e0e0e0';
-        }
-
-        function removeHighlightCowRow(cowIndex) {
-            const tbody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
-            const rowAM = tbody.rows[cowIndex * 2];
-            const rowPM = tbody.rows[cowIndex * 2 + 1];
-            if (rowAM) rowAM.classList.remove('highlight-row');
-            if (rowPM) rowPM.classList.remove('highlight-row');
-            if (rowAM) rowAM.cells[0].style.backgroundColor = '#e0e0e0';
-            if (rowPM) rowPM.cells[0].style.backgroundColor = '#e0e0e0';
-        }
-
-        function highlightDeductionRow(row) {
-            row.classList.add('highlight-row');
-            row.cells[0].style.backgroundColor = '#e0e0e0';
-        }
-
-        function removeHighlight(row) {
-            row.classList.remove('highlight-row');
-            row.cells[0].style.backgroundColor = '#e0e0e0';
-        }
-
-        function editCow(index) {
-            const cow = fixedCows[index];
-            document.getElementById('editCowIndex').value = index;
-            document.getElementById('editCowNo').value = cow.cowNo;
-            document.getElementById('editCowName').value = cow.cowName || cow.displayName.split('. ')[1] || '';
-            document.getElementById('editCalvingDate').value = cow.calvingDateStr;
-            document.getElementById('editMonthsPreg').value = cow.monthsPreg;
-            document.getElementById('editModal').style.display = 'block';
-        }
-
-        function saveEditCow() {
-            const index = parseInt(document.getElementById('editCowIndex').value);
-            const cowNo = document.getElementById('editCowNo').value.trim();
-            const cowName = document.getElementById('editCowName').value.trim();
-            const calvingDateStr = document.getElementById('editCalvingDate').value;
-            const monthsPreg = document.getElementById('editMonthsPreg').value || '';
-
-            if (!cowNo || !cowName || !calvingDateStr) {
-                alert('Please fill in all required fields (Cow No, Cow Name, Last Calving Date).');
-                return;
-            }
-
-            if (fixedCows.some((cow, i) => i !== index && cow.cowNo === cowNo)) {
-                alert('Cow No must be unique.');
-                return;
-            }
-
-            fixedCows[index] = {
-                ...fixedCows[index],
-                cowNo,
-                cowName,
-                calvingDateStr,
-                monthsPreg
-            };
-
-            renumberCows();
-            localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
-            closeEditModal();
-            loadMonth(currentMonth);
-            document.getElementById('message').textContent = `Cow ${fixedCows[index].displayName} updated!`;
-            setTimeout(() => document.getElementById('message').textContent = '', 3000);
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-            document.getElementById('editCowForm').reset();
-        }
-
-        function deleteCow(index) {
-            if (!confirm(`Are you sure you want to delete ${fixedCows[index].displayName} from ${currentMonth} records?`)) return;
-            
-            fixedCows.splice(index, 1);
-            Object.keys(productionData).forEach(month => {
-                if (productionData[month].productions && productionData[month].productions.length > index) {
-                    productionData[month].productions.splice(index, 1);
-                }
-                if (productionData[month].inactiveCows) {
-                    productionData[month].inactiveCows = productionData[month].inactiveCows.filter(i => i !== index).map(i => i > index ? i - 1 : i);
-                }
-            });
-
-            renumberCows();
-            localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
-            localStorage.setItem('productionData', JSON.stringify(productionData));
-            loadMonth(currentMonth);
-            document.getElementById('message').textContent = `Cow deleted and numbering updated!`;
-            setTimeout(() => document.getElementById('message').textContent = '', 3000);
-        }
-
-        function recalculate(daysInMonth) {
-            const tableBody = document.getElementById('milkTable').getElementsByTagName('tbody')[0];
-            const footerRowAM = document.getElementById('footerRowAM');
-            const footerRowPM = document.getElementById('footerRowPM');
-            const homeRow = document.getElementById('homeUseRow');
-            const workersRow = document.getElementById('workersMilkRow');
-            const calvesAMRow = document.getElementById('calvesMilkAMRow');
-            const calvesPMRow = document.getElementById('calvesMilkPMRow');
-            const calvesTotalRow = document.getElementById('calvesMilkTotalRow');
-            const totalDeductionsRow = document.getElementById('totalDeductionsRow');
-            const netLitersRow = document.getElementById('netLitersRow');
-            const amSums = Array(daysInMonth).fill(0);
-            const pmSums = Array(daysInMonth).fill(0);
-            let totalAMAll = 0;
-            let totalPMAll = 0;
-
-            const cowDailyTotals = Array(daysInMonth).fill().map(() => []);
-            const cowMonthlyTotals = [];
-            for (let i = 0; i < fixedCows.length; i++) {
-                if (productionData[currentMonth].inactiveCows.includes(i)) continue;
-                const rowAM = tableBody.rows[i * 2];
-                const rowPM = tableBody.rows[i * 2 + 1];
-                const displayName = fixedCows[i].displayName;
-                let amSum = 0;
-                let pmSum = 0;
-                if (rowAM && rowPM) {
-                    for (let d = 0; d < daysInMonth; d++) {
-                        const amVal = parseFloat(rowAM.cells[d + 1].querySelector('input')?.value) || 0;
-                        const pmVal = parseFloat(rowPM.cells[d + 1].querySelector('input')?.value) || 0;
-                        amSum += amVal;
-                        pmSum += pmVal;
-                        amSums[d] += amVal;
-                        pmSums[d] += pmVal;
-                        cowDailyTotals[d].push({ cow: displayName, total: amVal + pmVal });
-                    }
-                    rowAM.cells[daysInMonth + 1].textContent = amSum.toFixed(1);
-                    rowPM.cells[daysInMonth + 1].textContent = pmSum.toFixed(1);
-                    rowPM.cells[daysInMonth + 2].textContent = (amSum + pmSum).toFixed(1);
-                    totalAMAll += amSum;
-                    totalPMAll += pmSum;
-                    cowMonthlyTotals.push({ cow: displayName, total: amSum + pmSum });
-                }
-            }
-
-            for (let d = 0; d < daysInMonth; d++) {
-                footerRowAM.cells[d + 1].textContent = amSums[d].toFixed(1);
-                footerRowPM.cells[d + 1].textContent = pmSums[d].toFixed(1);
-            }
-            footerRowAM.cells[daysInMonth + 1].textContent = totalAMAll.toFixed(1);
-            footerRowPM.cells[daysInMonth + 1].textContent = totalPMAll.toFixed(1);
-
-            let homeSum = 0;
-            let workersSum = 0;
-            let calvesAMSum = 0;
-            let calvesPMSum = 0;
-            let calvesTotalSum = 0;
-            let totalDeductions = 0;
-            for (let d = 0; d < daysInMonth; d++) {
-                const cellIndex = d + 1;
-                const home = parseFloat(homeRow.cells[cellIndex]?.querySelector('input')?.value) || 0;
-                const workers = parseFloat(workersRow.cells[cellIndex]?.querySelector('input')?.value) || 0;
-                const calvesAM = parseFloat(calvesAMRow.cells[cellIndex]?.querySelector('input')?.value) || 0;
-                const calvesPM = parseFloat(calvesPMRow.cells[cellIndex]?.querySelector('input')?.value) || 0;
-                const calvesTotal = calvesAM + calvesPM;
-                calvesTotalRow.cells[cellIndex].textContent = calvesTotal.toFixed(1);
-                const totalDeduction = home + workers + calvesAM + calvesPM;
-                totalDeductionsRow.cells[cellIndex].textContent = totalDeduction.toFixed(1);
-                const net = amSums[d] + pmSums[d] - totalDeduction;
-                netLitersRow.cells[cellIndex].textContent = net.toFixed(1);
-                homeSum += home;
-                workersSum += workers;
-                calvesAMSum += calvesAM;
-                calvesPMSum += calvesPM;
-                calvesTotalSum += calvesTotal;
-                totalDeductions += totalDeduction;
-            }
-            homeRow.cells[daysInMonth + 1].textContent = homeSum.toFixed(1);
-            workersRow.cells[daysInMonth + 1].textContent = workersSum.toFixed(1);
-            calvesAMRow.cells[daysInMonth + 1].textContent = calvesAMSum.toFixed(1);
-            calvesPMRow.cells[daysInMonth + 1].textContent = calvesPMSum.toFixed(1);
-            calvesTotalRow.cells[daysInMonth + 1].textContent = calvesTotalSum.toFixed(1);
-            totalDeductionsRow.cells[daysInMonth + 1].textContent = totalDeductions.toFixed(1);
-            const totalGross = totalAMAll + totalPMAll;
-            const totalNet = totalGross - totalDeductions;
-            netLitersRow.cells[daysInMonth + 1].textContent = totalNet.toFixed(1);
-
-            updateRankings(cowDailyTotals, cowMonthlyTotals, daysInMonth);
-        }
-
-        function updateRankings(cowDailyTotals, cowMonthlyTotals, daysInMonth) {
-            const topDailyTbody = document.getElementById('topDailyTable').getElementsByTagName('tbody')[0];
-            const worstDailyTbody = document.getElementById('worstDailyTable').getElementsByTagName('tbody')[0];
-            topDailyTbody.innerHTML = '';
-            worstDailyTbody.innerHTML = '';
-            for (let d = 0; d < daysInMonth; d++) {
-                const sorted = cowDailyTotals[d]
-                    .filter(c => c.total > 0 || cowDailyTotals[d].every(c => c.total === 0))
-                    .sort((a, b) => b.total - a.total);
-                const top5 = sorted.slice(0, 5);
-                const worst5 = sorted.slice(-5).reverse();
-                if (sorted.length > 0) {
-                    const topRow = topDailyTbody.insertRow();
-                    topRow.insertCell().textContent = d + 1;
-                    top5.forEach(cow => topRow.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow} (${cow.total.toFixed(1)})`);
-                    while (topRow.cells.length < 6) topRow.insertCell().textContent = '';
-                    const worstRow = worstDailyTbody.insertRow();
-                    worstRow.insertCell().textContent = d + 1;
-                    worst5.forEach(cow => worstRow.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow} (${cow.total.toFixed(1)})`);
-                    while (worstRow.cells.length < 6) worstRow.insertCell().textContent = '';
-                }
-            }
-
-            const weeks = [];
-            for (let start = 0; start < daysInMonth; start += 7) {
-                weeks.push([start, Math.min(start + 7, daysInMonth)]);
-            }
-            const cowWeeklyTotals = weeks.map(() => fixedCows.map(cow => ({ cow: cow.displayName, total: 0 })));
-            fixedCows.forEach((cow, i) => {
-                const prod = productionData[currentMonth].productions[i] || { amValues: Array(daysInMonth).fill(''), pmValues: Array(daysInMonth).fill('') };
-                weeks.forEach(([start, end], w) => {
-                    let total = 0;
-                    for (let d = start; d < end; d++) {
-                        total += (parseFloat(prod.amValues[d]) || 0) + (parseFloat(prod.pmValues[d]) || 0);
-                    }
-                    cowWeeklyTotals[w][i].total = total;
-                });
-            });
-
-            const topWeeklyTbody = document.getElementById('topWeeklyTable').getElementsByTagName('tbody')[0];
-            const worstWeeklyTbody = document.getElementById('worstWeeklyTable').getElementsByTagName('tbody')[0];
-            topWeeklyTbody.innerHTML = '';
-            worstWeeklyTbody.innerHTML = '';
-            weeks.forEach(([start, end], w) => {
-                const sorted = cowWeeklyTotals[w]
-                    .filter(c => c.total > 0 || cowWeeklyTotals[w].every(c => c.total === 0))
-                    .sort((a, b) => b.total - a.total);
-                const top5 = sorted.slice(0, 5);
-                const worst5 = sorted.slice(-5).reverse();
-                if (sorted.length > 0) {
-                    const topRow = topWeeklyTbody.insertRow();
-                    topRow.insertCell().textContent = `Week ${w + 1} (${start + 1}-${end})`;
-                    top5.forEach(cow => topRow.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow} (${cow.total.toFixed(1)})`);
-                    while (topRow.cells.length < 6) topRow.insertCell().textContent = '';
-                    const worstRow = worstWeeklyTbody.insertRow();
-                    worstRow.insertCell().textContent = `Week ${w + 1} (${start + 1}-${end})`;
-                    worst5.forEach(cow => worstRow.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow} (${cow.total.toFixed(1)})`);
-                    while (worstRow.cells.length < 6) worstRow.insertCell().textContent = '';
-                }
-            });
-
-            const sortedMonthly = cowMonthlyTotals.sort((a, b) => b.total - a.total);
-            const topMonthly = sortedMonthly.slice(0, 5);
-            const worstMonthly = sortedMonthly.slice(-5).reverse();
-            const topMonthlyTbody = document.getElementById('topMonthlyTable').getElementsByTagName('tbody')[0];
-            const worstMonthlyTbody = document.getElementById('worstMonthlyTable').getElementsByTagName('tbody')[0];
-            topMonthlyTbody.innerHTML = '';
-            worstMonthlyTbody.innerHTML = '';
-            topMonthly.forEach((cow, i) => {
-                const row = topMonthlyTbody.insertRow();
-                row.insertCell().textContent = i + 1;
-                row.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow}`;
-                row.insertCell().textContent = cow.total.toFixed(1);
-            });
-            worstMonthly.forEach((cow, i) => {
-                const row = worstMonthlyTbody.insertRow();
-                row.insertCell().textContent = i + 1;
-                row.insertCell().textContent = `[${fixedCows.find(fc => fc.displayName === cow.cow)?.cowNo || ""}] ${cow.cow}`;
-                row.insertCell().textContent = cow.total.toFixed(1);
-            });
-        }
-
-        function exportToCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            const table = document.getElementById('milkTable');
-            const rows = table.rows;
-
-            const headerRow = rows[0];
-            const headerData = [];
-            for (let j = 0; j < headerRow.cells.length; j++) {
-                headerData.push(`"${headerRow.cells[j].textContent.replace(/"/g, '""')}"`);
-            }
-            csvContent += headerData.join(",") + "\r\n";
-
-            for (let i = 1; i < rows.length; i++) {
-                const row = rows[i];
-                const rowData = [];
-                for (let j = 0; j < row.cells.length; j++) {
-                    const cell = row.cells[j];
-                    let cellText = cell.textContent || cell.innerText;
-                    if (cell.querySelector('input')) {
-                        cellText = cell.querySelector('input').value;
-                    }
-                    if (j === 0 && cell.querySelectorAll('button').length > 0) {
-                        cellText = cell.textContent.replace(/Edit\s*Delete\s*/, '').trim();
-                    }
-                    rowData.push(`"${cellText.replace(/"/g, '""')}"`);
-                }
-                csvContent += rowData.join(",") + "\r\n";
-            }
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `${currentMonth}_Records.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function exportLocalStorage() {
-            const data = {
-                fixedCows: fixedCows,
-                productionData: productionData
-            };
-            const dataStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'dairy_data.json';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            document.getElementById('message').textContent = 'Data exported!';
-            setTimeout(() => document.getElementById('message').textContent = '', 3000);
-        }
-
-        function importLocalStorage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (!data.fixedCows || !data.productionData) {
-                        alert('Invalid data format. Please upload a valid dairy_data.json file.');
-                        return;
-                    }
-
-                    fixedCows = data.fixedCows;
-                    fixedCows.forEach(cow => {
-                        if (!cow.cowName) {
-                            cow.cowName = cow.displayName.split('. ')[1] || '';
-                        }
-                    });
-
-                    productionData = {};
-                    months.forEach(month => {
-                        const days = getDaysInMonth(month, year);
-                        productionData[month] = {
-                            productions: Array(fixedCows.length).fill().map(() => ({
-                                amValues: Array(days).fill(""),
-                                pmValues: Array(days).fill("")
-                            })),
-                            deductions: {
-                                homeUse: Array(days).fill(""),
-                                workersMilk: Array(days).fill(""),
-                                calvesMilkAM: Array(days).fill(""),
-                                calvesMilkPM: Array(days).fill("")
-                            },
-                            inactiveCows: []
-                        };
-                    });
-
-                    Object.keys(data.productionData).forEach(month => {
-                        if (!months.includes(month)) return;
-                        const days = getDaysInMonth(month, year);
-                        const monthData = data.productionData[month];
-                        productionData[month].productions = Array(fixedCows.length).fill().map((_, i) => ({
-                            amValues: Array(days).fill("").map((_, j) => monthData.productions[i]?.amValues[j] || ""),
-                            pmValues: Array(days).fill("").map((_, j) => monthData.productions[i]?.pmValues[j] || "")
-                        }));
-                        productionData[month].deductions = {
-                            homeUse: Array(days).fill("").map((_, i) => monthData.deductions?.homeUse[i] || ""),
-                            workersMilk: Array(days).fill("").map((_, i) => monthData.deductions?.workersMilk[i] || ""),
-                            calvesMilkAM: Array(days).fill("").map((_, i) => monthData.deductions?.calvesMilkAM[i] || ""),
-                            calvesMilkPM: Array(days).fill("").map((_, i) => monthData.deductions?.calvesMilkPM[i] || "")
-                        };
-                        productionData[month].inactiveCows = monthData.inactiveCows || [];
-                    });
-
-                    cowCount = fixedCows.length;
-                    localStorage.setItem('fixedCows', JSON.stringify(fixedCows));
-                    localStorage.setItem('productionData', JSON.stringify(productionData));
-                    loadMonth(currentMonth);
-                    document.getElementById('message').textContent = 'Data imported!';
-                    setTimeout(() => document.getElementById('message').textContent = '', 3000);
-                } catch (err) {
-                    alert('Error importing data: ' + err.message);
-                }
-            };
-            reader.readAsText(file);
-        }
-    </script>
+  </label>
+
+  <button class="save"   onclick="saveCurrentMonth()">Save Data</button>
+  <button class="load"   onclick="loadCurrentMonth()">Load Data</button>
+  <button class="export" onclick="exportToExcel()">Export to Excel</button>
+  <button onclick="showExcludedCows()">Show / Restore excluded cows</button>
+  <button onclick="if(confirm('Reset ALL data?')){localStorage.clear();location.reload()}">Reset Everything</button>
+</div>
+
+<div id="msg" class="msg"></div>
+
+<div class="table-container">
+  <table id="tbl">
+    <caption id="cap">July 2025 — Milk Production & Deductions</caption>
+    <thead>
+      <tr>
+        <th>Cow</th>
+        <th>Calving Date</th>
+        <th>Preg. Months</th>
+        <!-- Day 1 AM / PM, Day 2 AM / PM, ... will be inserted here -->
+        <th>Total</th>
+        <th>Hide</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+    <tfoot>
+      <tr id="daily"><td>Daily Total</td><td></td><td></td></tr>
+      <tr id="home"><td>Home Use</td><td></td><td></td></tr>
+      <tr id="work"><td>Workers Milk</td><td></td><td></td></tr>
+      <tr id="calfAM"><td>Calves Milk AM</td><td></td><td></td></tr>
+      <tr id="calfPM"><td>Calves Milk PM</td><td></td><td></td></tr>
+      <tr id="final"><td><b>Final Total</b></td><td></td><td></td></tr>
+    </tfoot>
+  </table>
+</div>
+
+<script>
+// ──────────────────────────────────────────────
+// DATA — exactly the 26 cows from your JSON
+// ──────────────────────────────────────────────
+
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const YEAR = 2025;
+
+let cows = [
+  {no:"093", name:"1. RITAH",   calving:"2024-05-28", preg:""},
+  {no:"434", name:"2. SHANA",   calving:"2024-10-06", preg:"1.6"},
+  {no:"083", name:"3. KATHY",   calving:"2024-10-27", preg:""},
+  {no:"402", name:"4. KELLEN",  calving:"2024-11-13", preg:""},
+  {no:"098", name:"5. Jackline",calving:"2025-04-12", preg:"0"},
+  {no:"421", name:"6. Eva",     calving:"2025-05-17", preg:"0"},
+  {no:"099", name:"7. Sarah",   calving:"2025-04-20", preg:"0"},
+  {no:"521", name:"8. Keza",    calving:"2025-03-11", preg:"0"},
+  {no:"539", name:"9. Kirabo",  calving:"2025-04-25", preg:"0"},
+  {no:"403", name:"10. Peace",  calving:"2025-05-10", preg:"0"},
+  {no:"418", name:"11. Irene",  calving:"2025-05-17", preg:"0"},
+  {no:"296", name:"12. Joan",   calving:"2025-05-28", preg:"0"},
+  {no:"511", name:"13. Siima",  calving:"2025-06-22", preg:"0"},
+  {no:"021", name:"14. Biira",  calving:"2025-06-24", preg:"0"},
+  {no:"502", name:"15. Ruth",   calving:"2024-07-07", preg:"0"},
+  {no:"010", name:"16. Debra",  calving:"2025-07-08", preg:"0"},
+  {no:"516", name:"17. Nakato", calving:"2025-07-19", preg:"0"},
+  {no:"535", name:"18. Fiona",  calving:"2025-07-21", preg:"0"},
+  {no:"134", name:"19. Beatrice",calving:"2025-08-02",preg:"0"},
+  {no:"011", name:"20. Nina",   calving:"2025-08-04", preg:"0"},
+  {no:"100", name:"21. Karungi",calving:"2025-07-09", preg:"0"},
+  {no:"935", name:"22. Prossy", calving:"2025-08-23", preg:"0"},
+  {no:"404", name:"23. Kyoozi", calving:"2025-08-28", preg:"0"},
+  {no:"013", name:"24. Bella",  calving:"2025-09-05", preg:"0"},
+  {no:"425", name:"25. Angel",  calving:"2025-11-02", preg:"0"},
+  {no:"297", name:"26. Mercy",  calving:"2025-11-30", preg:"0"}
+];
+
+let state = JSON.parse(localStorage.getItem("dairyState")) || {};
+
+// Initialize missing months
+MONTHS.forEach(m => {
+  if (!state[m]) {
+    const days = new Date(YEAR, MONTHS.indexOf(m)+1, 0).getDate();
+    state[m] = {
+      cows: cows.map(c => ({...c, hidden: false})),
+      production: cows.map(() => ({am: Array(days).fill(""), pm: Array(days).fill("")})),
+      deductions: {
+        homeUse:    Array(days).fill(""),
+        workersMilk: Array(days).fill(""),
+        calvesAM:   Array(days).fill(""),
+        calvesPM:   Array(days).fill("")
+      }
+    };
+  }
+});
+
+let currentMonth = "July";
+
+// ──────────────────────────────────────────────
+// RENDER
+// ──────────────────────────────────────────────
+
+function render() {
+  const month = currentMonth;
+  const days  = new Date(YEAR, MONTHS.indexOf(month)+1, 0).getDate();
+  const data  = state[month];
+
+  document.getElementById("selMonth").value = month;
+  document.getElementById("cap").textContent = `${month} ${YEAR} — Milk Production & Deductions`;
+
+  const thead = document.querySelector("#tbl thead tr");
+  thead.innerHTML = `
+    <th>Cow</th>
+    <th>Calving Date</th>
+    <th>Preg. Months</th>
+  `;
+  for (let d = 1; d <= days; d++) {
+    thead.innerHTML += `<th>Day ${d}<br>AM</th><th>Day ${d}<br>PM</th>`;
+  }
+  thead.innerHTML += `<th>Total</th><th>Hide</th>`;
+
+  const tbody = document.querySelector("#tbl tbody");
+  tbody.innerHTML = "";
+
+  data.cows.forEach((cow, i) => {
+    if (cow.hidden) return;
+
+    const prod = data.production[i] || {am:Array(days).fill(""), pm:Array(days).fill("")};
+    let total = 0;
+    let row = `
+      <tr>
+        <td class="cow-name">[${cow.no}] ${cow.name}</td>
+        <td>${cow.calving}</td>
+        <td>${cow.preg}</td>
+    `;
+
+    for (let d = 0; d < days; d++) {
+      const amVal = prod.am[d] || "";
+      const pmVal = prod.pm[d] || "";
+      const daySum = (parseFloat(amVal)||0) + (parseFloat(pmVal)||0);
+      total += daySum;
+
+      row += `
+        <td><input type="number" step="0.1" value="${amVal}" data-i="${i}" data-d="${d}" data-type="am"></td>
+        <td><input type="number" step="0.1" value="${pmVal}" data-i="${i}" data-d="${d}" data-type="pm"></td>
+      `;
+    }
+
+    row += `
+      <td><b>${total.toFixed(1)}</b></td>
+      <td><button class="hide" onclick="toggleHide(${i})">Hide</button></td>
+      </tr>
+    `;
+    tbody.innerHTML += row;
+  });
+
+  updateFooterTotals();
+
+  document.querySelectorAll('input[type=number]').forEach(el => {
+    el.addEventListener('input', handleInputChange);
+  });
+}
+
+function handleInputChange(e) {
+  const {i, d, type} = e.target.dataset;
+  const val = e.target.value;
+  state[currentMonth].production[i][type][d] = val;
+  updateFooterTotals();
+}
+
+function updateFooterTotals() {
+  const monthData = state[currentMonth];
+  const days = monthData.production[0]?.am.length || 31;
+
+  let daily = Array(days).fill(0);
+  let home = 0, work = 0, calfAM = 0, calfPM = 0;
+
+  monthData.cows.forEach((cow, i) => {
+    if (cow.hidden) return;
+    const prod = monthData.production[i];
+    for (let d = 0; d < days; d++) {
+      daily[d] += (parseFloat(prod.am[d])||0) + (parseFloat(prod.pm[d])||0);
+    }
+  });
+
+  monthData.deductions.homeUse.forEach(v => home += parseFloat(v)||0);
+  monthData.deductions.workersMilk.forEach(v => work += parseFloat(v)||0);
+  monthData.deductions.calvesAM.forEach(v => calfAM += parseFloat(v)||0);
+  monthData.deductions.calvesPM.forEach(v => calfPM += parseFloat(v)||0);
+
+  const totalDeduct = home + work + calfAM + calfPM;
+  const grandTotal = daily.reduce((a,b)=>a+b,0) - totalDeduct;
+
+  const dailyRow = document.getElementById("daily");
+  dailyRow.innerHTML = "<td>Daily Total</td><td></td><td></td>";
+  daily.forEach(v => dailyRow.innerHTML += `<td>${v.toFixed(1)}</td>`);
+  dailyRow.innerHTML += `<td>${daily.reduce((a,b)=>a+b,0).toFixed(1)}</td><td></td>`;
+
+  document.getElementById("home").innerHTML = `<td>Home Use</td><td></td><td></td>` + Array(days).fill().map(()=>`<td></td>`).join("") + `<td>${home.toFixed(1)}</td><td></td>`;
+  document.getElementById("work").innerHTML = `<td>Workers Milk</td><td></td><td></td>` + Array(days).fill().map(()=>`<td></td>`).join("") + `<td>${work.toFixed(1)}</td><td></td>`;
+  document.getElementById("calfAM").innerHTML = `<td>Calves Milk AM</td><td></td><td></td>` + Array(days).fill().map(()=>`<td></td>`).join("") + `<td>${calfAM.toFixed(1)}</td><td></td>`;
+  document.getElementById("calfPM").innerHTML = `<td>Calves Milk PM</td><td></td><td></td>` + Array(days).fill().map(()=>`<td></td>`).join("") + `<td>${calfPM.toFixed(1)}</td><td></td>`;
+  document.getElementById("final").innerHTML = `<td><b>Final Total</b></td><td></td><td></td>` + Array(days).fill().map(()=>`<td></td>`).join("") + `<td><b>${grandTotal.toFixed(1)}</b></td><td></td>`;
+}
+
+// ──────────────────────────────────────────────
+// ACTIONS
+// ──────────────────────────────────────────────
+
+function addNewCow() {
+  const no   = document.getElementById("newNo").value.trim();
+  const name = document.getElementById("newName").value.trim();
+  const calv = document.getElementById("newCalving").value;
+  const preg = document.getElementById("newPreg").value.trim();
+
+  if (!no || !name || !calv) {
+    alert("Cow No, Name and Calving Date are required.");
+    return;
+  }
+
+  if (cows.some(c => c.no === no)) {
+    alert("Cow number already exists.");
+    return;
+  }
+
+  const newCow = {no, name, calving: calv, preg: preg || "0"};
+  cows.push(newCow);
+
+  MONTHS.forEach(m => {
+    const days = new Date(YEAR, MONTHS.indexOf(m)+1, 0).getDate();
+    state[m].cows.push({...newCow, hidden: false});
+    state[m].production.push({am: Array(days).fill(""), pm: Array(days).fill("")});
+  });
+
+  save();
+  render();
+
+  // Clear form
+  document.getElementById("newNo").value = "";
+  document.getElementById("newName").value = "";
+  document.getElementById("newCalving").value = "";
+  document.getElementById("newPreg").value = "";
+
+  alert(`Cow ${name} (${no}) added to all months.`);
+}
+
+function toggleHide(idx) {
+  state[currentMonth].cows[idx].hidden = !state[currentMonth].cows[idx].hidden;
+  save();
+  render();
+}
+
+function showExcludedCows() {
+  const hidden = state[currentMonth].cows.filter(c => c.hidden).map(c => c.name);
+  if (hidden.length === 0) return alert("No cows are hidden this month.");
+  if (confirm(`Restore ${hidden.length} hidden cow(s)?\n\n${hidden.join("\n")}`)) {
+    state[currentMonth].cows.forEach(c => c.hidden = false);
+    save();
+    render();
+  }
+}
+
+function saveCurrentMonth() {
+  save();
+  document.getElementById("msg").textContent = "Data saved ✓";
+  setTimeout(() => document.getElementById("msg").textContent = "", 2400);
+}
+
+function loadCurrentMonth() {
+  render();
+  document.getElementById("msg").textContent = "Data loaded";
+  setTimeout(() => document.getElementById("msg").textContent = "", 2400);
+}
+
+function save() {
+  localStorage.setItem("dairyState", JSON.stringify(state));
+}
+
+function exportToExcel() {
+  const wb = XLSX.utils.book_new();
+
+  MONTHS.forEach(m => {
+    const d = state[m];
+    const days = d.production[0]?.am.length || 31;
+
+    let wsData = [
+      ["Cow", "Calving Date", "Preg. Months", ...Array.from({length:days}, (_,i)=>`Day ${i+1} AM`), ...Array.from({length:days}, (_,i)=>`Day ${i+1} PM`), "Total"]
+    ];
+
+    d.cows.forEach((cow, i) => {
+      if (cow.hidden) return;
+      const row = [cow.name, cow.calving, cow.preg];
+      let total = 0;
+      for (let day = 0; day < days; day++) {
+        const am = parseFloat(d.production[i].am[day]) || 0;
+        const pm = parseFloat(d.production[i].pm[day]) || 0;
+        row.push(am, pm);
+        total += am + pm;
+      }
+      row.push(total);
+      wsData.push(row);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, m);
+  });
+
+  XLSX.writeFile(wb, `Dairy_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// ──────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────
+
+document.getElementById("selMonth").addEventListener("change", e => {
+  currentMonth = e.target.value;
+  render();
+});
+
+render();
+  </script>
 </body>
 </html>
-
