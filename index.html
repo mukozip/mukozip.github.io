@@ -4,93 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dairy Farm Milk Record - Mukozi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            margin: 20px;
-            background: #f8f9fa;
-        }
-        h1 {
-            color: #2c3e50;
-        }
-        .controls {
-            margin: 20px 0;
-            padding: 12px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            display: inline-block;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 10px;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 6px 8px;
-            text-align: center;
-            font-size: 0.92em;
-        }
-        th {
-            background: #3498db;
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        td:first-child {
-            text-align: left;
-            font-weight: bold;
-            background: #f1f5f9;
-        }
-        input[type="number"] {
-            width: 60px;
-            padding: 4px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        input[type="number"]:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-        .hiddenRow {
-            display: none;
-        }
-        button {
-            padding: 4px 8px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #c0392b;
-        }
-        #stats {
-            margin-top: 25px;
-            padding: 15px;
-            background: #fff;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-        }
-        #topList, #lowList {
-            columns: 2;
-            margin: 10px 0;
-        }
-        .deduction-cell {
-            background: #fff3cd;
-            font-size: 0.9em;
-        }
-        .net-cell {
-            background: #d4edda;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
+        body { font-family: Arial, Helvetica, sans-serif; margin: 20px; background: #f8f9fa; }
+        h1, h2 { color: #2c3e50; }
+        .controls { margin: 20px 0; padding: 12px; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: center; font-size: 0.92em; }
+        th { background: #3498db; color: white; position: sticky; top: 0; }
+        td:first-child { text-align: left; font-weight: bold; background: #f1f5f9; }
+        input[type="number"], input[type="text"], input[type="date"] { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="number"] { width: 65px; text-align: center; }
+        button { padding: 6px 12px; margin: 0 4px 8px 0; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary  { background: #3498db; color: white; }
+        .btn-success  { background: #27ae60; color: white; }
+        .btn-warning  { background: #f39c12; color: white; }
+        .btn-danger   { background: #e74c3c; color: white; }
+        .btn:hover { opacity: 0.9; }
+        .form-add-cow { margin: 20px 0; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
+        .hiddenRow { display: none; }
+        #stats { margin-top: 25px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
+        .deduction-cell { background: #fff3cd; font-size: 0.9em; }
+        .net-cell { background: #d4edda; font-weight: bold; font-size: 1.1em; }
     </style>
 </head>
 <body>
@@ -124,27 +59,39 @@
             <option value="December" selected>December</option>
         </select>
     </label>
+
+    <button class="btn-primary" onclick="exportToExcel()">Export to Excel</button>
+    <label style="margin-left:20px">Import JSON:
+        <input type="file" id="importJson" accept=".json" style="display:inline-block"/>
+    </label>
 </div>
 
+<div class="form-add-cow">
+    <h3>Add New Cow</h3>
+    <label>Tag/No: <input type="text" id="newNo" placeholder="e.g. 142" size="6"></label>
+    <label>Name: <input type="text" id="newName" placeholder="e.g. LILLY"></label>
+    <label>Calving: <input type="date" id="newCalving"></label>
+    <label>Preg: <input type="text" id="newPreg" placeholder="0 or 1.5 or empty" size="6"></label>
+    <button class="btn-success" onclick="addNewCow()">Add Cow</button>
+</div>
+
+<h2 id="caption"></h2>
+
 <table id="milkTable">
-    <thead>
-        <tr id="headerRow"></tr>
-    </thead>
+    <thead><tr id="headerRow"></tr></thead>
     <tbody></tbody>
 </table>
 
 <div id="stats">
     <h3>Quick Stats</h3>
-    <p>Top 5 cows:</p>
-    <ul id="topList"></ul>
-    <p>Bottom 5 cows:</p>
-    <ul id="lowList"></ul>
+    <p>Top 5 cows:</p><ul id="topList"></ul>
+    <p>Bottom 5 cows:</p><ul id="lowList"></ul>
 </div>
 
 <script>
-// ========================
-// DATA
-// ========================
+// ──────────────────────────────────────────────
+// DATA ─ all cows included
+// ──────────────────────────────────────────────
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -181,200 +128,260 @@ let year = 2026;
 let month = "January";
 let state = JSON.parse(localStorage.getItem("dairyData")) || {};
 
-// ========================
-// CORE FUNCTIONS
-// ========================
-
-function getKey() {
-    return year + "_" + month;
-}
+function getKey() { return year + "_" + month; }
 
 function initMonth() {
     const key = getKey();
     if (!state[key]) {
         const days = new Date(year, MONTHS.indexOf(month) + 1, 0).getDate();
         state[key] = {
-            prod: cows.map(() => ({
-                am: Array(days).fill(""),
-                pm: Array(days).fill("")
-            })),
-            deductions: {
-                home:    Array(days).fill(""),
-                workers: Array(days).fill(""),
-                calvesAM: Array(days).fill(""),
-                calvesPM: Array(days).fill("")
-            },
+            prod: cows.map(() => ({ am: Array(days).fill(""), pm: Array(days).fill("") })),
+            deductions: { home:Array(days).fill(""), workers:Array(days).fill(""), calvesAM:Array(days).fill(""), calvesPM:Array(days).fill("") },
             hidden: Array(cows.length).fill(false)
         };
     }
     return state[key];
 }
 
-// ========================
+// ──────────────────────────────────────────────
 // RENDER
-// ========================
+// ──────────────────────────────────────────────
 
 function render() {
     const data = initMonth();
-    const days = data.prod[0].am.length;
+    const days = data.prod[0]?.am.length || 31;
 
-    document.getElementById("caption")?.remove(); // just in case
-    document.querySelector("h1").insertAdjacentHTML("afterend",
-        `<h2 id="caption" style="margin-top:0">${month} ${year}</h2>`
-    );
+    document.getElementById("caption").textContent = `${month} ${year}`;
 
-    // Header
     let header = "<th>Cow</th><th>Calving</th><th>Preg</th><th>Hide</th>";
-    for (let d = 1; d <= days; d++) {
-        header += `<th>${d}<br>AM</th><th>${d}<br>PM</th>`;
-    }
+    for (let d = 1; d <= days; d++) header += `<th>${d}<br>AM</th><th>${d}<br>PM</th>`;
     header += "<th>Total (L)</th>";
     document.getElementById("headerRow").innerHTML = header;
 
-    // Body
-    let body = "";
-    let grossMonthly = 0;
+    let body = "", gross = 0;
 
     cows.forEach((cow, i) => {
         const hidden = data.hidden[i];
-        let row = `<tr class="${hidden ? 'hiddenRow' : ''}">
+        let row = `<tr class="${hidden?'hiddenRow':''}">
             <td>${cow.no} ${cow.name}</td>
             <td>${cow.calving || '-'}</td>
             <td>${cow.preg || '-'}</td>
-            <td><button onclick="toggleHide(${i})">${hidden ? 'Show' : 'Hide'}</button></td>`;
+            <td><button class="btn-danger" onclick="toggleHide(${i})">${hidden?'Show':'Hide'}</button></td>`;
 
         let total = 0;
-
         for (let d = 0; d < days; d++) {
-            const am = data.prod[i].am[d] || "";
-            const pm = data.prod[i].pm[d] || "";
-            if (!hidden) total += (+am || 0) + (+pm || 0);
-
-            row += `
-                <td><input type="number" step="0.1" value="${am}" onchange="updateProd(${i},${d},'am',this.value)"></td>
-                <td><input type="number" step="0.1" value="${pm}" onchange="updateProd(${i},${d},'pm',this.value)"></td>`;
+            const am = data.prod[i]?.am[d] || "";
+            const pm = data.prod[i]?.pm[d] || "";
+            if (!hidden) total += (+am||0) + (+pm||0);
+            row += `<td><input type="number" step="0.1" value="${am}" onchange="updateProd(${i},${d},'am',this.value)"></td>
+                    <td><input type="number" step="0.1" value="${pm}" onchange="updateProd(${i},${d},'pm',this.value)"></td>`;
         }
-
-        grossMonthly += total;
+        gross += total;
         row += `<td>${total ? total.toFixed(1) : '-'}</td></tr>`;
         body += row;
     });
 
     document.querySelector("tbody").innerHTML = body;
 
-    renderDeductions(days, data, grossMonthly);
+    renderDeductions(days, data, gross);
     updateDashboard(days, data);
 }
 
 function renderDeductions(days, data, gross) {
-    let row = `<tr style="background:#fff3cd">
-        <td colspan="4"><b>Deductions</b></td>`;
+    let html = `<tr style="background:#fff3cd"><td colspan="4"><b>Deductions</b></td>`;
 
     let totalDed = 0;
-
     for (let d = 0; d < days; d++) {
-        const home     = +data.deductions.home[d]    || 0;
-        const workers  = +data.deductions.workers[d] || 0;
-        const calvesAM = +data.deductions.calvesAM[d]|| 0;
-        const calvesPM = +data.deductions.calvesPM[d]|| 0;
-
-        const dayDed = home + workers + calvesAM + calvesPM;
+        const h  = +data.deductions.home[d]||0;
+        const w  = +data.deductions.workers[d]||0;
+        const ca = +data.deductions.calvesAM[d]||0;
+        const cp = +data.deductions.calvesPM[d]||0;
+        const dayDed = h + w + ca + cp;
         totalDed += dayDed;
 
-        row += `
-            <td class="deduction-cell">
-                Home: <input type="number" step="0.1" value="${home}" onchange="updateDed(${d},'home',this.value)"><br>
-                Workers: <input type="number" step="0.1" value="${workers}" onchange="updateDed(${d},'workers',this.value)"><br>
-                Calf AM: <input type="number" step="0.1" value="${calvesAM}" onchange="updateDed(${d},'calvesAM',this.value)"><br>
-                Calf PM: <input type="number" step="0.1" value="${calvesPM}" onchange="updateDed(${d},'calvesPM',this.value)">
-            </td>
-            <td></td>`;
+        html += `<td class="deduction-cell">
+            Home:<input type="number" step="0.1" value="${h}" onchange="updateDed(${d},'home',this.value)"><br>
+            Workers:<input type="number" step="0.1" value="${w}" onchange="updateDed(${d},'workers',this.value)"><br>
+            Calf AM:<input type="number" step="0.1" value="${ca}" onchange="updateDed(${d},'calvesAM',this.value)"><br>
+            Calf PM:<input type="number" step="0.1" value="${cp}" onchange="updateDed(${d},'calvesPM',this.value)">
+        </td><td></td>`;
     }
-
-    row += `<td class="net-cell">${totalDed.toFixed(1)}</td></tr>`;
+    html += `<td class="net-cell">${totalDed.toFixed(1)}</td></tr>`;
 
     const net = gross - totalDed;
-    row += `<tr style="background:#d4edda">
+    html += `<tr style="background:#d4edda">
         <td colspan="4"><b>Net Saleable (L)</b></td>
         <td colspan="${days*2}"></td>
-        <td class="net-cell"><b>${net.toFixed(1)}</b></td>
-    </tr>`;
+        <td class="net-cell"><b>${net.toFixed(1)}</b></td></tr>`;
 
-    // Insert deductions row after the last cow row
-    const tbody = document.querySelector("tbody");
-    tbody.insertAdjacentHTML("beforeend", row);
+    document.querySelector("tbody").insertAdjacentHTML("beforeend", html);
 }
 
 function updateDashboard(days, data) {
     const totals = [];
-
-    cows.forEach((cow, i) => {
+    cows.forEach((c,i) => {
         if (data.hidden[i]) return;
-        let total = 0;
-        for (let d = 0; d < days; d++) {
-            total += (+data.prod[i].am[d] || 0) + (+data.prod[i].pm[d] || 0);
-        }
-        totals.push({ name: cow.name, total });
+        let t = 0;
+        for (let d = 0; d < days; d++) t += (+data.prod[i]?.am[d]||0) + (+data.prod[i]?.pm[d]||0);
+        totals.push({name: c.name, total: t});
     });
+    totals.sort((a,b)=>b.total - a.total);
 
-    totals.sort((a,b) => b.total - a.total);
-
-    document.getElementById("topList").innerHTML =
-        totals.slice(0,5).map(c => `<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
-
-    document.getElementById("lowList").innerHTML =
-        totals.slice(-5).reverse().map(c => `<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
+    document.getElementById("topList").innerHTML = totals.slice(0,5).map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
+    document.getElementById("lowList").innerHTML = totals.slice(-5).reverse().map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
 }
 
-// ========================
-// UPDATE & SAVE
-// ========================
+// ──────────────────────────────────────────────
+// CRUD & SAVE
+// ──────────────────────────────────────────────
 
 function updateProd(i, d, type, val) {
     state[getKey()].prod[i][type][d] = val;
-    save();
-    render();
+    save(); render();
 }
 
 function updateDed(d, type, val) {
     state[getKey()].deductions[type][d] = val;
-    save();
-    render();
+    save(); render();
 }
 
 function toggleHide(i) {
     state[getKey()].hidden[i] = !state[getKey()].hidden[i];
-    save();
-    render();
+    save(); render();
 }
 
 function save() {
-    localStorage.setItem("dairyData", JSON.stringify(state));
     localStorage.setItem("cowList", JSON.stringify(cows));
+    localStorage.setItem("dairyData", JSON.stringify(state));
 }
 
-// ========================
-// EVENT LISTENERS
-// ========================
+// ──────────────────────────────────────────────
+// NEW FEATURES
+// ──────────────────────────────────────────────
+
+function addNewCow() {
+    const no   = document.getElementById("newNo").value.trim();
+    const name = document.getElementById("newName").value.trim().toUpperCase();
+    const calv = document.getElementById("newCalving").value;
+    const preg = document.getElementById("newPreg").value.trim();
+
+    if (!no || !name) {
+        alert("Tag/Number and Name are required.");
+        return;
+    }
+
+    cows.push({ no, name, calving: calv || "", preg: preg || "" });
+
+    // Add empty production data for all existing months
+    Object.keys(state).forEach(key => {
+        const days = state[key].prod[0]?.am.length || 31;
+        state[key].prod.push({ am: Array(days).fill(""), pm: Array(days).fill("") });
+        state[key].hidden.push(false);
+    });
+
+    save();
+    render();
+
+    // Clear form
+    document.getElementById("newNo").value = "";
+    document.getElementById("newName").value = "";
+    document.getElementById("newCalving").value = "";
+    document.getElementById("newPreg").value = "";
+}
+
+function exportToExcel() {
+    const data = initMonth();
+    const days = data.prod[0]?.am.length || 31;
+
+    const ws_data = [];
+    const header = ["Cow", "Calving", "Preg"];
+
+    for (let d = 1; d <= days; d++) {
+        header.push(`${d} AM`, `${d} PM`);
+    }
+    header.push("Total");
+
+    ws_data.push(header);
+
+    cows.forEach((cow, i) => {
+        if (data.hidden[i]) return;
+        const row = [`${cow.no} ${cow.name}`, cow.calving || "", cow.preg || ""];
+        let total = 0;
+        for (let d = 0; d < days; d++) {
+            const am = +data.prod[i]?.am[d] || 0;
+            const pm = +data.prod[i]?.pm[d] || 0;
+            row.push(am || "", pm || "");
+            total += am + pm;
+        }
+        row.push(total || "");
+        ws_data.push(row);
+    });
+
+    // Deductions
+    const dedRow = ["Deductions", "", "", ""];
+    let totalDed = 0;
+    for (let d = 0; d < days; d++) {
+        const h  = +data.deductions.home[d]||0;
+        const w  = +data.deductions.workers[d]||0;
+        const ca = +data.deductions.calvesAM[d]||0;
+        const cp = +data.deductions.calvesPM[d]||0;
+        const day = h + w + ca + cp;
+        dedRow.push(day || "");
+        totalDed += day;
+    }
+    dedRow.push(totalDed || "");
+    ws_data.push(dedRow);
+
+    const net = (ws_data[ws_data.length-2]?.slice(-1)[0] || 0) - totalDed;
+    ws_data.push(["Net Saleable", "", "", "", ...Array(days*2).fill(""), net]);
+
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, `${month}_${year}`);
+
+    XLSX.writeFile(wb, `MilkRecord_${month}_${year}.xlsx`);
+}
+
+function importJson(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const imported = JSON.parse(e.target.result);
+
+            if (imported.cows) {
+                cows = imported.cows;
+                alert("Cow list updated.");
+            }
+
+            if (imported.dairyData) {
+                state = imported.dairyData;
+                alert("Production & deduction data updated.");
+            }
+
+            save();
+            render();
+        } catch (err) {
+            alert("Invalid JSON file.\n\nError: " + err.message);
+        }
+    };
+    reader.readAsText(file);
+}
+
+// ──────────────────────────────────────────────
+// INIT & EVENTS
+// ──────────────────────────────────────────────
 
 document.addEventListener("DOMContentLoaded", () => {
-    const yearSelect = document.getElementById("yearSel");
-    const monthSelect = document.getElementById("monthSel");
+    document.getElementById("yearSel").value = year;
+    document.getElementById("monthSel").value = month;
 
-    yearSelect.value = year;
-    monthSelect.value = month;
+    document.getElementById("yearSel").onchange = e => { year = +e.target.value; render(); };
+    document.getElementById("monthSel").onchange = e => { month = e.target.value; render(); };
 
-    yearSelect.onchange = e => {
-        year = +e.target.value;
-        render();
+    document.getElementById("importJson").onchange = e => {
+        if (e.target.files[0]) importJson(e.target.files[0]);
     };
 
-    monthSelect.onchange = e => {
-        month = e.target.value;
-        render();
-    };
-
-    // Initial render
     render();
 });
 </script>
