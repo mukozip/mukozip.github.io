@@ -1,88 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Dairy Professional System</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<style>
-body{font-family:system-ui;margin:20px}
-.controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px}
-button{padding:6px 12px;cursor:pointer}
-table{border-collapse:collapse;font-size:0.75rem;width:100%;display:block;overflow-x:auto}
-th,td{border:1px solid #ccc;padding:4px;text-align:center}
-thead th{background:#eee;position:sticky;top:0}
-th:first-child,td:first-child{position:sticky;left:0;background:#f9f9f9;text-align:left}
-input{width:55px}
-.hiddenRow{opacity:0.35}
-.dashboard{display:flex;gap:40px;margin-bottom:20px}
-</style>
-</head>
-
-<body>
-
-<h2>🐄 Dairy Production Management System</h2>
-
-<div class="controls">
-<label>Year:
-<select id="yearSel">
-<option>2024</option>
-<option>2025</option>
-<option selected>2026</option>
-</select></label>
-
-<label>Month:
-<select id="monthSel">
-<option>January</option><option>February</option><option>March</option>
-<option>April</option><option>May</option><option>June</option>
-<option>July</option><option>August</option><option>September</option>
-<option>October</option><option>November</option><option>December</option>
-</select></label>
-
-<button onclick="exportExcel()">Export Excel</button>
-<input type="file" id="jsonUpload" accept=".json">
-<button onclick="save()">Save</button>
-</div>
-
-<h3>Add New Cow</h3>
-<div class="controls">
-<input id="newTag" placeholder="Tag No">
-<input id="newName" placeholder="Name">
-<input id="newCalving" type="date">
-<input id="newPreg" placeholder="Preg Months">
-<button onclick="addCow()">Add Cow</button>
-</div>
-
-<h3>📊 Monthly Dashboard</h3>
-<div class="dashboard">
-<div>
-<h4>🏆 Top 5</h4>
-<ol id="topList"></ol>
-</div>
-<div>
-<h4>📉 Lowest 5</h4>
-<ol id="lowList"></ol>
-</div>
-</div>
-
-<table>
-<caption id="caption"></caption>
-<thead><tr id="headerRow"></tr></thead>
-<tbody></tbody>
-<tfoot>
-<tr id="dailyRow"></tr>
-</tfoot>
-</table>
-
 <script>
 
 // ========================
-// COW MASTER LIST (ALL 26)
+// MASTER COW LIST
 // ========================
 
 let cows = JSON.parse(localStorage.getItem("cowList")) || [
-
 {no:"093",name:"RITAH",calving:"2024-05-28",preg:""},
 {no:"434",name:"SHANA",calving:"2024-10-06",preg:"1.6"},
 {no:"083",name:"KATHY",calving:"2024-10-27",preg:""},
@@ -109,17 +31,15 @@ let cows = JSON.parse(localStorage.getItem("cowList")) || [
 {no:"013",name:"BELLA",calving:"2025-09-05",preg:"0"},
 {no:"425",name:"ANGEL",calving:"2025-11-02",preg:"0"},
 {no:"297",name:"MERCY",calving:"2025-11-30",preg:"0"}
-
 ];
 
 // ========================
-// SYSTEM CORE
+// CORE
 // ========================
 
 const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
 let year=2026;
 let month="January";
-
 let state=JSON.parse(localStorage.getItem("dairyData"))||{};
 
 function getKey(){ return year+"_"+month }
@@ -130,6 +50,12 @@ if(!state[key]){
 const days=new Date(year,MONTHS.indexOf(month)+1,0).getDate();
 state[key]={
 prod:cows.map(()=>({am:Array(days).fill(""),pm:Array(days).fill("")})),
+deductions:{
+home:Array(days).fill(""),
+workers:Array(days).fill(""),
+calvesAM:Array(days).fill(""),
+calvesPM:Array(days).fill("")
+},
 hidden:Array(cows.length).fill(false)
 };
 }
@@ -142,7 +68,7 @@ return state[key];
 
 function render(){
 const data=initMonth();
-const days=new Date(year,MONTHS.indexOf(month)+1,0).getDate();
+const days=data.prod[0].am.length;
 document.getElementById("caption").innerText=month+" "+year;
 
 let header="<th>Cow</th><th>Calving</th><th>Preg</th><th>Hide</th>";
@@ -153,7 +79,7 @@ header+="<th>Total</th>";
 document.getElementById("headerRow").innerHTML=header;
 
 let body="";
-let totals=[];
+let grossMonthly=0;
 
 cows.forEach((cow,i)=>{
 let hidden=data.hidden[i];
@@ -164,29 +90,79 @@ let row=`<tr class="${hidden?'hiddenRow':''}">
 <td><button onclick="toggleHide(${i})">${hidden?'Show':'Hide'}</button></td>`;
 
 let total=0;
+
 for(let d=0;d<days;d++){
 let am=data.prod[i].am[d]||"";
 let pm=data.prod[i].pm[d]||"";
 if(!hidden) total+=(+am||0)+(+pm||0);
+
 row+=`<td><input type="number" value="${am}" onchange="updateProd(${i},${d},'am',this.value)"></td>
 <td><input type="number" value="${pm}" onchange="updateProd(${i},${d},'pm',this.value)"></td>`;
 }
+grossMonthly+=total;
 row+=`<td>${total.toFixed(1)}</td></tr>`;
 body+=row;
-totals.push({name:cow.name,total});
 });
 
 document.querySelector("tbody").innerHTML=body;
-updateDashboard(totals);
-updateDailyTotal(days,data);
+
+renderDeductions(days,data,grossMonthly);
+updateDashboard(days,data);
 }
 
 // ========================
-// UPDATE FUNCTIONS
+// DEDUCTIONS RENDER
+// ========================
+
+function renderDeductions(days,data,gross){
+
+let row="<tr style='background:#fff3cd'><td><b>Deductions</b></td><td></td><td></td><td></td>";
+
+let totalDed=0;
+
+for(let d=0;d<days;d++){
+let home=+data.deductions.home[d]||0;
+let workers=+data.deductions.workers[d]||0;
+let calvesAM=+data.deductions.calvesAM[d]||0;
+let calvesPM=+data.deductions.calvesPM[d]||0;
+
+let dayDed=home+workers+calvesAM+calvesPM;
+totalDed+=dayDed;
+
+row+=`
+<td>
+Home:<input type="number" value="${home}" onchange="updateDed(${d},'home',this.value)">
+Workers:<input type="number" value="${workers}" onchange="updateDed(${d},'workers',this.value)">
+CalfAM:<input type="number" value="${calvesAM}" onchange="updateDed(${d},'calvesAM',this.value)">
+CalfPM:<input type="number" value="${calvesPM}" onchange="updateDed(${d},'calvesPM',this.value)">
+</td>
+<td></td>`;
+}
+
+row+=`<td>${totalDed.toFixed(1)}</td></tr>`;
+
+let net=gross-totalDed;
+
+row+=`<tr style="background:#d4edda">
+<td><b>Net Saleable</b></td><td></td><td></td><td></td>
+<td colspan="${days*2}"></td>
+<td><b>${net.toFixed(1)}</b></td>
+</tr>`;
+
+document.getElementById("dailyRow").innerHTML=row;
+}
+
+// ========================
+// UPDATE
 // ========================
 
 function updateProd(i,d,type,val){
 state[getKey()].prod[i][type][d]=val;
+save(); render();
+}
+
+function updateDed(d,type,val){
+state[getKey()].deductions[type][d]=val;
 save(); render();
 }
 
@@ -199,99 +175,27 @@ save(); render();
 // DASHBOARD
 // ========================
 
-function updateDashboard(totals){
+function updateDashboard(days,data){
+
+let totals=[];
+
+cows.forEach((cow,i)=>{
+if(data.hidden[i]) return;
+let total=0;
+for(let d=0;d<days;d++){
+total+=(+data.prod[i].am[d]||0)+(+data.prod[i].pm[d]||0);
+}
+totals.push({name:cow.name,total});
+});
+
 totals.sort((a,b)=>b.total-a.total);
+
 document.getElementById("topList").innerHTML=
 totals.slice(0,5).map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
+
 document.getElementById("lowList").innerHTML=
 totals.slice(-5).reverse().map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
 }
-
-function updateDailyTotal(days,data){
-let daily=Array(days).fill(0);
-cows.forEach((c,i)=>{
-if(data.hidden[i]) return;
-for(let d=0;d<days;d++){
-daily[d]+=(+data.prod[i].am[d]||0)+(+data.prod[i].pm[d]||0);
-}
-});
-let row="<td>Daily Total</td><td></td><td></td><td></td>";
-daily.forEach(v=>row+=`<td colspan="2">${v.toFixed(1)}</td>`);
-row+=`<td>${daily.reduce((a,b)=>a+b,0).toFixed(1)}</td>`;
-document.getElementById("dailyRow").innerHTML=row;
-}
-
-// ========================
-// ADD COW
-// ========================
-
-function addCow(){
-let no=newTag.value;
-let name=newName.value;
-let calving=newCalving.value;
-let preg=newPreg.value;
-if(!no||!name) return alert("Tag & Name required");
-
-cows.push({no,name,calving,preg});
-
-// expand existing months
-Object.keys(state).forEach(key=>{
-let days=state[key].prod[0].am.length;
-state[key].prod.push({am:Array(days).fill(""),pm:Array(days).fill("")});
-state[key].hidden.push(false);
-});
-
-save();
-render();
-}
-
-// ========================
-// EXPORT FULL DATA
-// ========================
-
-function exportExcel(){
-let wb=XLSX.utils.book_new();
-
-Object.keys(state).forEach(key=>{
-let days=state[key].prod[0].am.length;
-let sheet=[["Cow","Calving","Preg",...Array.from({length:days},(_,i)=>"Day "+(i+1)+" AM"),
-...Array.from({length:days},(_,i)=>"Day "+(i+1)+" PM"),"Total"]];
-
-cows.forEach((cow,i)=>{
-let total=0;
-let row=[cow.name,cow.calving,cow.preg];
-for(let d=0;d<days;d++){
-let am=+state[key].prod[i].am[d]||0;
-let pm=+state[key].prod[i].pm[d]||0;
-total+=am+pm;
-row.push(am);
-}
-for(let d=0;d<days;d++){
-row.push(+state[key].prod[i].pm[d]||0);
-}
-row.push(total);
-sheet.push(row);
-});
-
-let ws=XLSX.utils.aoa_to_sheet(sheet);
-XLSX.utils.book_append_sheet(wb,ws,key);
-});
-
-XLSX.writeFile(wb,"Dairy_Full_Report.xlsx");
-}
-
-// ========================
-// JSON UPLOAD
-// ========================
-
-jsonUpload.addEventListener("change",e=>{
-let reader=new FileReader();
-reader.onload=()=>{
-state=JSON.parse(reader.result);
-save(); render();
-};
-reader.readAsText(e.target.files[0]);
-});
 
 // ========================
 // SAVE
@@ -308,5 +212,3 @@ monthSel.onchange=e=>{month=e.target.value;render();}
 render();
 
 </script>
-</body>
-</html>
