@@ -2,19 +2,21 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Dairy Full Advanced System</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/4.4.0/chart.umd.min.js"></script>
+<title>Dairy Professional System</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 body{font-family:system-ui;margin:20px}
-.controls{margin-bottom:15px;display:flex;gap:15px;flex-wrap:wrap}
-table{border-collapse:collapse;font-size:0.8rem;width:100%;display:block;overflow-x:auto}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px}
+button{padding:6px 12px;cursor:pointer}
+table{border-collapse:collapse;font-size:0.75rem;width:100%;display:block;overflow-x:auto}
 th,td{border:1px solid #ccc;padding:4px;text-align:center}
 thead th{background:#eee;position:sticky;top:0}
 th:first-child,td:first-child{position:sticky;left:0;background:#f9f9f9;text-align:left}
 input{width:55px}
-.dashboard{display:flex;gap:40px;margin-bottom:20px;flex-wrap:wrap}
-canvas{max-width:600px}
+.hiddenRow{opacity:0.35}
+.dashboard{display:flex;gap:40px;margin-bottom:20px}
 </style>
 </head>
 
@@ -38,43 +40,38 @@ canvas{max-width:600px}
 <option>October</option><option>November</option><option>December</option>
 </select></label>
 
+<button onclick="exportExcel()">Export Excel</button>
+<input type="file" id="jsonUpload" accept=".json">
 <button onclick="save()">Save</button>
-<button onclick="render()">Reload</button>
-<button onclick="localStorage.clear();location.reload()">Reset All</button>
+</div>
+
+<h3>Add New Cow</h3>
+<div class="controls">
+<input id="newTag" placeholder="Tag No">
+<input id="newName" placeholder="Name">
+<input id="newCalving" type="date">
+<input id="newPreg" placeholder="Preg Months">
+<button onclick="addCow()">Add Cow</button>
 </div>
 
 <h3>📊 Monthly Dashboard</h3>
 <div class="dashboard">
 <div>
-<h4 style="color:green">🏆 Top 5</h4>
+<h4>🏆 Top 5</h4>
 <ol id="topList"></ol>
 </div>
-
 <div>
-<h4 style="color:red">📉 Lowest 5</h4>
+<h4>📉 Lowest 5</h4>
 <ol id="lowList"></ol>
 </div>
-
-<div>
-<h4>🥇 Best Cow</h4>
-<div id="bestCow"></div>
-</div>
 </div>
 
-<canvas id="chart"></canvas>
-
-<br><br>
-
-<table id="tbl">
+<table>
 <caption id="caption"></caption>
 <thead><tr id="headerRow"></tr></thead>
 <tbody></tbody>
 <tfoot>
 <tr id="dailyRow"></tr>
-<tr id="homeRow"></tr>
-<tr id="workerRow"></tr>
-<tr id="calfAMRow"></tr>
-<tr id="calfPMRow"></tr>
 <tr id="finalRow"></tr>
 </tfoot>
 </table>
@@ -85,7 +82,7 @@ const MONTHS=["January","February","March","April","May","June","July","August",
 let year=2026;
 let month="January";
 
-let cows=[
+let cows=JSON.parse(localStorage.getItem("cowList"))||[
 {no:"093",name:"RITAH",calving:"2024-05-28",preg:""},
 {no:"434",name:"SHANA",calving:"2024-10-06",preg:"1.6"},
 {no:"083",name:"KATHY",calving:"2024-10-27",preg:""},
@@ -114,7 +111,7 @@ let cows=[
 {no:"297",name:"MERCY",calving:"2025-11-30",preg:"0"}
 ];
 
-let state=JSON.parse(localStorage.getItem("dairyFullData"))||{};
+let state=JSON.parse(localStorage.getItem("dairyData"))||{};
 
 function init(){
 const key=year+"_"+month;
@@ -122,12 +119,7 @@ if(!state[key]){
 const days=new Date(year,MONTHS.indexOf(month)+1,0).getDate();
 state[key]={
 prod:cows.map(()=>({am:Array(days).fill(""),pm:Array(days).fill("")})),
-ded:{
-home:Array(days).fill(""),
-worker:Array(days).fill(""),
-calfAM:Array(days).fill(""),
-calfPM:Array(days).fill("")
-}
+hidden:Array(cows.length).fill(false)
 };
 }
 return state[key];
@@ -138,38 +130,40 @@ const data=init();
 const days=new Date(year,MONTHS.indexOf(month)+1,0).getDate();
 document.getElementById("caption").innerText=month+" "+year;
 
-const header=document.getElementById("headerRow");
-header.innerHTML="<th>Cow</th><th>Calving</th><th>Preg</th>";
+let header="<th>Cow</th><th>Calving</th><th>Preg</th><th>Hide</th>";
 for(let d=1;d<=days;d++){
-header.innerHTML+=`<th>${d}<br>AM</th><th>${d}<br>PM</th>`;
+header+=`<th>${d}<br>AM</th><th>${d}<br>PM</th>`;
 }
-header.innerHTML+="<th>Total</th>";
+header+="<th>Total</th>";
+document.getElementById("headerRow").innerHTML=header;
 
-const tbody=document.querySelector("tbody");
-tbody.innerHTML="";
+let tbody="";
 let totals=[];
 
 cows.forEach((cow,i)=>{
-let row=`<tr>
+let hidden=data.hidden[i];
+let row=`<tr class="${hidden?'hiddenRow':''}">
 <td>${cow.no} ${cow.name}</td>
 <td>${cow.calving}</td>
-<td>${cow.preg}</td>`;
-let total=0;
+<td>${cow.preg}</td>
+<td><button onclick="toggleHide(${i})">${hidden?'Show':'Hide'}</button></td>`;
 
+let total=0;
 for(let d=0;d<days;d++){
-let am=data.prod[i].am[d]||"";
-let pm=data.prod[i].pm[d]||"";
-total+=(+am||0)+(+pm||0);
-row+=`<td><input type="number" step="0.1" value="${am}" onchange="updateProd(${i},${d},'am',this.value)"></td>
-<td><input type="number" step="0.1" value="${pm}" onchange="updateProd(${i},${d},'pm',this.value)"></td>`;
+let am=data.prod[i]?.am[d]||"";
+let pm=data.prod[i]?.pm[d]||"";
+if(!hidden) total+=(+am||0)+(+pm||0);
+row+=`<td><input type="number" value="${am}" onchange="updateProd(${i},${d},'am',this.value)"></td>
+<td><input type="number" value="${pm}" onchange="updateProd(${i},${d},'pm',this.value)"></td>`;
 }
 row+=`<td>${total.toFixed(1)}</td></tr>`;
-tbody.innerHTML+=row;
+tbody+=row;
 totals.push({name:cow.name,total});
 });
 
+document.querySelector("tbody").innerHTML=tbody;
+updateDashboard(totals);
 updateFooter(days,data,totals);
-updateDashboard(totals,days);
 }
 
 function updateProd(i,d,type,val){
@@ -178,90 +172,35 @@ save();
 render();
 }
 
-function updateFooter(days,data,totals){
-let daily=Array(days).fill(0);
-totals.forEach((c,i)=>{
-for(let d=0;d<days;d++){
-daily[d]+=(+data.prod[i].am[d]||0)+(+data.prod[i].pm[d]||0);
-}
-});
-
-let dailyRow="<td>Daily Total</td><td></td><td></td>";
-daily.forEach(v=>dailyRow+=`<td colspan="2">${v.toFixed(1)}</td>`);
-dailyRow+=`<td>${daily.reduce((a,b)=>a+b,0).toFixed(1)}</td>`;
-document.getElementById("dailyRow").innerHTML=dailyRow;
-
-buildDedRow("homeRow","Home Use","home",days,data);
-buildDedRow("workerRow","Workers","worker",days,data);
-buildDedRow("calfAMRow","Calf AM","calfAM",days,data);
-buildDedRow("calfPMRow","Calf PM","calfPM",days,data);
-
-let milkTotal=daily.reduce((a,b)=>a+b,0);
-let dedTotal=0;
-Object.values(data.ded).forEach(arr=>arr.forEach(v=>dedTotal+=+v||0));
-let final=milkTotal-dedTotal;
-
-document.getElementById("finalRow").innerHTML=
-`<td>Final Total</td><td></td><td></td>`+
-Array(days*2).fill("<td></td>").join("")+
-`<td>${final.toFixed(1)}</td>`;
-}
-
-function buildDedRow(id,label,key,days,data){
-let row=`<td>${label}</td><td></td><td></td>`;
-let total=0;
-for(let d=0;d<days;d++){
-let val=data.ded[key][d]||"";
-total+=+val||0;
-row+=`<td colspan="2">
-<input type="number" step="0.1" value="${val}" onchange="updateDed('${key}',${d},this.value)">
-</td>`;
-}
-row+=`<td>${total.toFixed(1)}</td>`;
-document.getElementById(id).innerHTML=row;
-}
-
-function updateDed(key,d,val){
-state[year+"_"+month].ded[key][d]=val;
+function toggleHide(i){
+state[year+"_"+month].hidden[i]=!state[year+"_"+month].hidden[i];
 save();
 render();
 }
 
-let chart;
-function updateDashboard(totals,days){
+function updateDashboard(totals){
 totals.sort((a,b)=>b.total-a.total);
-
-let top=totals.slice(0,5);
-let low=totals.slice(-5).reverse();
-
 document.getElementById("topList").innerHTML=
-top.map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L (Avg ${(c.total/days).toFixed(2)})</li>`).join("");
-
+totals.slice(0,5).map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
 document.getElementById("lowList").innerHTML=
-low.map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
+totals.slice(-5).reverse().map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
+}
 
-document.getElementById("bestCow").innerHTML=
-`<strong>${top[0].name}</strong><br>Total: ${top[0].total.toFixed(1)} L<br>Average: ${(top[0].total/days).toFixed(2)} L/day`;
-
-if(chart) chart.destroy();
-chart=new Chart(document.getElementById("chart"),{
-type:'bar',
-data:{
-labels:top.map(c=>c.name),
-datasets:[{label:'Top 5 Production (Litres)',data:top.map(c=>c.total)}]
+function updateFooter(days,data,totals){
+let daily=Array(days).fill(0);
+totals.forEach((c,i)=>{
+if(data.hidden[i]) return;
+for(let d=0;d<days;d++){
+daily[d]+=(+data.prod[i].am[d]||0)+(+data.prod[i].pm[d]||0);
 }
 });
+let row="<td>Daily Total</td><td></td><td></td><td></td>";
+daily.forEach(v=>row+=`<td colspan="2">${v.toFixed(1)}</td>`);
+row+=`<td>${daily.reduce((a,b)=>a+b,0).toFixed(1)}</td>`;
+document.getElementById("dailyRow").innerHTML=row;
 }
 
-function save(){
-localStorage.setItem("dairyFullData",JSON.stringify(state));
-}
-
-document.getElementById("yearSel").onchange=e=>{year=+e.target.value;render();}
-document.getElementById("monthSel").onchange=e=>{month=e.target.value;render();}
-
-render();
-
-</script>
-</body>
-</html>
+function exportExcel(){
+let wb=XLSX.utils.book_new();
+Object.keys(state).forEach(key=>{
+let wsData=[["Cow","Total"]];
