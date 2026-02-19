@@ -72,17 +72,17 @@ input{width:55px}
 <tbody></tbody>
 <tfoot>
 <tr id="dailyRow"></tr>
-<tr id="finalRow"></tr>
 </tfoot>
 </table>
 
 <script>
 
-const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
-let year=2026;
-let month="January";
+// ========================
+// COW MASTER LIST (ALL 26)
+// ========================
 
-let cows=JSON.parse(localStorage.getItem("cowList"))||[
+let cows = JSON.parse(localStorage.getItem("cowList")) || [
+
 {no:"093",name:"RITAH",calving:"2024-05-28",preg:""},
 {no:"434",name:"SHANA",calving:"2024-10-06",preg:"1.6"},
 {no:"083",name:"KATHY",calving:"2024-10-27",preg:""},
@@ -109,12 +109,23 @@ let cows=JSON.parse(localStorage.getItem("cowList"))||[
 {no:"013",name:"BELLA",calving:"2025-09-05",preg:"0"},
 {no:"425",name:"ANGEL",calving:"2025-11-02",preg:"0"},
 {no:"297",name:"MERCY",calving:"2025-11-30",preg:"0"}
+
 ];
+
+// ========================
+// SYSTEM CORE
+// ========================
+
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+let year=2026;
+let month="January";
 
 let state=JSON.parse(localStorage.getItem("dairyData"))||{};
 
-function init(){
-const key=year+"_"+month;
+function getKey(){ return year+"_"+month }
+
+function initMonth(){
+const key=getKey();
 if(!state[key]){
 const days=new Date(year,MONTHS.indexOf(month)+1,0).getDate();
 state[key]={
@@ -125,8 +136,12 @@ hidden:Array(cows.length).fill(false)
 return state[key];
 }
 
+// ========================
+// RENDER
+// ========================
+
 function render(){
-const data=init();
+const data=initMonth();
 const days=new Date(year,MONTHS.indexOf(month)+1,0).getDate();
 document.getElementById("caption").innerText=month+" "+year;
 
@@ -137,7 +152,7 @@ header+=`<th>${d}<br>AM</th><th>${d}<br>PM</th>`;
 header+="<th>Total</th>";
 document.getElementById("headerRow").innerHTML=header;
 
-let tbody="";
+let body="";
 let totals=[];
 
 cows.forEach((cow,i)=>{
@@ -150,33 +165,39 @@ let row=`<tr class="${hidden?'hiddenRow':''}">
 
 let total=0;
 for(let d=0;d<days;d++){
-let am=data.prod[i]?.am[d]||"";
-let pm=data.prod[i]?.pm[d]||"";
+let am=data.prod[i].am[d]||"";
+let pm=data.prod[i].pm[d]||"";
 if(!hidden) total+=(+am||0)+(+pm||0);
 row+=`<td><input type="number" value="${am}" onchange="updateProd(${i},${d},'am',this.value)"></td>
 <td><input type="number" value="${pm}" onchange="updateProd(${i},${d},'pm',this.value)"></td>`;
 }
 row+=`<td>${total.toFixed(1)}</td></tr>`;
-tbody+=row;
+body+=row;
 totals.push({name:cow.name,total});
 });
 
-document.querySelector("tbody").innerHTML=tbody;
+document.querySelector("tbody").innerHTML=body;
 updateDashboard(totals);
-updateFooter(days,data,totals);
+updateDailyTotal(days,data);
 }
 
+// ========================
+// UPDATE FUNCTIONS
+// ========================
+
 function updateProd(i,d,type,val){
-state[year+"_"+month].prod[i][type][d]=val;
-save();
-render();
+state[getKey()].prod[i][type][d]=val;
+save(); render();
 }
 
 function toggleHide(i){
-state[year+"_"+month].hidden[i]=!state[year+"_"+month].hidden[i];
-save();
-render();
+state[getKey()].hidden[i]=!state[getKey()].hidden[i];
+save(); render();
 }
+
+// ========================
+// DASHBOARD
+// ========================
 
 function updateDashboard(totals){
 totals.sort((a,b)=>b.total-a.total);
@@ -186,9 +207,9 @@ document.getElementById("lowList").innerHTML=
 totals.slice(-5).reverse().map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
 }
 
-function updateFooter(days,data,totals){
+function updateDailyTotal(days,data){
 let daily=Array(days).fill(0);
-totals.forEach((c,i)=>{
+cows.forEach((c,i)=>{
 if(data.hidden[i]) return;
 for(let d=0;d<days;d++){
 daily[d]+=(+data.prod[i].am[d]||0)+(+data.prod[i].pm[d]||0);
@@ -200,7 +221,92 @@ row+=`<td>${daily.reduce((a,b)=>a+b,0).toFixed(1)}</td>`;
 document.getElementById("dailyRow").innerHTML=row;
 }
 
+// ========================
+// ADD COW
+// ========================
+
+function addCow(){
+let no=newTag.value;
+let name=newName.value;
+let calving=newCalving.value;
+let preg=newPreg.value;
+if(!no||!name) return alert("Tag & Name required");
+
+cows.push({no,name,calving,preg});
+
+// expand existing months
+Object.keys(state).forEach(key=>{
+let days=state[key].prod[0].am.length;
+state[key].prod.push({am:Array(days).fill(""),pm:Array(days).fill("")});
+state[key].hidden.push(false);
+});
+
+save();
+render();
+}
+
+// ========================
+// EXPORT FULL DATA
+// ========================
+
 function exportExcel(){
 let wb=XLSX.utils.book_new();
+
 Object.keys(state).forEach(key=>{
-let wsData=[["Cow","Total"]];
+let days=state[key].prod[0].am.length;
+let sheet=[["Cow","Calving","Preg",...Array.from({length:days},(_,i)=>"Day "+(i+1)+" AM"),
+...Array.from({length:days},(_,i)=>"Day "+(i+1)+" PM"),"Total"]];
+
+cows.forEach((cow,i)=>{
+let total=0;
+let row=[cow.name,cow.calving,cow.preg];
+for(let d=0;d<days;d++){
+let am=+state[key].prod[i].am[d]||0;
+let pm=+state[key].prod[i].pm[d]||0;
+total+=am+pm;
+row.push(am);
+}
+for(let d=0;d<days;d++){
+row.push(+state[key].prod[i].pm[d]||0);
+}
+row.push(total);
+sheet.push(row);
+});
+
+let ws=XLSX.utils.aoa_to_sheet(sheet);
+XLSX.utils.book_append_sheet(wb,ws,key);
+});
+
+XLSX.writeFile(wb,"Dairy_Full_Report.xlsx");
+}
+
+// ========================
+// JSON UPLOAD
+// ========================
+
+jsonUpload.addEventListener("change",e=>{
+let reader=new FileReader();
+reader.onload=()=>{
+state=JSON.parse(reader.result);
+save(); render();
+};
+reader.readAsText(e.target.files[0]);
+});
+
+// ========================
+// SAVE
+// ========================
+
+function save(){
+localStorage.setItem("dairyData",JSON.stringify(state));
+localStorage.setItem("cowList",JSON.stringify(cows));
+}
+
+yearSel.onchange=e=>{year=+e.target.value;render();}
+monthSel.onchange=e=>{month=e.target.value;render();}
+
+render();
+
+</script>
+</body>
+</html>
