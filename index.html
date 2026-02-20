@@ -6,118 +6,48 @@
     <title>Dairy Farm Milk Record - Mukozi</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            margin: 20px;
-            background: #f8f9fa;
-        }
+        body { font-family: Arial, Helvetica, sans-serif; margin: 20px; background: #f8f9fa; }
         h1, h2 { color: #2c3e50; }
 
-        .controls {
-            margin: 20px 0;
-            padding: 12px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
+        .controls { margin: 20px 0; padding: 12px; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
 
-        .table-wrapper {
-            overflow-x: auto;
-            max-width: 100%;
-            position: relative;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+        .table-wrapper { overflow-x: auto; max-width: 100%; position: relative; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
-        table {
-            border-collapse: separate;
-            border-spacing: 0;
-            width: max-content;          /* important for wide tables */
-            min-width: 100%;
-            background: white;
-        }
+        table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; background: white; }
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-            font-size: 0.92em;
-            white-space: nowrap;
-        }
+        th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: center; font-size: 0.92em; white-space: nowrap; }
 
         /* Fixed columns */
-        th.fixed, td.fixed {
-            position: sticky;
-            left: 0;
-            background: #f1f5f9;
-            z-index: 3;
-            min-width: 60px;           /* adjust as needed */
-        }
+        th.fixed, td.fixed { position: sticky; left: 0; background: #f1f5f9; z-index: 3; min-width: 60px; }
+        th.fixed:nth-child(2), td.fixed:nth-child(2) { left: 80px; }
+        th.fixed:nth-child(3), td.fixed:nth-child(3) { left: 160px; }
+        th.fixed:nth-child(4), td.fixed:nth-child(4) { left: 220px; }
 
-        th.fixed:nth-child(2), td.fixed:nth-child(2) { left: 80px;  }  /* Calving */
-        th.fixed:nth-child(3), td.fixed:nth-child(3) { left: 160px; }  /* Preg   */
-        th.fixed:nth-child(4), td.fixed:nth-child(4) { left: 220px; }  /* Hide   */
+        thead th { background: #3498db; color: white; position: sticky; top: 0; z-index: 4; }
+        thead th.fixed { z-index: 5; background: #2980b9; }
 
-        /* Header row styling */
-        thead th {
-            background: #3498db;
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 4;
-        }
+        td:first-child { font-weight: bold; text-align: left; }
 
-        /* Make sure fixed header cells in header also respect left sticky */
-        thead th.fixed {
-            z-index: 5;
-            background: #2980b9;
-        }
-
-        td:first-child {
-            font-weight: bold;
-            text-align: left;
-        }
-
-        input[type="number"], input[type="text"], input[type="date"] {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
+        input[type="number"], input[type="text"], input[type="date"] { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
         input[type="number"] { width: 65px; text-align: center; }
 
-        button {
-            padding: 6px 12px;
-            margin: 0 4px 8px 0;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+        button { padding: 6px 12px; margin: 0 4px 8px 0; border: none; border-radius: 4px; cursor: pointer; }
         .btn-primary  { background: #3498db; color: white; }
         .btn-success  { background: #27ae60; color: white; }
         .btn-danger   { background: #e74c3c; color: white; }
         .btn:hover { opacity: 0.9; }
 
-        .form-add-cow {
-            margin: 20px 0;
-            padding: 15px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
+        .form-add-cow { margin: 20px 0; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
 
         .hiddenRow { display: none; }
 
-        #stats {
-            margin-top: 25px;
-            padding: 15px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
+        #stats { margin-top: 25px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
 
-        .deduction-cell { background: #fff3cd; font-size: 0.9em; }
+        .deduction-cell { background: #fff3cd; font-size: 0.9em; vertical-align: top; }
+        .net-daily { background: #d4edda; font-weight: bold; font-size: 0.95em; padding: 4px; min-height: 24px; }
         .net-cell { background: #d4edda; font-weight: bold; font-size: 1.1em; }
+
+        .daily-net-row td { background: #e8f5e9; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -125,28 +55,31 @@
 <h1>Dairy Milk Record</h1>
 
 <div class="controls">
-    <label>Year: 
-        <select id="yearSel">
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-            <option value="2026" selected>2026</option>
-            <option value="2027">2027</option>
-            <option value="2028">2028</option>
-        </select>
-    </label>
+    <label>Year: <select id="yearSel">
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026" selected>2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+    </select></label>
        
-    <label>Month: 
-        <select id="monthSel">
-            <option value="January">January</option>
-            <!-- ... all months ... -->
-            <option value="December" selected>December</option>
-        </select>
-    </label>
+    <label>Month: <select id="monthSel">
+        <option value="January">January</option>
+        <option value="February">February</option>
+        <option value="March">March</option>
+        <option value="April">April</option>
+        <option value="May">May</option>
+        <option value="June">June</option>
+        <option value="July">July</option>
+        <option value="August">August</option>
+        <option value="September">September</option>
+        <option value="October">October</option>
+        <option value="November">November</option>
+        <option value="December" selected>December</option>
+    </select></label>
 
     <button class="btn-primary" onclick="exportToExcel()">Export to Excel</button>
-    <label style="margin-left:20px">Import JSON:
-        <input type="file" id="importJson" accept=".json" style="display:inline-block"/>
-    </label>
+    <label style="margin-left:20px">Import JSON: <input type="file" id="importJson" accept=".json" style="display:inline-block"/></label>
 </div>
 
 <div class="form-add-cow">
@@ -162,9 +95,7 @@
 
 <div class="table-wrapper">
     <table id="milkTable">
-        <thead>
-            <tr id="headerRow"></tr>
-        </thead>
+        <thead><tr id="headerRow"></tr></thead>
         <tbody></tbody>
     </table>
 </div>
@@ -231,7 +162,7 @@ function initMonth() {
 }
 
 // ──────────────────────────────────────────────
-// RENDER (updated for fixed columns)
+// RENDER – now includes daily net saleable row
 // ──────────────────────────────────────────────
 
 function render() {
@@ -251,7 +182,8 @@ function render() {
     header += "<th>Total (L)</th>";
     document.getElementById("headerRow").innerHTML = header;
 
-    let body = "", gross = 0;
+    let body = "", grossMonthly = 0;
+    const dailyGross = Array(days).fill(0);
 
     cows.forEach((cow, i) => {
         const hidden = data.hidden[i];
@@ -261,57 +193,80 @@ function render() {
             <td class="fixed">${cow.preg || '-'}</td>
             <td class="fixed"><button class="btn-danger" onclick="toggleHide(${i})">${hidden?'Show':'Hide'}</button></td>`;
 
-        let total = 0;
+        let cowTotal = 0;
         for (let d = 0; d < days; d++) {
             const am = data.prod[i]?.am[d] || "";
             const pm = data.prod[i]?.pm[d] || "";
-            if (!hidden) total += (+am||0) + (+pm||0);
+            const amVal = +am || 0;
+            const pmVal = +pm || 0;
+            if (!hidden) {
+                cowTotal += amVal + pmVal;
+                dailyGross[d] += amVal + pmVal;
+            }
             row += `<td><input type="number" step="0.1" value="${am}" onchange="updateProd(${i},${d},'am',this.value)"></td>
                     <td><input type="number" step="0.1" value="${pm}" onchange="updateProd(${i},${d},'pm',this.value)"></td>`;
         }
-        gross += total;
-        row += `<td>${total ? total.toFixed(1) : '-'}</td></tr>`;
+        grossMonthly += cowTotal;
+        row += `<td>${cowTotal ? cowTotal.toFixed(1) : '-'}</td></tr>`;
         body += row;
     });
 
     document.querySelector("tbody").innerHTML = body;
 
-    renderDeductions(days, data, gross);
+    renderDeductions(days, data, grossMonthly, dailyGross);
     updateDashboard(days, data);
 }
 
-function renderDeductions(days, data, gross) {
+function renderDeductions(days, data, grossMonthly, dailyGross) {
     let html = `<tr style="background:#fff3cd">
         <td class="fixed" colspan="4"><b>Deductions</b></td>`;
 
     let totalDed = 0;
+    const dailyNet = [];
+
     for (let d = 0; d < days; d++) {
-        const h  = +data.deductions.home[d]||0;
-        const w  = +data.deductions.workers[d]||0;
-        const ca = +data.deductions.calvesAM[d]||0;
-        const cp = +data.deductions.calvesPM[d]||0;
+        const h   = +data.deductions.home[d]    || 0;
+        const w   = +data.deductions.workers[d] || 0;
+        const ca  = +data.deductions.calvesAM[d] || 0;
+        const cp  = +data.deductions.calvesPM[d] || 0;
         const dayDed = h + w + ca + cp;
         totalDed += dayDed;
+
+        const netToday = dailyGross[d] - dayDed;
+        dailyNet.push(netToday);
 
         html += `<td class="deduction-cell">
             Home:<input type="number" step="0.1" value="${h}" onchange="updateDed(${d},'home',this.value)"><br>
             Workers:<input type="number" step="0.1" value="${w}" onchange="updateDed(${d},'workers',this.value)"><br>
             Calf AM:<input type="number" step="0.1" value="${ca}" onchange="updateDed(${d},'calvesAM',this.value)"><br>
             Calf PM:<input type="number" step="0.1" value="${cp}" onchange="updateDed(${d},'calvesPM',this.value)">
+            <div class="net-daily">${netToday ? netToday.toFixed(1) : '-'}</div>
         </td><td></td>`;
     }
+
     html += `<td class="net-cell">${totalDed.toFixed(1)}</td></tr>`;
 
-    const net = gross - totalDed;
+    // Daily Net row (extra clarity)
+    html += `<tr class="daily-net-row">
+        <td class="fixed" colspan="4"><b>Daily Net Saleable</b></td>`;
+    for (let d = 0; d < days; d++) {
+        html += `<td class="net-daily" colspan="2">${dailyNet[d] ? dailyNet[d].toFixed(1) : '-'}</td>`;
+    }
+    html += `<td class="net-cell">${(grossMonthly - totalDed).toFixed(1)}</td></tr>`;
+
+    // Monthly Net
     html += `<tr style="background:#d4edda">
-        <td class="fixed" colspan="4"><b>Net Saleable (L)</b></td>
+        <td class="fixed" colspan="4"><b>Monthly Net Saleable (L)</b></td>
         <td colspan="${days*2}"></td>
-        <td class="net-cell"><b>${net.toFixed(1)}</b></td></tr>`;
+        <td class="net-cell"><b>${(grossMonthly - totalDed).toFixed(1)}</b></td></tr>`;
 
     document.querySelector("tbody").insertAdjacentHTML("beforeend", html);
 }
 
-// The rest of the script remains the same (updateProd, updateDed, toggleHide, save, addNewCow, exportToExcel, importJson, updateDashboard, DOMContentLoaded listener)
+// ──────────────────────────────────────────────
+// Other functions remain the same (updateProd, updateDed, toggleHide, save, addNewCow, exportToExcel, importJson, updateDashboard)
+// ──────────────────────────────────────────────
+
 function updateProd(i, d, type, val) {
     state[getKey()].prod[i][type][d] = val;
     save(); render();
@@ -338,10 +293,7 @@ function addNewCow() {
     const calv = document.getElementById("newCalving").value;
     const preg = document.getElementById("newPreg").value.trim();
 
-    if (!no || !name) {
-        alert("Tag/Number and Name are required.");
-        return;
-    }
+    if (!no || !name) { alert("Tag/Number and Name are required."); return; }
 
     cows.push({ no, name, calving: calv || "", preg: preg || "" });
 
@@ -351,8 +303,7 @@ function addNewCow() {
         state[key].hidden.push(false);
     });
 
-    save();
-    render();
+    save(); render();
 
     document.getElementById("newNo").value = "";
     document.getElementById("newName").value = "";
@@ -361,20 +312,15 @@ function addNewCow() {
 }
 
 function exportToExcel() {
-    // (same as before – no changes needed here)
     const data = initMonth();
     const days = data.prod[0]?.am.length || 31;
-
     const ws_data = [];
     const header = ["Cow", "Calving", "Preg"];
-
-    for (let d = 1; d <= days; d++) {
-        header.push(`${d} AM`, `${d} PM`);
-    }
+    for (let d = 1; d <= days; d++) header.push(`${d} AM`, `${d} PM`);
     header.push("Total");
-
     ws_data.push(header);
 
+    let grossMonthly = 0;
     cows.forEach((cow, i) => {
         if (data.hidden[i]) return;
         const row = [`${cow.no} ${cow.name}`, cow.calving || "", cow.preg || ""];
@@ -387,43 +333,38 @@ function exportToExcel() {
         }
         row.push(total || "");
         ws_data.push(row);
+        grossMonthly += total;
     });
 
     const dedRow = ["Deductions", "", "", ""];
     let totalDed = 0;
     for (let d = 0; d < days; d++) {
-        const h  = +data.deductions.home[d]||0;
-        const w  = +data.deductions.workers[d]||0;
-        const ca = +data.deductions.calvesAM[d]||0;
-        const cp = +data.deductions.calvesPM[d]||0;
-        const day = h + w + ca + cp;
-        dedRow.push(day || "");
-        totalDed += day;
+        const dayDed = (+data.deductions.home[d]||0) + (+data.deductions.workers[d]||0) +
+                       (+data.deductions.calvesAM[d]||0) + (+data.deductions.calvesPM[d]||0);
+        dedRow.push(dayDed || "");
+        totalDed += dayDed;
     }
     dedRow.push(totalDed || "");
     ws_data.push(dedRow);
 
-    const net = (ws_data[ws_data.length-2]?.slice(-1)[0] || 0) - totalDed;
-    ws_data.push(["Net Saleable", "", "", "", ...Array(days*2).fill(""), net]);
+    ws_data.push(["Monthly Net Saleable", "", "", "", ...Array(days*2).fill(""), (grossMonthly - totalDed).toFixed(1)]);
 
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, `${month}_${year}`);
-
     XLSX.writeFile(wb, `MilkRecord_${month}_${year}.xlsx`);
 }
 
 function importJson(file) {
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = e => {
         try {
             const imported = JSON.parse(e.target.result);
             if (imported.cows) cows = imported.cows;
             if (imported.dairyData) state = imported.dairyData;
-            save();
-            render();
+            save(); render();
         } catch (err) {
-            alert("Invalid JSON file.\n\nError: " + err.message);
+            alert("Invalid JSON file.\nError: " + err.message);
         }
     };
     reader.readAsText(file);
@@ -438,7 +379,6 @@ function updateDashboard(days, data) {
         totals.push({name: c.name, total: t});
     });
     totals.sort((a,b)=>b.total - a.total);
-
     document.getElementById("topList").innerHTML = totals.slice(0,5).map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
     document.getElementById("lowList").innerHTML = totals.slice(-5).reverse().map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
 }
