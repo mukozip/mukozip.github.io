@@ -44,22 +44,24 @@
 
     th, td {
       border: 1px solid #ddd;
-      padding: 6px 8px;
+      padding: 7px 9px;
       text-align: center;
-      font-size: 0.92em;
+      font-size: 0.93em;
       white-space: nowrap;
     }
 
+    /* Fixed columns - updated positions */
     th.fixed, td.fixed {
       position: sticky;
       left: 0;
       background: #f1f5f9;
       z-index: 3;
-      min-width: 60px;
     }
-    th.fixed:nth-child(2), td.fixed:nth-child(2) { left: 80px; }
-    th.fixed:nth-child(3), td.fixed:nth-child(3) { left: 160px; }
-    th.fixed:nth-child(4), td.fixed:nth-child(4) { left: 260px; }
+    th.fixed:nth-child(1), td.fixed:nth-child(1) { left: 0;      min-width: 70px; }  /* Tag */
+    th.fixed:nth-child(2), td.fixed:nth-child(2) { left: 70px;   min-width: 140px; } /* Name */
+    th.fixed:nth-child(3), td.fixed:nth-child(3) { left: 210px;  min-width: 110px; } /* Calving */
+    th.fixed:nth-child(4), td.fixed:nth-child(4) { left: 320px;  min-width: 70px;  } /* Preg */
+    th.fixed:nth-child(5), td.fixed:nth-child(5) { left: 390px;  min-width: 140px; } /* Actions */
 
     thead th {
       background: #3498db;
@@ -73,8 +75,10 @@
       background: #2980b9;
     }
 
-    td:first-child { font-weight: bold; text-align: left; cursor: pointer; }
-    td.editable:hover { background: #e3f2fd; }
+    td:nth-child(1) { font-weight: bold; text-align: center; } /* Tag */
+    td:nth-child(2) { text-align: left; font-weight: bold; }   /* Name */
+
+    td.editable:hover { background: #e3f2fd; cursor: pointer; }
 
     input[type="number"], input[type="text"], input[type="date"] {
       padding: 5px;
@@ -82,9 +86,10 @@
       border-radius: 4px;
     }
     input[type="number"] { width: 65px; text-align: center; }
+    input[type="text"]   { width: 120px; }
 
     button {
-      padding: 6px 10px;
+      padding: 5px 9px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
@@ -180,16 +185,16 @@
   </label>
 
   <small style="color:#c0392b; margin-left:16px;">
-    Double-click name / calving / preg to edit • Use Delete button to remove cow
+    Double-click Tag / Name / Calving / Preg to edit • Use Delete to remove cow
   </small>
 </div>
 
 <div class="form-add-cow">
   <h3>Add New Cow</h3>
-  <label>Tag/No: <input type="text" id="newNo" placeholder="e.g. 142" size="6"></label>
-  <label>Name: <input type="text" id="newName" placeholder="e.g. LILLY"></label>
+  <label>Tag/No: <input type="text" id="newNo" placeholder="e.g. 142" size="8"></label>
+  <label>Name: <input type="text" id="newName" placeholder="e.g. LILLY" style="width:140px;"></label>
   <label>Calving: <input type="date" id="newCalving"></label>
-  <label>Preg: <input type="text" id="newPreg" placeholder="0 or 1.5 or empty" size="6"></label>
+  <label>Preg: <input type="text" id="newPreg" placeholder="0 or 1.5 or empty" size="8"></label>
   <button class="btn-success" onclick="addNewCow()">Add Cow</button>
 </div>
 
@@ -266,7 +271,8 @@ function render() {
   document.getElementById("caption").textContent = `${month} ${year}`;
 
   let header = `
-    <th class="fixed">Cow</th>
+    <th class="fixed">Tag/No</th>
+    <th class="fixed">Name</th>
     <th class="fixed">Calving</th>
     <th class="fixed">Preg</th>
     <th class="fixed">Actions</th>`;
@@ -282,7 +288,8 @@ function render() {
   cows.forEach((cow, i) => {
     const hidden = data.hidden[i];
     let row = `<tr class="${hidden ? 'hiddenRow' : ''}" data-cow-index="${i}">
-      <td class="fixed editable" ondblclick="editCow(${i}, this, 'name')">${cow.no} ${cow.name}</td>
+      <td class="fixed editable" ondblclick="editCow(${i}, this, 'no')">${cow.no}</td>
+      <td class="fixed editable" ondblclick="editCow(${i}, this, 'name')">${cow.name}</td>
       <td class="fixed editable" ondblclick="editCow(${i}, this, 'calving')">${cow.calving || '-'}</td>
       <td class="fixed editable" ondblclick="editCow(${i}, this, 'preg')">${cow.preg || '-'}</td>
       <td class="fixed">
@@ -316,7 +323,7 @@ function render() {
 
 function renderDeductions(days, data, grossMonthly, dailyGross) {
   let html = `<tr style="background:#fff3cd">
-    <td class="fixed" colspan="4"><b>Deductions</b></td>`;
+    <td class="fixed" colspan="5"><b>Deductions</b></td>`;
 
   let totalDed = 0;
   const dailyNet = [];
@@ -344,14 +351,14 @@ function renderDeductions(days, data, grossMonthly, dailyGross) {
   html += `<td class="net-cell">${totalDed.toFixed(1)}</td></tr>`;
 
   html += `<tr class="daily-net-row">
-    <td class="fixed" colspan="4"><b>Daily Net Saleable</b></td>`;
+    <td class="fixed" colspan="5"><b>Daily Net Saleable</b></td>`;
   for (let d = 0; d < days; d++) {
     html += `<td class="net-daily" colspan="2">${dailyNet[d] ? dailyNet[d].toFixed(1) : '-'}</td>`;
   }
   html += `<td class="net-cell">${(grossMonthly - totalDed).toFixed(1)}</td></tr>`;
 
   html += `<tr style="background:#d4edda">
-    <td class="fixed" colspan="4"><b>Monthly Net Saleable (L)</b></td>
+    <td class="fixed" colspan="5"><b>Monthly Net Saleable (L)</b></td>
     <td colspan="${days*2}"></td>
     <td class="net-cell"><b>${(grossMonthly - totalDed).toFixed(1)}</b></td></tr>`;
 
@@ -365,7 +372,8 @@ function editCow(index, cell, field) {
   if (field === "calving") {
     inputHtml = `<input type="date" value="${current}" onblur="saveCowEdit(${index}, '${field}', this.value)" onkeydown="if(event.key==='Enter')this.blur()">`;
   } else {
-    inputHtml = `<input type="text" value="${current}" onblur="saveCowEdit(${index}, '${field}', this.value)" onkeydown="if(event.key==='Enter')this.blur()">`;
+    const width = (field === "name") ? '140' : '90';
+    inputHtml = `<input type="text" value="${current}" style="width:${width}px;" onblur="saveCowEdit(${index}, '${field}', this.value)" onkeydown="if(event.key==='Enter')this.blur()">`;
   }
 
   cell.innerHTML = inputHtml;
@@ -373,10 +381,13 @@ function editCow(index, cell, field) {
 }
 
 function saveCowEdit(index, field, value) {
+  value = value.trim();
   if (field === "name") {
-    cows[index].name = value.trim().toUpperCase();
+    cows[index].name = value.toUpperCase();
+  } else if (field === "no") {
+    cows[index].no = value;
   } else if (field === "preg") {
-    cows[index].preg = value.trim();
+    cows[index].preg = value;
   } else if (field === "calving") {
     cows[index].calving = value;
   }
@@ -388,9 +399,7 @@ function deleteCow(index) {
   const cow = cows[index];
   if (!cow) return;
 
-  if (!confirm(`Delete cow ${cow.no} ${cow.name} permanently?\nAll her milk records will be removed.`)) {
-    return;
-  }
+  if (!confirm(`Delete cow ${cow.no} ${cow.name} permanently?\nAll milk records will be removed.`)) return;
 
   cows.splice(index, 1);
 
@@ -415,20 +424,17 @@ function unhideAll() {
 
 function updateProd(i, d, type, val) {
   state[getKey()].prod[i][type][d] = val;
-  save();
-  render();
+  save(); render();
 }
 
 function updateDed(d, type, val) {
   state[getKey()].deductions[type][d] = val;
-  save();
-  render();
+  save(); render();
 }
 
 function toggleHide(i) {
   state[getKey()].hidden[i] = !state[getKey()].hidden[i];
-  save();
-  render();
+  save(); render();
 }
 
 function save() {
@@ -443,7 +449,7 @@ function addNewCow() {
   const preg = document.getElementById("newPreg").value.trim();
 
   if (!no || !name) {
-    alert("Tag/Number and Name are required.");
+    alert("Tag/No and Name are required.");
     return;
   }
 
@@ -458,9 +464,9 @@ function addNewCow() {
   save();
   render();
 
-  document.getElementById("newNo").value =
-  document.getElementById("newName").value =
-  document.getElementById("newCalving").value =
+  document.getElementById("newNo").value = "";
+  document.getElementById("newName").value = "";
+  document.getElementById("newCalving").value = "";
   document.getElementById("newPreg").value = "";
 }
 
@@ -468,7 +474,7 @@ function exportToExcel() {
   const data = initMonth();
   const days = data.prod[0]?.am.length || 31;
   const ws_data = [];
-  const header = ["Cow", "Calving", "Preg"];
+  const header = ["Tag/No", "Name", "Calving", "Preg"];
   for (let d = 1; d <= days; d++) header.push(`${d} AM`, `${d} PM`);
   header.push("Total");
   ws_data.push(header);
@@ -476,7 +482,7 @@ function exportToExcel() {
   let gross = 0;
   cows.forEach((cow, i) => {
     if (data.hidden[i]) return;
-    const row = [`${cow.no} ${cow.name}`, cow.calving || "", cow.preg || ""];
+    const row = [cow.no, cow.name, cow.calving || "", cow.preg || ""];
     let tot = 0;
     for (let d = 0; d < days; d++) {
       const a = +data.prod[i]?.am[d] || 0;
