@@ -51,8 +51,8 @@
     #stats { margin-top: 28px; padding: 16px; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
 
     .deduction-cell { background: #fff3cd; font-size: 0.88em; vertical-align: top; line-height: 1.4; }
-    .deduction-am   { background: #fffde7; }
-    .deduction-pm   { background: #fefce8; }
+    .deduction-am   { background: #fffde7; padding: 4px; margin-bottom: 6px; border-radius: 3px; }
+    .deduction-pm   { background: #fefce8; padding: 4px; border-radius: 3px; }
     .net-daily      { background: #d4edda; font-weight: bold; font-size: 0.95em; padding: 4px; margin-top: 6px; border-radius: 3px; }
     .net-cell       { background: #d4edda; font-weight: bold; font-size: 1.05em; }
 
@@ -272,30 +272,32 @@ function renderDeductions(days, data, grossMonthly, dailyGross) {
 
     html += `<td class="deduction-cell">
       <div class="deduction-am">
-        <strong>AM:</strong><br>
-        Home: <input type="number" step="0.1" value="${hAM}"   onchange="updateDed(${d},'homeAM',this.value)"><br>
-        Workers: <input type="number" step="0.1" value="${wAM}" onchange="updateDed(${d},'workersAM',this.value)"><br>
-        Calf: <input type="number" step="0.1" value="${caAM}"  onchange="updateDed(${d},'calvesAM',this.value)">
+        <strong>AM deductions:</strong><br>
+        Home <input type="number" step="0.1" value="${hAM}"   onchange="updateDed(${d},'homeAM',this.value)"><br>
+        Workers <input type="number" step="0.1" value="${wAM}" onchange="updateDed(${d},'workersAM',this.value)"><br>
+        Calf <input type="number" step="0.1" value="${caAM}"  onchange="updateDed(${d},'calvesAM',this.value)">
       </div>
-      <div class="deduction-pm" style="margin-top:8px;">
-        <strong>PM:</strong><br>
-        Home: <input type="number" step="0.1" value="${hPM}"   onchange="updateDed(${d},'homePM',this.value)"><br>
-        Workers: <input type="number" step="0.1" value="${wPM}" onchange="updateDed(${d},'workersPM',this.value)"><br>
-        Calf: <input type="number" step="0.1" value="${caPM}"  onchange="updateDed(${d},'calvesPM',this.value)">
+      <div class="deduction-pm" style="margin-top:10px;">
+        <strong>PM deductions:</strong><br>
+        Home <input type="number" step="0.1" value="${hPM}"   onchange="updateDed(${d},'homePM',this.value)"><br>
+        Workers <input type="number" step="0.1" value="${wPM}" onchange="updateDed(${d},'workersPM',this.value)"><br>
+        Calf <input type="number" step="0.1" value="${caPM}"  onchange="updateDed(${d},'calvesPM',this.value)">
       </div>
-      <div class="net-daily">${netToday ? netToday.toFixed(1) : '-'}</div>
+      <div class="net-daily">Net: ${netToday ? netToday.toFixed(1) : '0.0'}</div>
     </td><td></td>`;
   }
 
   html += `<td class="net-cell">${totalDed.toFixed(1)}</td></tr>`;
 
+  // Daily Net row
   html += `<tr class="daily-net-row">
     <td class="fixed" colspan="5"><b>Daily Net Saleable</b></td>`;
-  for (let d = 0; d < days; d++) {
-    html += `<td class="net-daily" colspan="2">${dailyNet[d] ? dailyNet[d].toFixed(1) : '-'}</td>`;
-  }
+  dailyNet.forEach(net => {
+    html += `<td colspan="2" class="net-daily">${net ? net.toFixed(1) : '0.0'}</td>`;
+  });
   html += `<td class="net-cell">${(grossMonthly - totalDed).toFixed(1)}</td></tr>`;
 
+  // Monthly net
   html += `<tr style="background:#d4edda">
     <td class="fixed" colspan="5"><b>Monthly Net Saleable (L)</b></td>
     <td colspan="${days*2}"></td>
@@ -305,75 +307,16 @@ function renderDeductions(days, data, grossMonthly, dailyGross) {
 }
 
 // ──────────────────────────────────────────────
-// UPDATE FUNCTIONS – adjusted for AM/PM deductions
+// OTHER FUNCTIONS (unchanged)
 // ──────────────────────────────────────────────
-
-function updateDed(d, type, val) {
-  state[getKey()].deductions[type][d] = val;
-  save();
-  render();
-}
-
-// The rest of the functions remain the same (editCow, saveCowEdit, deleteCow, unhideAll, updateProd, toggleHide, save, addNewCow, exportToExcel, importJson, updateDashboard)
-
-function editCow(index, cell, field) {
-  const current = cows[index][field] || "";
-  let inputHtml;
-
-  if (field === "calving") {
-    inputHtml = `<input type="date" value="${current}" onblur="saveCowEdit(${index}, '${field}', this.value)" onkeydown="if(event.key==='Enter')this.blur()">`;
-  } else {
-    const width = (field === "name") ? '140' : '90';
-    inputHtml = `<input type="text" value="${current}" style="width:${width}px;" onblur="saveCowEdit(${index}, '${field}', this.value)" onkeydown="if(event.key==='Enter')this.blur()">`;
-  }
-
-  cell.innerHTML = inputHtml;
-  cell.querySelector("input").focus();
-}
-
-function saveCowEdit(index, field, value) {
-  value = value.trim();
-  if (field === "name") {
-    cows[index].name = value.toUpperCase();
-  } else if (field === "no") {
-    cows[index].no = value;
-  } else if (field === "preg") {
-    cows[index].preg = value;
-  } else if (field === "calving") {
-    cows[index].calving = value;
-  }
-  save();
-  render();
-}
-
-function deleteCow(index) {
-  const cow = cows[index];
-  if (!cow) return;
-  if (!confirm(`Delete cow ${cow.no} ${cow.name} permanently?\nAll milk records will be removed.`)) return;
-
-  cows.splice(index, 1);
-
-  Object.keys(state).forEach(key => {
-    if (state[key].prod && state[key].prod.length > index) {
-      state[key].prod.splice(index, 1);
-      state[key].hidden.splice(index, 1);
-    }
-  });
-
-  save();
-  render();
-  alert(`Cow ${cow.no} ${cow.name} deleted.`);
-}
-
-function unhideAll() {
-  const data = initMonth();
-  data.hidden.fill(false);
-  save();
-  render();
-}
 
 function updateProd(i, d, type, val) {
   state[getKey()].prod[i][type][d] = val;
+  save(); render();
+}
+
+function updateDed(d, type, val) {
+  state[getKey()].deductions[type][d] = val;
   save(); render();
 }
 
@@ -409,6 +352,57 @@ function addNewCow() {
   document.getElementById("newName").value = "";
   document.getElementById("newCalving").value = "";
   document.getElementById("newPreg").value = "";
+}
+
+function deleteCow(index) {
+  const cow = cows[index];
+  if (!cow) return;
+  if (!confirm(`Delete cow ${cow.no} ${cow.name}? All records will be removed.`)) return;
+
+  cows.splice(index, 1);
+
+  Object.keys(state).forEach(key => {
+    if (state[key].prod && state[key].prod.length > index) {
+      state[key].prod.splice(index, 1);
+      state[key].hidden.splice(index, 1);
+    }
+  });
+
+  save();
+  render();
+  alert(`Cow ${cow.no} ${cow.name} deleted.`);
+}
+
+function unhideAll() {
+  const data = initMonth();
+  data.hidden.fill(false);
+  save();
+  render();
+}
+
+function editCow(index, cell, field) {
+  const current = cows[index][field] || "";
+  let inputHtml;
+
+  if (field === "calving") {
+    inputHtml = `<input type="date" value="${current}" onblur="saveCowEdit(${index}, '${field}', this.value)" onkeydown="if(event.key==='Enter')this.blur()">`;
+  } else {
+    const width = (field === "name") ? '140' : '90';
+    inputHtml = `<input type="text" value="${current}" style="width:${width}px;" onblur="saveCowEdit(${index}, '${field}', this.value)" onkeydown="if(event.key==='Enter')this.blur()">`;
+  }
+
+  cell.innerHTML = inputHtml;
+  cell.querySelector("input").focus();
+}
+
+function saveCowEdit(index, field, value) {
+  value = value.trim();
+  if (field === "name") cows[index].name = value.toUpperCase();
+  else if (field === "no") cows[index].no = value;
+  else if (field === "preg") cows[index].preg = value;
+  else if (field === "calving") cows[index].calving = value;
+  save();
+  render();
 }
 
 function exportToExcel() {
