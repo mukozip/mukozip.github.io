@@ -36,12 +36,12 @@
     input[type="number"] { width: 65px; text-align: center; }
     input[type="text"]   { width: 120px; }
 
-    button { padding: 5px 9px; border: none; border-radius: 4px; cursor: pointer; margin: 0 3px; }
+    button { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; margin: 0 4px; }
     .btn-primary  { background: #3498db; color: white; }
     .btn-success  { background: #27ae60; color: white; }
     .btn-warning  { background: #f39c12; color: white; }
     .btn-danger   { background: #e74c3c; color: white; }
-    button:hover { opacity: 0.88; }
+    button:hover { opacity: 0.9; }
 
     .form-add-cow { margin: 24px 0; padding: 16px; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
 
@@ -88,6 +88,7 @@
   </select></label>
 
   <button class="btn-primary" onclick="exportToExcel()">Export to Excel</button>
+  <button class="btn-success" onclick="saveAsJson()">Save as JSON</button>
   <button class="btn-warning" onclick="unhideAll()">Unhide All</button>
 
   <label style="margin-left:16px">Import JSON: <input type="file" id="importJson" accept=".json"/></label>
@@ -129,32 +130,32 @@
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 let cows = JSON.parse(localStorage.getItem("cowList")) || [
-  {no:"093", name:"RITAH", calving:"2024-05-28", preg:""},
-  {no:"434", name:"SHANA", calving:"2024-10-06", preg:"1.6"},
-  {no:"083", name:"KATHY", calving:"2024-10-27", preg:""},
-  {no:"402", name:"KELLEN", calving:"2024-11-13", preg:""},
-  {no:"098", name:"JACKLINE", calving:"2025-04-12", preg:"0"},
-  {no:"421", name:"EVA", calving:"2025-05-17", preg:"0"},
-  {no:"099", name:"SARAH", calving:"2025-04-20", preg:"0"},
-  {no:"521", name:"KEZA", calving:"2025-03-11", preg:"0"},
-  {no:"539", name:"KIRABO", calving:"2025-04-25", preg:"0"},
-  {no:"403", name:"PEACE", calving:"2025-05-10", preg:"0"},
-  {no:"418", name:"IRENE", calving:"2025-05-17", preg:"0"},
-  {no:"296", name:"JOAN", calving:"2025-05-28", preg:"0"},
-  {no:"511", name:"SIIMA", calving:"2025-06-22", preg:"0"},
-  {no:"021", name:"BIIRA", calving:"2025-06-24", preg:"0"},
-  {no:"502", name:"RUTH", calving:"2024-07-07", preg:"0"},
-  {no:"010", name:"DEBRA", calving:"2025-07-08", preg:"0"},
-  {no:"516", name:"NAKATO", calving:"2025-07-19", preg:"0"},
-  {no:"535", name:"FIONA", calving:"2025-07-21", preg:"0"},
-  {no:"134", name:"BEATRICE", calving:"2025-08-02", preg:"0"},
-  {no:"011", name:"NINA", calving:"2025-08-04", preg:"0"},
+  {no:"093", name:"RITAH",   calving:"2024-05-28", preg:""},
+  {no:"434", name:"SHANA",   calving:"2024-10-06", preg:"1.6"},
+  {no:"083", name:"KATHY",   calving:"2024-10-27", preg:""},
+  {no:"402", name:"KELLEN",  calving:"2024-11-13", preg:""},
+  {no:"098", name:"JACKLINE",calving:"2025-04-12", preg:"0"},
+  {no:"421", name:"EVA",     calving:"2025-05-17", preg:"0"},
+  {no:"099", name:"SARAH",   calving:"2025-04-20", preg:"0"},
+  {no:"521", name:"KEZA",    calving:"2025-03-11", preg:"0"},
+  {no:"539", name:"KIRABO",  calving:"2025-04-25", preg:"0"},
+  {no:"403", name:"PEACE",   calving:"2025-05-10", preg:"0"},
+  {no:"418", name:"IRENE",   calving:"2025-05-17", preg:"0"},
+  {no:"296", name:"JOAN",    calving:"2025-05-28", preg:"0"},
+  {no:"511", name:"SIIMA",   calving:"2025-06-22", preg:"0"},
+  {no:"021", name:"BIIRA",   calving:"2025-06-24", preg:"0"},
+  {no:"502", name:"RUTH",    calving:"2024-07-07", preg:"0"},
+  {no:"010", name:"DEBRA",   calving:"2025-07-08", preg:"0"},
+  {no:"516", name:"NAKATO",  calving:"2025-07-19", preg:"0"},
+  {no:"535", name:"FIONA",   calving:"2025-07-21", preg:"0"},
+  {no:"134", name:"BEATRICE",calving:"2025-08-02", preg:"0"},
+  {no:"011", name:"NINA",    calving:"2025-08-04", preg:"0"},
   {no:"100", name:"KARUNGI", calving:"2025-07-09", preg:"0"},
-  {no:"935", name:"PROSSY", calving:"2025-08-23", preg:"0"},
-  {no:"404", name:"KYOOZI", calving:"2025-08-28", preg:"0"},
-  {no:"013", name:"BELLA", calving:"2025-09-05", preg:"0"},
-  {no:"425", name:"ANGEL", calving:"2025-11-02", preg:"0"},
-  {no:"297", name:"MERCY", calving:"2025-11-30", preg:"0"}
+  {no:"935", name:"PROSSY",  calving:"2025-08-23", preg:"0"},
+  {no:"404", name:"KYOOZI",  calving:"2025-08-28", preg:"0"},
+  {no:"013", name:"BELLA",   calving:"2025-09-05", preg:"0"},
+  {no:"425", name:"ANGEL",   calving:"2025-11-02", preg:"0"},
+  {no:"297", name:"MERCY",   calving:"2025-11-30", preg:"0"}
 ];
 
 let year = 2026;
@@ -185,7 +186,7 @@ function initMonth() {
 }
 
 // ──────────────────────────────────────────────
-// RENDER
+// RENDER (with separate AM/PM net)
 // ──────────────────────────────────────────────
 
 function render() {
@@ -248,11 +249,7 @@ function render() {
 }
 
 function renderDeductions(days, data, dailyAM, dailyPM) {
-  if (!data.deductions) {
-    document.querySelector("tbody").insertAdjacentHTML("beforeend", 
-      '<tr><td colspan="20" style="color:red; padding:20px;">Deductions data missing.</td></tr>');
-    return;
-  }
+  if (!data.deductions) return;
 
   let html = `<tr style="background:#fff3cd">
     <td class="fixed" colspan="5"><b>Deductions & Net</b></td>`;
@@ -261,7 +258,6 @@ function renderDeductions(days, data, dailyAM, dailyPM) {
   const dailyNet = [];
 
   for (let d = 0; d < days; d++) {
-    // AM
     const hAM   = +data.deductions.homeAM?.[d]    || 0;
     const wAM   = +data.deductions.workersAM?.[d] || 0;
     const caAM  = +data.deductions.calvesAM?.[d]  || 0;
@@ -269,7 +265,6 @@ function renderDeductions(days, data, dailyAM, dailyPM) {
     totalDedAM += dedAM;
     const netAM = dailyAM[d] - dedAM;
 
-    // PM
     const hPM   = +data.deductions.homePM?.[d]    || 0;
     const wPM   = +data.deductions.workersPM?.[d] || 0;
     const caPM  = +data.deductions.calvesPM?.[d]  || 0;
@@ -283,16 +278,16 @@ function renderDeductions(days, data, dailyAM, dailyPM) {
     html += `<td class="deduction-cell">
       <div class="deduction-am">
         <strong>AM:</strong><br>
-        Home <input type="number" step="0.1" value="${hAM}" onchange="updateDed(${d},'homeAM',this.value)"><br>
+        Home <input type="number" step="0.1" value="${hAM}"   onchange="updateDed(${d},'homeAM',this.value)"><br>
         Workers <input type="number" step="0.1" value="${wAM}" onchange="updateDed(${d},'workersAM',this.value)"><br>
-        Calf <input type="number" step="0.1" value="${caAM}" onchange="updateDed(${d},'calvesAM',this.value)"><br>
+        Calf <input type="number" step="0.1" value="${caAM}"  onchange="updateDed(${d},'calvesAM',this.value)"><br>
         <div class="net-am-pm">Net AM: ${netAM.toFixed(1)}</div>
       </div>
       <div class="deduction-pm" style="margin-top:12px;">
         <strong>PM:</strong><br>
-        Home <input type="number" step="0.1" value="${hPM}" onchange="updateDed(${d},'homePM',this.value)"><br>
+        Home <input type="number" step="0.1" value="${hPM}"   onchange="updateDed(${d},'homePM',this.value)"><br>
         Workers <input type="number" step="0.1" value="${wPM}" onchange="updateDed(${d},'workersPM',this.value)"><br>
-        Calf <input type="number" step="0.1" value="${caPM}" onchange="updateDed(${d},'calvesPM',this.value)"><br>
+        Calf <input type="number" step="0.1" value="${caPM}"  onchange="updateDed(${d},'calvesPM',this.value)"><br>
         <div class="net-am-pm">Net PM: ${netPM.toFixed(1)}</div>
       </div>
       <div class="net-daily">Daily Net: ${dayNet.toFixed(1)}</div>
@@ -306,7 +301,7 @@ function renderDeductions(days, data, dailyAM, dailyPM) {
   dailyNet.forEach(net => {
     html += `<td colspan="2" class="net-daily">${net.toFixed(1)}</td>`;
   });
-  html += `<td class="net-cell">${(grossMonthly - (totalDedAM + totalDedPM)).toFixed(1)}</td></tr>`;
+  html += `<td class="net-cell">${dailyNet.reduce((a,b)=>a+b,0).toFixed(1)}</td></tr>`;
 
   html += `<tr style="background:#d4edda">
     <td class="fixed" colspan="5"><b>Monthly Net Saleable (L)</b></td>
@@ -317,7 +312,32 @@ function renderDeductions(days, data, dailyAM, dailyPM) {
 }
 
 // ──────────────────────────────────────────────
-// OTHER FUNCTIONS (unchanged from previous working version)
+// NEW: Save as JSON button
+// ──────────────────────────────────────────────
+
+function saveAsJson() {
+  const exportData = {
+    cows: cows,
+    dairyData: state,
+    lastSaved: new Date().toISOString(),
+    version: "1.0"
+  };
+
+  const jsonString = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([jsonString], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `dairy_data_${month}_${year}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ──────────────────────────────────────────────
+// OTHER FUNCTIONS (unchanged)
 // ──────────────────────────────────────────────
 
 function updateProd(i, d, type, val) {
@@ -474,8 +494,9 @@ function importJson(file) {
       if (imported.cows) cows = imported.cows;
       if (imported.dairyData) state = imported.dairyData;
       save(); render();
+      alert("Data imported successfully!");
     } catch (err) {
-      alert("Invalid JSON\n" + err.message);
+      alert("Invalid JSON file.\n" + err.message);
     }
   };
   reader.readAsText(file);
