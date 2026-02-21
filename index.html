@@ -17,13 +17,12 @@
 
     th, td { border: 1px solid #ddd; padding: 7px 9px; text-align: center; font-size: 0.93em; white-space: nowrap; }
 
-    /* Fixed columns */
     th.fixed, td.fixed { position: sticky; left: 0; background: #f1f5f9; z-index: 3; }
-    th.fixed:nth-child(1), td.fixed:nth-child(1) { left: 0;      min-width: 70px; }  /* Tag */
-    th.fixed:nth-child(2), td.fixed:nth-child(2) { left: 70px;   min-width: 140px; } /* Name */
-    th.fixed:nth-child(3), td.fixed:nth-child(3) { left: 210px;  min-width: 110px; } /* Calving */
-    th.fixed:nth-child(4), td.fixed:nth-child(4) { left: 320px;  min-width: 70px;  } /* Preg */
-    th.fixed:nth-child(5), td.fixed:nth-child(5) { left: 390px;  min-width: 140px; } /* Actions */
+    th.fixed:nth-child(1), td.fixed:nth-child(1) { left: 0;      min-width: 70px; }
+    th.fixed:nth-child(2), td.fixed:nth-child(2) { left: 70px;   min-width: 140px; }
+    th.fixed:nth-child(3), td.fixed:nth-child(3) { left: 210px;  min-width: 110px; }
+    th.fixed:nth-child(4), td.fixed:nth-child(4) { left: 320px;  min-width: 70px;  }
+    th.fixed:nth-child(5), td.fixed:nth-child(5) { left: 390px;  min-width: 140px; }
 
     thead th { background: #3498db; color: white; position: sticky; top: 0; z-index: 4; }
     thead th.fixed { z-index: 5; background: #2980b9; }
@@ -57,6 +56,8 @@
     .net-cell       { background: #d4edda; font-weight: bold; font-size: 1.05em; }
 
     .daily-net-row td { background: #e8f5e9; font-weight: bold; }
+
+    .error-message { color: #c0392b; font-weight: bold; padding: 20px; text-align: center; }
   </style>
 </head>
 <body>
@@ -123,7 +124,7 @@
 
 <script>
 // ──────────────────────────────────────────────
-// DATA & CORE
+// DATA
 // ──────────────────────────────────────────────
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -161,14 +162,31 @@ let year = 2026;
 let month = "January";
 let state = JSON.parse(localStorage.getItem("dairyData")) || {};
 
+// ──────────────────────────────────────────────
+// SAFER initMonth
+// ──────────────────────────────────────────────
+
 function getKey() { return year + "_" + month; }
 
 function initMonth() {
   const key = getKey();
+
   if (!state[key]) {
-    const days = new Date(year, MONTHS.indexOf(month) + 1, 0).getDate();
+    const monthIndex = MONTHS.indexOf(month);
+    if (monthIndex === -1) {
+      console.error("Invalid month selected:", month);
+      return { prod: [], deductions: {}, hidden: [] };
+    }
+
+    const days = new Date(year, monthIndex + 1, 0).getDate();
+
+    // Defensive: make sure cows is always valid
+    const safeCows = Array.isArray(cows) ? cows : [];
+
     state[key] = {
-      prod: cows.map(() => ({ am: Array(days).fill(""), pm: Array(days).fill("") })),
+      prod: safeCows.length > 0 
+        ? safeCows.map(() => ({ am: Array(days).fill(""), pm: Array(days).fill("") }))
+        : [],
       deductions: {
         homeAM:    Array(days).fill(""),
         workersAM: Array(days).fill(""),
@@ -177,19 +195,40 @@ function initMonth() {
         workersPM: Array(days).fill(""),
         calvesPM:  Array(days).fill("")
       },
-      hidden: Array(cows.length).fill(false)
+      hidden: Array(safeCows.length).fill(false)
     };
+
+    // Save immediately so next load finds it
+    localStorage.setItem("dairyData", JSON.stringify(state));
   }
+
+  // Final safety net
+  if (!state[key].prod || !Array.isArray(state[key].prod)) {
+    console.warn("Corrupted prod array — resetting");
+    const days = new Date(year, MONTHS.indexOf(month) + 1, 0).getDate();
+    state[key].prod = Array.isArray(cows) && cows.length > 0
+      ? cows.map(() => ({ am: Array(days).fill(""), pm: Array(days).fill("") }))
+      : [];
+    localStorage.setItem("dairyData", JSON.stringify(state));
+  }
+
   return state[key];
 }
 
 // ──────────────────────────────────────────────
-// RENDER
+// RENDER with safety checks
 // ──────────────────────────────────────────────
 
 function render() {
   const data = initMonth();
-  const days = data.prod[0]?.am.length || 31;
+
+  if (!data || !Array.isArray(data.prod)) {
+    document.querySelector("tbody").innerHTML = 
+      '<tr><td colspan="20" class="error-message">Error loading month data. Try changing month/year or clear browser storage.</td></tr>';
+    return;
+  }
+
+  const days = data.prod.length > 0 ? data.prod[0].am.length : 31;
 
   document.getElementById("caption").textContent = `${month} ${year}`;
 
@@ -209,10 +248,10 @@ function render() {
   const dailyGross = Array(days).fill(0);
 
   cows.forEach((cow, i) => {
-    const hidden = data.hidden[i];
+    const hidden = data.hidden[i] ?? false;
     let row = `<tr class="${hidden ? 'hiddenRow' : ''}" data-cow-index="${i}">
-      <td class="fixed editable" ondblclick="editCow(${i}, this, 'no')">${cow.no}</td>
-      <td class="fixed editable" ondblclick="editCow(${i}, this, 'name')">${cow.name}</td>
+      <td class="fixed editable" ondblclick="editCow(${i}, this, 'no')">${cow.no || '-'}</td>
+      <td class="fixed editable" ondblclick="editCow(${i}, this, 'name')">${cow.name || '-'}</td>
       <td class="fixed editable" ondblclick="editCow(${i}, this, 'calving')">${cow.calving || '-'}</td>
       <td class="fixed editable" ondblclick="editCow(${i}, this, 'preg')">${cow.preg || '-'}</td>
       <td class="fixed">
@@ -222,8 +261,8 @@ function render() {
 
     let cowTotal = 0;
     for (let d = 0; d < days; d++) {
-      const am = data.prod[i]?.am[d] || "";
-      const pm = data.prod[i]?.pm[d] || "";
+      const am = data.prod[i]?.am?.[d] ?? "";
+      const pm = data.prod[i]?.pm?.[d] ?? "";
       const amVal = +am || 0;
       const pmVal = +pm || 0;
       if (!hidden) {
@@ -245,6 +284,12 @@ function render() {
 }
 
 function renderDeductions(days, data, grossMonthly, dailyGross) {
+  if (!data.deductions) {
+    document.querySelector("tbody").insertAdjacentHTML("beforeend", 
+      '<tr><td colspan="20" class="error-message">Deductions data missing — month may not be fully initialized.</td></tr>');
+    return;
+  }
+
   let html = `<tr style="background:#fff3cd">
     <td class="fixed" colspan="5"><b>Deductions</b></td>`;
 
@@ -252,16 +297,14 @@ function renderDeductions(days, data, grossMonthly, dailyGross) {
   const dailyNet = [];
 
   for (let d = 0; d < days; d++) {
-    // AM deductions
-    const hAM   = +data.deductions.homeAM[d]    || 0;
-    const wAM   = +data.deductions.workersAM[d] || 0;
-    const caAM  = +data.deductions.calvesAM[d]  || 0;
+    const hAM   = +data.deductions.homeAM?.[d]    || 0;
+    const wAM   = +data.deductions.workersAM?.[d] || 0;
+    const caAM  = +data.deductions.calvesAM?.[d]  || 0;
     const dedAM = hAM + wAM + caAM;
 
-    // PM deductions
-    const hPM   = +data.deductions.homePM[d]    || 0;
-    const wPM   = +data.deductions.workersPM[d] || 0;
-    const caPM  = +data.deductions.calvesPM[d]  || 0;
+    const hPM   = +data.deductions.homePM?.[d]    || 0;
+    const wPM   = +data.deductions.workersPM?.[d] || 0;
+    const caPM  = +data.deductions.calvesPM?.[d]  || 0;
     const dedPM = hPM + wPM + caPM;
 
     const dayDed = dedAM + dedPM;
@@ -272,13 +315,13 @@ function renderDeductions(days, data, grossMonthly, dailyGross) {
 
     html += `<td class="deduction-cell">
       <div class="deduction-am">
-        <strong>AM deductions:</strong><br>
+        <strong>AM:</strong><br>
         Home <input type="number" step="0.1" value="${hAM}"   onchange="updateDed(${d},'homeAM',this.value)"><br>
         Workers <input type="number" step="0.1" value="${wAM}" onchange="updateDed(${d},'workersAM',this.value)"><br>
         Calf <input type="number" step="0.1" value="${caAM}"  onchange="updateDed(${d},'calvesAM',this.value)">
       </div>
       <div class="deduction-pm" style="margin-top:10px;">
-        <strong>PM deductions:</strong><br>
+        <strong>PM:</strong><br>
         Home <input type="number" step="0.1" value="${hPM}"   onchange="updateDed(${d},'homePM',this.value)"><br>
         Workers <input type="number" step="0.1" value="${wPM}" onchange="updateDed(${d},'workersPM',this.value)"><br>
         Calf <input type="number" step="0.1" value="${caPM}"  onchange="updateDed(${d},'calvesPM',this.value)">
@@ -289,7 +332,6 @@ function renderDeductions(days, data, grossMonthly, dailyGross) {
 
   html += `<td class="net-cell">${totalDed.toFixed(1)}</td></tr>`;
 
-  // Daily Net row
   html += `<tr class="daily-net-row">
     <td class="fixed" colspan="5"><b>Daily Net Saleable</b></td>`;
   dailyNet.forEach(net => {
@@ -297,7 +339,6 @@ function renderDeductions(days, data, grossMonthly, dailyGross) {
   });
   html += `<td class="net-cell">${(grossMonthly - totalDed).toFixed(1)}</td></tr>`;
 
-  // Monthly net
   html += `<tr style="background:#d4edda">
     <td class="fixed" colspan="5"><b>Monthly Net Saleable (L)</b></td>
     <td colspan="${days*2}"></td>
@@ -307,21 +348,27 @@ function renderDeductions(days, data, grossMonthly, dailyGross) {
 }
 
 // ──────────────────────────────────────────────
-// OTHER FUNCTIONS (unchanged)
+// REST OF THE FUNCTIONS (unchanged)
 // ──────────────────────────────────────────────
 
 function updateProd(i, d, type, val) {
-  state[getKey()].prod[i][type][d] = val;
+  const key = getKey();
+  if (!state[key]?.prod?.[i]) return;
+  state[key].prod[i][type][d] = val;
   save(); render();
 }
 
 function updateDed(d, type, val) {
-  state[getKey()].deductions[type][d] = val;
+  const key = getKey();
+  if (!state[key]?.deductions?.[type]) return;
+  state[key].deductions[type][d] = val;
   save(); render();
 }
 
 function toggleHide(i) {
-  state[getKey()].hidden[i] = !state[getKey()].hidden[i];
+  const key = getKey();
+  if (!state[key]?.hidden) return;
+  state[key].hidden[i] = !state[key].hidden[i];
   save(); render();
 }
 
@@ -341,9 +388,9 @@ function addNewCow() {
   cows.push({ no, name, calving: calv || "", preg: preg || "" });
 
   Object.keys(state).forEach(key => {
-    const days = state[key].prod[0]?.am.length || 31;
-    state[key].prod.push({ am: Array(days).fill(""), pm: Array(days).fill("") });
-    state[key].hidden.push(false);
+    const days = state[key].prod?.[0]?.am?.length || 31;
+    state[key].prod?.push({ am: Array(days).fill(""), pm: Array(days).fill("") });
+    state[key].hidden?.push(false);
   });
 
   save(); render();
@@ -355,14 +402,15 @@ function addNewCow() {
 }
 
 function deleteCow(index) {
+  if (!cows[index]) return;
   const cow = cows[index];
-  if (!cow) return;
-  if (!confirm(`Delete cow ${cow.no} ${cow.name}? All records will be removed.`)) return;
+
+  if (!confirm(`Delete ${cow.no} ${cow.name}? This cannot be undone.`)) return;
 
   cows.splice(index, 1);
 
   Object.keys(state).forEach(key => {
-    if (state[key].prod && state[key].prod.length > index) {
+    if (state[key].prod?.length > index) {
       state[key].prod.splice(index, 1);
       state[key].hidden.splice(index, 1);
     }
@@ -370,18 +418,17 @@ function deleteCow(index) {
 
   save();
   render();
-  alert(`Cow ${cow.no} ${cow.name} deleted.`);
 }
 
 function unhideAll() {
   const data = initMonth();
-  data.hidden.fill(false);
+  if (data.hidden) data.hidden.fill(false);
   save();
   render();
 }
 
 function editCow(index, cell, field) {
-  const current = cows[index][field] || "";
+  const current = cows[index]?.[field] ?? "";
   let inputHtml;
 
   if (field === "calving") {
@@ -396,6 +443,7 @@ function editCow(index, cell, field) {
 }
 
 function saveCowEdit(index, field, value) {
+  if (!cows[index]) return;
   value = value.trim();
   if (field === "name") cows[index].name = value.toUpperCase();
   else if (field === "no") cows[index].no = value;
@@ -407,7 +455,7 @@ function saveCowEdit(index, field, value) {
 
 function exportToExcel() {
   const data = initMonth();
-  const days = data.prod[0]?.am.length || 31;
+  const days = data.prod?.[0]?.am?.length || 31;
   const ws_data = [];
   const header = ["Tag/No", "Name", "Calving", "Preg"];
   for (let d = 1; d <= days; d++) header.push(`${d} AM`, `${d} PM`);
@@ -416,12 +464,12 @@ function exportToExcel() {
 
   let gross = 0;
   cows.forEach((cow, i) => {
-    if (data.hidden[i]) return;
-    const row = [cow.no, cow.name, cow.calving || "", cow.preg || ""];
+    if (data.hidden?.[i]) return;
+    const row = [cow.no || '', cow.name || '', cow.calving || '', cow.preg || ''];
     let tot = 0;
     for (let d = 0; d < days; d++) {
-      const a = +data.prod[i]?.am[d] || 0;
-      const p = +data.prod[i]?.pm[d] || 0;
+      const a = +data.prod?.[i]?.am?.[d] || 0;
+      const p = +data.prod?.[i]?.pm?.[d] || 0;
       row.push(a || "", p || "");
       tot += a + p;
     }
@@ -434,8 +482,8 @@ function exportToExcel() {
   let dedTotal = 0;
   for (let d = 0; d < days; d++) {
     const dayDed =
-      (+data.deductions.homeAM[d]||0) + (+data.deductions.workersAM[d]||0) + (+data.deductions.calvesAM[d]||0) +
-      (+data.deductions.homePM[d]||0) + (+data.deductions.workersPM[d]||0) + (+data.deductions.calvesPM[d]||0);
+      (+data.deductions?.homeAM?.[d]||0) + (+data.deductions?.workersAM?.[d]||0) + (+data.deductions?.calvesAM?.[d]||0) +
+      (+data.deductions?.homePM?.[d]||0) + (+data.deductions?.workersPM?.[d]||0) + (+data.deductions?.calvesPM?.[d]||0);
     dedRow.push(dayDed || "");
     dedTotal += dayDed;
   }
@@ -454,13 +502,13 @@ function importJson(file) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const data = JSON.parse(e.target.result);
-      if (data.cows) cows = data.cows;
-      if (data.dairyData) state = data.dairyData;
+      const imported = JSON.parse(e.target.result);
+      if (imported.cows) cows = imported.cows;
+      if (imported.dairyData) state = imported.dairyData;
       save();
       render();
     } catch (err) {
-      alert("Invalid JSON\n" + err.message);
+      alert("Invalid JSON file.\n" + err.message);
     }
   };
   reader.readAsText(file);
@@ -469,17 +517,17 @@ function importJson(file) {
 function updateDashboard(days, data) {
   const totals = [];
   cows.forEach((c,i) => {
-    if (data.hidden[i]) return;
+    if (data.hidden?.[i]) return;
     let t = 0;
     for (let d = 0; d < days; d++) {
-      t += (+data.prod[i]?.am[d]||0) + (+data.prod[i]?.pm[d]||0);
+      t += (+data.prod?.[i]?.am?.[d]||0) + (+data.prod?.[i]?.pm?.[d]||0);
     }
     totals.push({name: c.name, total: t});
   });
   totals.sort((a,b) => b.total - a.total);
 
-  document.getElementById("topList").innerHTML = totals.slice(0,5).map(c => `<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
-  document.getElementById("lowList").innerHTML = totals.slice(-5).reverse().map(c => `<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
+  document.getElementById("topList").innerHTML = totals.slice(0,5).map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
+  document.getElementById("lowList").innerHTML = totals.slice(-5).reverse().map(c=>`<li>${c.name} — ${c.total.toFixed(1)} L</li>`).join("");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
